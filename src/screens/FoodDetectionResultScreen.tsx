@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
-import { COLORS } from '../theme/colors';
+import { COLORS, BORDER_RADIUS } from '../theme/colors';
 
 interface FoodDetectionResultScreenProps {
   onBack: () => void;

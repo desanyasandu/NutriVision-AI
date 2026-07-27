@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { DiseaseRiskCard } from '../components/DiseaseRiskCard';
-import { COLORS } from '../theme/colors';
+import { COLORS, BORDER_RADIUS } from '../theme/colors';
 
 interface DiseaseRiskAnalysisScreenProps {
   onBack: () => void;
@@ -24,6 +24,13 @@ export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps>
       <Header title="Disease Risk Analysis" subtitle="AI Health Risk Estimator" showBack onBack={onBack} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.medicalDisclaimer}>
+          <Ionicons name="alert-circle" size={20} color={COLORS.danger} />
+          <Text style={styles.medicalDisclaimerText}>
+            For informational purposes only. Not a medical diagnosis. Consult a healthcare professional for any concerns.
+          </Text>
+        </View>
+
         {/* Banner Summary */}
         <View style={styles.banner}>
           <View style={styles.iconBox}>
@@ -79,6 +86,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
+    paddingTop: 10,
+  },
+  medicalDisclaimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderRadius: BORDER_RADIUS.lg,
+    padding: 12,
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11,
+    color: COLORS.textPrimary,
+    fontWeight: '600',
+    flex: 1,
+    lineHeight: 15,
   },
   banner: {
     flexDirection: 'row',

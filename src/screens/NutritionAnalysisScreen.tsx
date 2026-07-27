@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
-import { COLORS } from '../theme/colors';
+import { COLORS, BORDER_RADIUS } from '../theme/colors';
 
 interface NutritionAnalysisScreenProps {
   onBack: () => void;
@@ -41,7 +41,14 @@ export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = (
       <Header title="Nutrition Analysis" subtitle={food.name} showBack onBack={onBack} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Health Score Banner */}
+        <View style={styles.medicalDisclaimer}>
+          <Ionicons name="alert-circle" size={16} color={COLORS.danger} />
+          <Text style={styles.medicalDisclaimerText}>
+            Nutritional estimates for reference only. Not medical advice.
+          </Text>
+        </View>
+
+        {/* Health Score Banner */}}
         <View style={styles.scoreBanner}>
           <View style={styles.scoreLeft}>
             <Text style={styles.bannerTitle}>Health Impact Score</Text>
@@ -107,6 +114,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
+    paddingTop: 10,
+  },
+  medicalDisclaimer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
+  medicalDisclaimerText: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+    flex: 1,
   },
   scoreBanner: {
     flexDirection: 'row',
