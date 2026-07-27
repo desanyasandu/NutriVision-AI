@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
+    color: COLORS.primary,
+    fontWeight: '700',
     marginBottom: 4,
   },
   title: {
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     width: 74,
     height: 74,
     borderRadius: 37,
-    backgroundColor: 'rgba(33, 118, 255, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
     borderWidth: 3,
     borderColor: COLORS.primary,
     alignItems: 'center',
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   scoreNumber: {
     fontSize: 24,
     fontWeight: '900',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
     lineHeight: 26,
   },
   scoreSub: {
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   progressBarBg: {
     height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#E2E8F0',
     borderRadius: 4,
     overflow: 'hidden',
   },
