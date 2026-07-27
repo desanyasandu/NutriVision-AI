@@ -20,5 +20,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    minHeight: '100vh' as any,
   },
 });
