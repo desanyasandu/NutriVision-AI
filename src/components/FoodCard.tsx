@@ -24,7 +24,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({ food, onPress }) => {
           <View
             style={[
               styles.scorePill,
-              { backgroundColor: isHealthy ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' },
+              { backgroundColor: isHealthy ? 'rgba(33, 118, 255, 0.15)' : 'rgba(247, 152, 36, 0.15)' },
             ]}
           >
             <Text style={[styles.scoreText, { color: isHealthy ? COLORS.primary : COLORS.danger }]}>
