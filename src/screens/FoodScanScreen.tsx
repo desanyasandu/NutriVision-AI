@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components/Header';
+import { StepProgressBar } from '../components/StepProgressBar';
 import { COLORS } from '../theme/colors';
 
 interface FoodScanScreenProps {
@@ -26,20 +27,27 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
   return (
     <View style={styles.container}>
       <Header
-        title="Food Scanner"
-        subtitle="AI Food Recognition"
+        title="Food Vision Scanner"
+        subtitle="AI Object & Ingredient Detection"
         showBack
         onBack={onBack}
         rightAction={
-          <TouchableOpacity onPress={() => setFlash(!flash)}>
+          <TouchableOpacity
+            onPress={() => setFlash(!flash)}
+            style={styles.flashBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle Camera Flash"
+          >
             <Ionicons
               name={flash ? 'flash' : 'flash-outline'}
               size={22}
-              color={flash ? COLORS.warning : COLORS.textPrimary}
+              color={flash ? COLORS.secondary : COLORS.jetBlack}
             />
           </TouchableOpacity>
         }
       />
+
+      <StepProgressBar currentStep={1} />
 
       {/* Camera Viewfinder */}
       <View style={styles.viewfinderContainer}>
@@ -53,19 +61,21 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
           <View style={[styles.corner, styles.bottomRight]} />
 
           <View style={styles.scanInstructionBadge}>
-            <Ionicons name="scan-outline" size={16} color={COLORS.primaryLight} />
-            <Text style={styles.scanInstructionText}>Place food inside frame</Text>
+            <Ionicons name="scan-outline" size={16} color={COLORS.primary} />
+            <Text style={styles.scanInstructionText}>Position food inside frame</Text>
           </View>
         </View>
       </View>
 
-      {/* Food Preset Selector for Prototype Demo */}
+      {/* Sample Scan Preset Selector */}
       <View style={styles.demoPresetContainer}>
-        <Text style={styles.demoLabel}>Demo Sample Selector:</Text>
+        <Text style={styles.demoLabel}>Sample Meal Presets (For Demo Testing):</Text>
         <View style={styles.presetButtons}>
           <TouchableOpacity
             style={[styles.presetBtn, selectedPreset === 'burger' && styles.presetBtnActive]}
             onPress={() => setSelectedPreset('burger')}
+            accessibilityRole="button"
+            accessibilityLabel="Select Cheese Burger Preset"
           >
             <Text style={[styles.presetText, selectedPreset === 'burger' && styles.presetTextActive]}>
               Cheese Burger
@@ -75,9 +85,11 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
           <TouchableOpacity
             style={[styles.presetBtn, selectedPreset === 'salad' && styles.presetBtnActive]}
             onPress={() => setSelectedPreset('salad')}
+            accessibilityRole="button"
+            accessibilityLabel="Select Chicken Salad Preset"
           >
             <Text style={[styles.presetText, selectedPreset === 'salad' && styles.presetTextActive]}>
-              Chicken Salad
+              Grilled Chicken Salad
             </Text>
           </TouchableOpacity>
         </View>
@@ -85,22 +97,38 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
 
       {/* Bottom Camera Action Bar */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.sideBtn} onPress={onVoiceScan}>
-          <Ionicons name="mic-outline" size={24} color={COLORS.textPrimary} />
-          <Text style={styles.sideBtnText}>Voice</Text>
+        <TouchableOpacity
+          style={styles.sideBtn}
+          onPress={onVoiceScan}
+          accessibilityRole="button"
+          accessibilityLabel="Switch to Voice Scan & Assistant"
+        >
+          <Ionicons name="mic-outline" size={24} color={COLORS.jetBlack} />
+          <Text style={styles.sideBtnText}>Voice Scan</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.shutterBtn} onPress={onScanComplete} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.shutterBtn}
+          onPress={onScanComplete}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Capture Food Photo"
+        >
           <View style={styles.shutterInner} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.sideBtn} onPress={onScanComplete}>
-          <Ionicons name="images-outline" size={24} color={COLORS.textPrimary} />
+        <TouchableOpacity
+          style={styles.sideBtn}
+          onPress={onScanComplete}
+          accessibilityRole="button"
+          accessibilityLabel="Choose photo from Gallery"
+        >
+          <Ionicons name="images-outline" size={24} color={COLORS.jetBlack} />
           <Text style={styles.sideBtnText}>Gallery</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.hintText}>Tip: You can edit ingredients after analysis</Text>
+      <Text style={styles.hintText}>Tip: You can edit or refine ingredients after analysis</Text>
     </View>
   );
 };
@@ -110,10 +138,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  flashBtn: {
+    minHeight: 44,
+    minWidth: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   viewfinderContainer: {
     flex: 1,
-    margin: 20,
-    borderRadius: 24,
+    marginHorizontal: 20,
+    marginVertical: 12,
+    borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
@@ -168,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(11, 15, 25, 0.75)',
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -177,17 +212,18 @@ const styles = StyleSheet.create({
   },
   scanInstructionText: {
     fontSize: 12,
-    color: COLORS.textPrimary,
-    fontWeight: '600',
+    color: COLORS.jetBlack,
+    fontWeight: '700',
   },
   demoPresetContainer: {
     paddingHorizontal: 20,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   demoLabel: {
     fontSize: 11,
-    color: COLORS.textMuted,
+    color: COLORS.textSecondary,
     marginBottom: 6,
+    fontWeight: '600',
   },
   presetButtons: {
     flexDirection: 'row',
@@ -195,16 +231,18 @@ const styles = StyleSheet.create({
   },
   presetBtn: {
     flex: 1,
-    backgroundColor: COLORS.cardBg,
-    paddingVertical: 10,
+    backgroundColor: COLORS.white,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   presetBtnActive: {
     borderColor: COLORS.primary,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
   },
   presetText: {
     fontSize: 13,
@@ -212,7 +250,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   presetTextActive: {
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
+    fontWeight: '800',
   },
   bottomBar: {
     flexDirection: 'row',
@@ -224,10 +263,14 @@ const styles = StyleSheet.create({
   sideBtn: {
     alignItems: 'center',
     gap: 4,
+    minHeight: 44,
+    minWidth: 44,
+    justifyContent: 'center',
   },
   sideBtnText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: COLORS.jetBlack,
+    fontWeight: '600',
   },
   shutterBtn: {
     width: 72,

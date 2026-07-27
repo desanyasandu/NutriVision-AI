@@ -11,6 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
+import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
+import { StepProgressBar } from '../components/StepProgressBar';
 import { COLORS } from '../theme/colors';
 
 interface FoodDetectionResultScreenProps {
@@ -32,6 +34,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
     name: 'Cheese Burger',
     category: 'Fast Food',
     confidence: 97,
+    confidenceInterval: '±3.8%',
     healthScore: 42,
     calories: 680,
     proteinGrams: 28,
@@ -40,7 +43,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
     sugarGrams: 12,
     sodiumMg: 1150,
     ingredients: ['Bun', 'Cheese', 'Beef Patty', 'Onion', 'Sauce', 'Pickles'],
-    diseaseWarnings: ['High Saturated Fat', 'High Sodium (Hypertension risk)'],
+    diseaseWarnings: ['High Saturated Fat', 'High Sodium (Hypertension factor)'],
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80',
     scannedAt: 'Just Now',
   };
@@ -62,7 +65,8 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
 
   return (
     <View style={styles.container}>
-      <Header title="Food Result" subtitle="AI Detection Summary" showBack onBack={onBack} />
+      <Header title="Food Result" subtitle="AI Vision Analysis" showBack onBack={onBack} />
+      <StepProgressBar currentStep={3} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Food Image & Detection Card */}
@@ -72,20 +76,14 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
           <View style={styles.imageOverlay}>
             <View style={styles.badgeRow}>
               <View style={styles.confidenceBadge}>
-                <Ionicons name="checkmark-circle" size={14} color={COLORS.primaryLight} />
-                <Text style={styles.confidenceText}>Confidence: {food.confidence}%</Text>
+                <Ionicons name="checkmark-circle" size={14} color={COLORS.primary} />
+                <Text style={styles.confidenceText}>
+                  AI Confidence: ~{food.confidence}% ({food.confidenceInterval || '±3.8%'})
+                </Text>
               </View>
 
-              <View
-                style={[
-                  styles.scoreBadge,
-                  {
-                    backgroundColor:
-                      food.healthScore >= 70 ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)',
-                  },
-                ]}
-              >
-                <Text style={styles.scoreBadgeText}>Score: {food.healthScore}/100</Text>
+              <View style={styles.scoreBadge}>
+                <Text style={styles.scoreBadgeText}>Health Score: {food.healthScore}/100</Text>
               </View>
             </View>
           </View>
@@ -94,20 +92,34 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
         {/* Title & Category */}
         <View style={styles.infoSection}>
           <Text style={styles.foodName}>{food.name}</Text>
-          <Text style={styles.categoryText}>{food.category} • Detected via AI Computer Vision</Text>
+          <Text style={styles.categoryText}>
+            {food.category} • Detected via Multi-Modal Computer Vision
+          </Text>
         </View>
 
-        {/* Ingredients Section (Slide 7 Screen 5) */}
+        {/* Medical Disclaimer Banner */}
+        <MedicalDisclaimerBox compact />
+
+        {/* Ingredients Section */}
         <View style={styles.sectionBox}>
           <View style={styles.sectionHeader}>
             <View style={styles.titleWithIcon}>
               <Ionicons name="list" size={18} color={COLORS.primary} />
-              <Text style={styles.sectionTitle}>Detected Ingredients</Text>
+              <Text style={styles.sectionTitle}>Identified Ingredients</Text>
             </View>
 
-            <TouchableOpacity style={styles.editBtn} onPress={() => setIsEditing(!isEditing)}>
-              <Ionicons name={isEditing ? 'checkmark' : 'create-outline'} size={16} color={COLORS.primaryLight} />
-              <Text style={styles.editBtnText}>{isEditing ? 'Done' : 'Edit Ingredients'}</Text>
+            <TouchableOpacity
+              style={styles.editBtn}
+              onPress={() => setIsEditing(!isEditing)}
+              accessibilityRole="button"
+              accessibilityLabel="Edit Detected Ingredients"
+            >
+              <Ionicons
+                name={isEditing ? 'checkmark' : 'create-outline'}
+                size={16}
+                color={COLORS.primary}
+              />
+              <Text style={styles.editBtnText}>{isEditing ? 'Done' : 'Edit List'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -116,8 +128,13 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
               <View key={idx} style={styles.ingredientChip}>
                 <Text style={styles.ingredientText}>{item}</Text>
                 {isEditing && (
-                  <TouchableOpacity onPress={() => removeIngredient(idx)} style={styles.removeBtn}>
-                    <Ionicons name="close-circle" size={16} color={COLORS.danger} />
+                  <TouchableOpacity
+                    onPress={() => removeIngredient(idx)}
+                    style={styles.removeBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove ingredient ${item}`}
+                  >
+                    <Ionicons name="close-circle" size={18} color={COLORS.danger} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -133,7 +150,12 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
                 value={newIngredient}
                 onChangeText={setNewIngredient}
               />
-              <TouchableOpacity style={styles.addBtn} onPress={addIngredient}>
+              <TouchableOpacity
+                style={styles.addBtn}
+                onPress={addIngredient}
+                accessibilityRole="button"
+                accessibilityLabel="Add Ingredient Button"
+              >
                 <Ionicons name="add" size={20} color={COLORS.white} />
               </TouchableOpacity>
             </View>
@@ -143,7 +165,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
         {/* Quick Nutrition Highlights */}
         <View style={styles.macroGrid}>
           <View style={styles.macroCard}>
-            <Ionicons name="flame" size={18} color={COLORS.warning} />
+            <Ionicons name="flame" size={18} color={COLORS.secondary} />
             <Text style={styles.macroVal}>{food.calories}</Text>
             <Text style={styles.macroLabel}>Calories (kcal)</Text>
           </View>
@@ -157,11 +179,11 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
           <View style={styles.macroCard}>
             <Ionicons name="water" size={18} color={COLORS.danger} />
             <Text style={styles.macroVal}>{food.fatGrams}g</Text>
-            <Text style={styles.macroLabel}>Fat</Text>
+            <Text style={styles.macroLabel}>Total Fat</Text>
           </View>
 
           <View style={styles.macroCard}>
-            <Ionicons name="cube" size={18} color={COLORS.accent} />
+            <Ionicons name="cube" size={18} color={COLORS.primaryLight} />
             <Text style={styles.macroVal}>{food.carbsGrams}g</Text>
             <Text style={styles.macroLabel}>Carbs</Text>
           </View>
@@ -169,19 +191,37 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
 
         {/* Action Buttons Stack */}
         <View style={styles.actionButtonsStack}>
-          <TouchableOpacity style={styles.primaryActionBtn} onPress={onViewNutrition} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.primaryActionBtn}
+            onPress={onViewNutrition}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="View Full Nutrition Analysis"
+          >
             <Ionicons name="nutrition-outline" size={20} color={COLORS.white} />
-            <Text style={styles.primaryActionText}>View Full Nutrition Analysis</Text>
+            <Text style={styles.primaryActionText}>View Detailed Nutrition Facts</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryActionBtn} onPress={onCheckDisease} activeOpacity={0.85}>
-            <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primaryLight} />
-            <Text style={styles.secondaryActionText}>Check Existing Disease Compatibility</Text>
+          <TouchableOpacity
+            style={styles.secondaryActionBtn}
+            onPress={onCheckDisease}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Check Disease Compatibility"
+          >
+            <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.secondaryActionText}>Check Existing Condition Safeguards</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.agentActionBtn} onPress={onAskAgent} activeOpacity={0.85}>
-            <Ionicons name="sparkles" size={20} color={COLORS.secondaryLight} />
-            <Text style={styles.agentActionText}>Ask AI Agent for Healthier Alternatives</Text>
+          <TouchableOpacity
+            style={styles.agentActionBtn}
+            onPress={onAskAgent}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Ask AI Companion for Healthier Meal Alternatives"
+          >
+            <Ionicons name="sparkles" size={20} color={COLORS.white} />
+            <Text style={styles.agentActionText}>Ask AI Companion for Meal Substitutes</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -198,10 +238,10 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   imageCard: {
-    height: 220,
+    height: 200,
     marginHorizontal: 20,
     marginTop: 12,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
@@ -224,7 +264,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(11, 15, 25, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -233,13 +273,14 @@ const styles = StyleSheet.create({
   },
   confidenceText: {
     fontSize: 11,
-    color: COLORS.textPrimary,
-    fontWeight: '600',
+    color: COLORS.jetBlack,
+    fontWeight: '700',
   },
   scoreBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
+    backgroundColor: COLORS.jetBlack,
   },
   scoreBadgeText: {
     fontSize: 12,
@@ -248,12 +289,12 @@ const styles = StyleSheet.create({
   },
   infoSection: {
     paddingHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
   },
   foodName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
   },
   categoryText: {
     fontSize: 12,
@@ -263,9 +304,9 @@ const styles = StyleSheet.create({
   sectionBox: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -281,19 +322,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
   },
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    minHeight: 44,
+    paddingHorizontal: 8,
   },
   editBtnText: {
     fontSize: 12,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   ingredientsChipsRow: {
     flexDirection: 'row',
@@ -304,19 +347,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: COLORS.cardBorder,
   },
   ingredientText: {
     fontSize: 13,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
+    fontWeight: '600',
   },
   removeBtn: {
-    marginLeft: 2,
+    padding: 4,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   addInputRow: {
     flexDirection: 'row',
@@ -325,17 +371,19 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     fontSize: 13,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    minHeight: 44,
   },
   addBtn: {
-    width: 40,
+    width: 44,
+    height: 44,
     backgroundColor: COLORS.primary,
     borderRadius: 10,
     alignItems: 'center',
@@ -344,7 +392,7 @@ const styles = StyleSheet.create({
   macroGrid: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    marginVertical: 16,
+    marginVertical: 14,
     gap: 8,
   },
   macroCard: {
@@ -359,12 +407,12 @@ const styles = StyleSheet.create({
   macroVal: {
     fontSize: 15,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     marginTop: 4,
   },
   macroLabel: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   actionButtonsStack: {
@@ -379,10 +427,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 14,
+    minHeight: 48,
   },
   primaryActionText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.white,
   },
   secondaryActionBtn: {
@@ -395,26 +444,26 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.primary,
+    minHeight: 48,
   },
   secondaryActionText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
   },
   agentActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    backgroundColor: COLORS.secondary,
     paddingVertical: 14,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.secondary,
+    minHeight: 48,
   },
   agentActionText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.secondaryLight,
+    fontWeight: '800',
+    color: COLORS.white,
   },
 });

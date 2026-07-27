@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
+import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
 import { COLORS } from '../theme/colors';
 
 interface AIAgentCoachScreenProps {
@@ -22,11 +23,16 @@ interface AIAgentCoachScreenProps {
 export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, onNavigateToTwin }) => {
   const { chatMessages, addChatMessage } = useApp();
   const [inputText, setInputText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = () => {
     if (inputText.trim()) {
       addChatMessage(inputText.trim(), 'user');
       setInputText('');
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 1000);
     }
   };
 
@@ -42,30 +48,36 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Header
-        title="NutriVision AI Agent"
-        subtitle="Autonomous Health & NCD Coach"
+        title="AI Health Companion"
+        subtitle="Conversational Dietary Assistant"
         showBack
         onBack={onBack}
         rightAction={
-          <TouchableOpacity onPress={onNavigateToTwin} style={styles.headerBtn}>
-            <Ionicons name="body-outline" size={22} color={COLORS.secondaryLight} />
+          <TouchableOpacity
+            onPress={onNavigateToTwin}
+            style={styles.headerBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Open Digital Health Twin"
+          >
+            <Ionicons name="body-outline" size={22} color={COLORS.primary} />
           </TouchableOpacity>
         }
       />
 
-      {/* Proactive Agent Context Ribbon */}
+      {/* Context Ribbon */}
       <View style={styles.agentContextRibbon}>
         <View style={styles.agentAvatar}>
           <Ionicons name="hardware-chip-outline" size={16} color={COLORS.primary} />
         </View>
         <Text style={styles.agentContextText}>
-          <Text style={styles.boldText}>Agent Active: </Text>
-          Evaluating 5 NCD Risk Models • User Profile (Migraine, Pre-diabetes)
+          <Text style={styles.boldText}>AI Status: Active </Text> • Evaluating dietary metrics against user profile
         </Text>
       </View>
 
       {/* Chat Messages Log */}
       <ScrollView contentContainerStyle={styles.chatList} showsVerticalScrollIndicator={false}>
+        <MedicalDisclaimerBox compact />
+
         {chatMessages.map((msg) => {
           const isUser = msg.sender === 'user';
           return (
@@ -92,13 +104,12 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
                   {msg.text}
                 </Text>
 
-                {/* Recommendations Chips (Slide 7 Screen 10) */}
                 {msg.recommendations && msg.recommendations.length > 0 && (
                   <View style={styles.recommendationsContainer}>
-                    <Text style={styles.recsTitle}>Proactive Meal Suggestions:</Text>
+                    <Text style={styles.recsTitle}>Suggested Meal Alternatives:</Text>
                     {msg.recommendations.map((rec, i) => (
                       <View key={i} style={styles.recItem}>
-                        <Ionicons name="restaurant-outline" size={14} color={COLORS.primaryLight} />
+                        <Ionicons name="restaurant-outline" size={14} color={COLORS.primary} />
                         <Text style={styles.recItemText}>{rec}</Text>
                       </View>
                     ))}
@@ -110,6 +121,17 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
             </View>
           );
         })}
+
+        {isTyping && (
+          <View style={[styles.messageBubbleContainer, styles.agentBubbleAlign]}>
+            <View style={styles.agentBadge}>
+              <Ionicons name="sparkles" size={14} color={COLORS.primary} />
+            </View>
+            <View style={[styles.messageBubble, styles.agentBubble]}>
+              <Text style={styles.typingText}>NutriVision AI is evaluating response...</Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       {/* Quick Suggestions Chips */}
@@ -121,9 +143,13 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
               style={styles.promptChip}
               onPress={() => {
                 addChatMessage(prompt, 'user');
+                setIsTyping(true);
+                setTimeout(() => setIsTyping(false), 1000);
               }}
+              accessibilityRole="button"
+              accessibilityLabel={`Ask prompt: ${prompt}`}
             >
-              <Ionicons name="flash-outline" size={12} color={COLORS.primaryLight} />
+              <Ionicons name="flash-outline" size={12} color={COLORS.primary} />
               <Text style={styles.promptChipText}>{prompt}</Text>
             </TouchableOpacity>
           ))}
@@ -141,7 +167,13 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
           onSubmitEditing={handleSend}
         />
 
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={handleSend}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Send message to AI Companion"
+        >
           <Ionicons name="send" size={18} color={COLORS.white} />
         </TouchableOpacity>
       </View>
@@ -155,9 +187,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   headerBtn: {
-    padding: 6,
-    backgroundColor: COLORS.cardBg,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -165,32 +200,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(16, 185, 129, 0.2)',
+    borderBottomColor: 'rgba(33, 118, 255, 0.15)',
   },
   agentAvatar: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   agentContextText: {
     fontSize: 11,
-    color: COLORS.primaryLight,
+    color: COLORS.jetBlack,
     flex: 1,
   },
   boldText: {
     fontWeight: '700',
+    color: COLORS.primary,
   },
   chatList: {
     paddingHorizontal: 16,
-    paddingVertical: 16,
-    gap: 14,
+    paddingVertical: 12,
+    gap: 12,
   },
   messageBubbleContainer: {
     flexDirection: 'row',
@@ -208,7 +244,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -216,7 +252,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   messageBubble: {
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 14,
   },
   userBubble: {
@@ -224,44 +260,49 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   agentBubble: {
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     borderBottomLeftRadius: 4,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   messageText: {
     fontSize: 14,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     lineHeight: 20,
   },
   userMessageText: {
     color: COLORS.white,
   },
+  typingText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
+  },
   recommendationsContainer: {
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: COLORS.cardBorder,
     gap: 6,
   },
   recsTitle: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
     marginBottom: 4,
   },
   recItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
   },
   recItemText: {
     fontSize: 12,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     fontWeight: '600',
   },
   timestamp: {
@@ -279,17 +320,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 14,
     marginRight: 8,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    minHeight: 44,
   },
   promptChipText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: COLORS.jetBlack,
+    fontWeight: '600',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -297,19 +340,20 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     borderTopWidth: 1,
     borderTopColor: COLORS.cardBorder,
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#F8FAFC',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     fontSize: 14,
     maxHeight: 100,
+    minHeight: 44,
   },
   sendButton: {
     width: 44,

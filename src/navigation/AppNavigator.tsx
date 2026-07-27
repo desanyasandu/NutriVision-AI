@@ -73,7 +73,7 @@ export const AppNavigator: React.FC = () => {
       case 'DiseaseRiskAnalysis':
         return (
           <DiseaseRiskAnalysisScreen
-            onBack={() => navigateTo('NutritionAnalysis')}
+            onBack={() => navigateTo('FoodDetectionResult')}
             onNavigateToChecker={() => navigateTo('ExistingDiseaseChecker')}
             onAskAgent={() => navigateTo('AIAgentCoach')}
           />

@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { DiseaseRiskCard } from '../components/DiseaseRiskCard';
+import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
+import { StepProgressBar } from '../components/StepProgressBar';
 import { COLORS } from '../theme/colors';
 
 interface DiseaseRiskAnalysisScreenProps {
@@ -22,32 +24,28 @@ export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps>
   return (
     <View style={styles.container}>
       <Header title="Disease Risk Analysis" subtitle="AI Health Risk Estimator" showBack onBack={onBack} />
+      <StepProgressBar currentStep={4} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Banner Summary */}
         <View style={styles.banner}>
           <View style={styles.iconBox}>
-            <Ionicons name="git-network-outline" size={24} color={COLORS.secondaryLight} />
+            <Ionicons name="git-network-outline" size={24} color={COLORS.primary} />
           </View>
 
           <View style={styles.bannerTextContent}>
-            <Text style={styles.bannerTitle}>Predictive NCD Risk Model</Text>
+            <Text style={styles.bannerTitle}>Predictive Health Risk Models</Text>
             <Text style={styles.bannerSub}>
-              Based on long-term eating habits, ingredient analysis, and user demographic data.
+              Statistical estimates based on long-term eating habits, dietary guidelines, and user demographics.
             </Text>
           </View>
         </View>
 
-        {/* Disclaimer Note */}
-        <View style={styles.disclaimerBox}>
-          <Ionicons name="information-circle-outline" size={16} color={COLORS.textMuted} />
-          <Text style={styles.disclaimerText}>
-            Risk levels are estimated machine learning models and not a clinical diagnosis.
-          </Text>
-        </View>
+        {/* Prominent Medical Disclaimer */}
+        <MedicalDisclaimerBox />
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Non-Communicable Disease (NCD) Risk Breakdown</Text>
+          <Text style={styles.sectionTitle}>Chronic Health Risk Factor Breakdown</Text>
         </View>
 
         {/* Render Risk Cards */}
@@ -55,16 +53,28 @@ export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps>
           <DiseaseRiskCard key={idx} risk={risk} />
         ))}
 
-        {/* Navigation Buttons */}
+        {/* Navigation Action Stack */}
         <View style={styles.btnRow}>
-          <TouchableOpacity style={styles.checkerBtn} onPress={onNavigateToChecker} activeOpacity={0.85}>
-            <Ionicons name="shield-checkmark" size={18} color={COLORS.primaryLight} />
-            <Text style={styles.checkerBtnText}>Check Disease Compatibility</Text>
+          <TouchableOpacity
+            style={styles.checkerBtn}
+            onPress={onNavigateToChecker}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Check Food Compatibility for Medical Conditions"
+          >
+            <Ionicons name="shield-checkmark" size={18} color={COLORS.primary} />
+            <Text style={styles.checkerBtnText}>Check Condition Safeguards</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.agentBtn} onPress={onAskAgent} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.agentBtn}
+            onPress={onAskAgent}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Ask AI Companion for Diet Modifications"
+          >
             <Ionicons name="sparkles" size={18} color={COLORS.white} />
-            <Text style={styles.agentBtnText}>Ask AI Agent to Fix Diet</Text>
+            <Text style={styles.agentBtnText}>Ask AI Companion to Fix Diet Plan</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -84,11 +94,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -96,7 +106,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -106,7 +116,7 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
   },
   bannerSub: {
     fontSize: 11,
@@ -114,29 +124,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 16,
   },
-  disclaimerBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 6,
-  },
-  disclaimerText: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    fontStyle: 'italic',
-    flex: 1,
-  },
   sectionHeader: {
     paddingHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 16,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    fontWeight: '800',
+    color: COLORS.jetBlack,
   },
   btnRow: {
     paddingHorizontal: 20,
@@ -148,16 +144,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.primary,
+    minHeight: 48,
   },
   checkerBtnText: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
   },
   agentBtn: {
     flexDirection: 'row',
@@ -167,10 +164,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary,
     paddingVertical: 14,
     borderRadius: 14,
+    minHeight: 48,
   },
   agentBtnText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.white,
   },
 });

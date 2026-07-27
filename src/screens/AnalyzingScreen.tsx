@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { StepProgressBar } from '../components/StepProgressBar';
 import { COLORS } from '../theme/colors';
 
 interface AnalyzingScreenProps {
@@ -9,17 +10,17 @@ interface AnalyzingScreenProps {
 
 export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) => {
   const [progress, setProgress] = useState(15);
-  const [stepText, setStepText] = useState('Detecting food items & bounding box...');
+  const [stepText, setStepText] = useState('Detecting food items & bounding frame...');
 
   useEffect(() => {
     const timer1 = setTimeout(() => {
       setProgress(45);
-      setStepText('Extracting ingredients list (NLP / OCR)...');
+      setStepText('Extracting ingredients list (Multi-Modal Vision)...');
     }, 800);
 
     const timer2 = setTimeout(() => {
       setProgress(75);
-      setStepText('Calculating nutrition & disease risk metrics...');
+      setStepText('Evaluating nutrition facts & chronic disease risks...');
     }, 1600);
 
     const timer3 = setTimeout(() => {
@@ -37,28 +38,28 @@ export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) 
 
   return (
     <View style={styles.container}>
-      <View style={styles.glow} />
+      <StepProgressBar currentStep={2} />
 
       <View style={styles.centerBox}>
-        {/* Animated Circle Simulation */}
+        {/* Animated Progress Ring Circle */}
         <View style={styles.progressCircle}>
-          <Ionicons name="hardware-chip" size={48} color={COLORS.primary} />
+          <Ionicons name="hardware-chip" size={44} color={COLORS.primary} />
           <Text style={styles.percentText}>{progress}%</Text>
         </View>
 
-        <Text style={styles.title}>Analyzing Food...</Text>
-        <Text style={styles.subText}>AI Agent Core Processing</Text>
+        <Text style={styles.title}>Analyzing Food Image...</Text>
+        <Text style={styles.subText}>Nutrition & Risk Factors Computational Engine</Text>
 
         <View style={styles.stepBox}>
-          <Ionicons name="sync" size={16} color={COLORS.primaryLight} />
+          <Ionicons name="sync" size={16} color={COLORS.primary} />
           <Text style={styles.stepText}>{stepText}</Text>
         </View>
       </View>
 
       <View style={styles.tipCard}>
-        <Ionicons name="sparkles" size={18} color={COLORS.secondaryLight} />
+        <Ionicons name="shield-checkmark" size={18} color={COLORS.secondary} />
         <Text style={styles.tipText}>
-          Tip: You can edit ingredients or ask NutriVision AI for personalized alternative recipes.
+          Clinical Note: You can manually refine or add detected ingredients on the next screen.
         </Text>
       </View>
     </View>
@@ -69,78 +70,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 60,
-    paddingHorizontal: 24,
-  },
-  glow: {
-    position: 'absolute',
-    top: '30%',
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    paddingBottom: 50,
   },
   centerBox: {
     alignItems: 'center',
-    marginTop: 60,
+    paddingHorizontal: 24,
+    marginTop: 40,
   },
   progressCircle: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     borderWidth: 4,
     borderColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
-    elevation: 8,
+    elevation: 4,
   },
   percentText: {
     fontSize: 22,
     fontWeight: '900',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
     marginTop: 4,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
   },
   subText: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 4,
+    textAlign: 'center',
   },
   stepBox: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 14,
     marginTop: 24,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderColor: 'rgba(33, 118, 255, 0.2)',
   },
   stepText: {
     fontSize: 12,
-    color: COLORS.textPrimary,
+    color: COLORS.jetBlack,
     fontWeight: '600',
   },
   tipCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: COLORS.white,
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
-    width: '100%',
+    marginHorizontal: 24,
   },
   tipText: {
     fontSize: 12,
