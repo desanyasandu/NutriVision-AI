@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
@@ -14,6 +14,32 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const { userProfile, foodHistory, setCurrentScan } = useApp();
 
+  // Animation Refs for Entry Micro-animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(24)).current;
+  const cardScaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 650,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 650,
+        useNativeDriver: true,
+      }),
+      Animated.spring(cardScaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Header
@@ -27,117 +53,123 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Health Score Overview */}
-        <HealthScoreCard
-          score={userProfile.healthScore}
-          consumedCalories={userProfile.todayCaloriesConsumed}
-          targetCalories={userProfile.dailyCalorieTarget}
-          userName={userProfile.name}
-        />
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }, { scale: cardScaleAnim }] }}>
+          {/* Health Score Overview */}
+          <HealthScoreCard
+            score={userProfile.healthScore}
+            consumedCalories={userProfile.todayCaloriesConsumed}
+            targetCalories={userProfile.dailyCalorieTarget}
+            userName={userProfile.name}
+          />
 
-        {/* Quick Action Grid (Slide 7 Screen 2) */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-        </View>
-
-        <View style={styles.actionGrid}>
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}
-            onPress={() => onNavigate('FoodScan')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
-              <Ionicons name="camera" size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.actionTitle}>Scan Food</Text>
-            <Text style={styles.actionSub}>Camera & OCR</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}
-            onPress={() => onNavigate('VoiceAssistant')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
-              <Ionicons name="mic" size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.actionTitle}>Voice Scan</Text>
-            <Text style={styles.actionSub}>NLP Audio</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: 'rgba(6, 182, 212, 0.12)' }]}
-            onPress={() => onNavigate('HealthDashboard')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
-              <Ionicons name="stats-chart" size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.actionTitle}>Health Report</Text>
-            <Text style={styles.actionSub}>Analytics</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: 'rgba(245, 158, 11, 0.12)' }]}
-            onPress={() => onNavigate('AIAgentCoach')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: COLORS.warning }]}>
-              <Ionicons name="sparkles" size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.actionTitle}>AI Coach</Text>
-            <Text style={styles.actionSub}>Agentic Guidance</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Proactive Agent Alert */}
-        <View style={styles.alertBanner}>
-          <Ionicons name="warning" size={20} color={COLORS.warning} />
-          <View style={styles.alertTextContent}>
-            <Text style={styles.alertTitle}>Proactive AI Alert</Text>
-            <Text style={styles.alertBody}>
-              High sodium item (Cheese Burger) detected today. 12% increase in Pre-diabetes risk factor.
-            </Text>
+          {/* Quick Action Grid */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
           </View>
-          <TouchableOpacity onPress={() => onNavigate('DiseaseRiskAnalysis')}>
+
+          <View style={styles.actionGrid}>
+            <TouchableOpacity
+              style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.07)' }]}
+              onPress={() => onNavigate('FoodScan')}
+              activeOpacity={0.78}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
+                <Ionicons name="camera" size={22} color={COLORS.white} />
+              </View>
+              <Text style={styles.actionTitle}>Scan Food</Text>
+              <Text style={styles.actionSub}>Camera & OCR</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.08)' }]}
+              onPress={() => onNavigate('VoiceAssistant')}
+              activeOpacity={0.78}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
+                <Ionicons name="mic" size={22} color={COLORS.white} />
+              </View>
+              <Text style={styles.actionTitle}>Voice Scan</Text>
+              <Text style={styles.actionSub}>NLP Audio</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.08)' }]}
+              onPress={() => onNavigate('HealthDashboard')}
+              activeOpacity={0.78}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
+                <Ionicons name="stats-chart" size={22} color={COLORS.white} />
+              </View>
+              <Text style={styles.actionTitle}>Health Report</Text>
+              <Text style={styles.actionSub}>Analytics</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.glassActionCard, { backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}
+              onPress={() => onNavigate('AIAgentCoach')}
+              activeOpacity={0.78}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: COLORS.warning }]}>
+                <Ionicons name="sparkles" size={22} color={COLORS.white} />
+              </View>
+              <Text style={styles.actionTitle}>AI Coach</Text>
+              <Text style={styles.actionSub}>Agentic Guidance</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Proactive Agent Alert with Glassmorphism */}
+          <TouchableOpacity
+            style={styles.alertGlassBanner}
+            onPress={() => onNavigate('DiseaseRiskAnalysis')}
+            activeOpacity={0.82}
+          >
+            <View style={styles.alertIconPulse}>
+              <Ionicons name="warning" size={20} color={COLORS.warning} />
+            </View>
+            <View style={styles.alertTextContent}>
+              <Text style={styles.alertTitle}>Proactive AI Alert</Text>
+              <Text style={styles.alertBody}>
+                High sodium item (Cheese Burger) detected today. 12% increase in Pre-diabetes risk factor.
+              </Text>
+            </View>
             <Ionicons name="chevron-forward" size={20} color={COLORS.warning} />
           </TouchableOpacity>
-        </View>
 
-        {/* Recent Scans Section */}
-        <View style={styles.sectionHeaderBetween}>
-          <Text style={styles.sectionTitle}>Recent Scans</Text>
-          <TouchableOpacity onPress={() => onNavigate('HealthDashboard')}>
-            <Text style={styles.viewAllText}>View All</Text>
+          {/* Recent Scans Section */}
+          <View style={styles.sectionHeaderBetween}>
+            <Text style={styles.sectionTitle}>Recent Scans</Text>
+            <TouchableOpacity onPress={() => onNavigate('HealthDashboard')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {foodHistory.map((food) => (
+            <FoodCard
+              key={food.id}
+              food={food}
+              onPress={() => {
+                setCurrentScan(food);
+                onNavigate('FoodDetectionResult');
+              }}
+            />
+          ))}
+
+          {/* Digital Twin Glass Banner */}
+          <TouchableOpacity
+            style={styles.twinGlassBanner}
+            onPress={() => onNavigate('DigitalHealthTwin')}
+            activeOpacity={0.85}
+          >
+            <View style={styles.twinIconBox}>
+              <Ionicons name="body-outline" size={26} color={COLORS.primary} />
+            </View>
+            <View style={styles.twinTextContainer}>
+              <Text style={styles.twinTitle}>Digital Health Twin Projections</Text>
+              <Text style={styles.twinSub}>See your predicted 6-month health risk trajectory</Text>
+            </View>
+            <Ionicons name="arrow-forward-circle" size={26} color={COLORS.primary} />
           </TouchableOpacity>
-        </View>
-
-        {foodHistory.map((food) => (
-          <FoodCard
-            key={food.id}
-            food={food}
-            onPress={() => {
-              setCurrentScan(food);
-              onNavigate('FoodDetectionResult');
-            }}
-          />
-        ))}
-
-        {/* Digital Twin Button Card */}
-        <TouchableOpacity
-          style={styles.twinBanner}
-          onPress={() => onNavigate('DigitalHealthTwin')}
-          activeOpacity={0.85}
-        >
-          <View style={styles.twinIconBox}>
-            <Ionicons name="body-outline" size={26} color={COLORS.secondaryLight} />
-          </View>
-          <View style={styles.twinTextContainer}>
-            <Text style={styles.twinTitle}>Digital Health Twin Projections</Text>
-            <Text style={styles.twinSub}>See your predicted 6-month health risk trajectory</Text>
-          </View>
-          <Ionicons name="arrow-forward-circle" size={24} color={COLORS.secondaryLight} />
-        </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -156,7 +188,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     paddingHorizontal: 20,
-    marginTop: 8,
+    marginTop: 12,
     marginBottom: 12,
   },
   sectionHeaderBetween: {
@@ -183,18 +215,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 10,
   },
-  actionCard: {
+  glassActionCard: {
     width: '47%',
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    backgroundColor: COLORS.cardBg,
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   actionIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
@@ -209,17 +245,30 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
-  alertBanner: {
+  alertGlassBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    backgroundColor: 'rgba(254, 243, 199, 0.75)',
     marginHorizontal: 20,
     marginVertical: 16,
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: 'rgba(245, 158, 11, 0.35)',
+    shadowColor: COLORS.warning,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  alertIconPulse: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   alertTextContent: {
     flex: 1,
@@ -235,23 +284,28 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 16,
   },
-  twinBanner: {
+  twinGlassBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     marginHorizontal: 20,
-    marginTop: 12,
+    marginTop: 14,
     padding: 16,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: 'rgba(33, 118, 255, 0.25)',
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(33, 118, 255, 0.3)',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 4,
   },
   twinIconBox: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
     borderRadius: 14,
-    backgroundColor: COLORS.cardBg,
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
