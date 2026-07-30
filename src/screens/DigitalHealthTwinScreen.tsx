@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
@@ -16,6 +16,13 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
   onAskAgent,
 }) => {
   const { userProfile } = useApp();
+  const [timeframe, setTimeframe] = useState<'6M' | '12M'>('6M');
+
+  const is12M = timeframe === '12M';
+  const weightGain = is12M ? '+7kg After 12 Months' : '+4kg After 6 Months';
+  const predictedWeight = is12M ? DIGITAL_TWIN_PREDICTION.predictedWeight6Months + 3 : DIGITAL_TWIN_PREDICTION.predictedWeight6Months;
+  const riskIncrease = is12M ? DIGITAL_TWIN_PREDICTION.riskIncreasePercentage + 8 : DIGITAL_TWIN_PREDICTION.riskIncreasePercentage;
+  const progressWidth = is12M ? '82%' : '65%';
 
   return (
     <View style={styles.container}>
@@ -27,18 +34,39 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Timeframe Selector Pills */}
+        <View style={styles.timeframeRow}>
+          <TouchableOpacity
+            style={[styles.timeChip, timeframe === '6M' && styles.timeChipActive]}
+            onPress={() => setTimeframe('6M')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="time-outline" size={14} color={timeframe === '6M' ? COLORS.white : COLORS.textSecondary} />
+            <Text style={[styles.timeChipText, timeframe === '6M' && styles.timeChipTextActive]}>6-Month Projection</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.timeChip, timeframe === '12M' && styles.timeChipActive]}
+            onPress={() => setTimeframe('12M')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="analytics-outline" size={14} color={timeframe === '12M' ? COLORS.white : COLORS.textSecondary} />
+            <Text style={[styles.timeChipText, timeframe === '12M' && styles.timeChipTextActive]}>12-Month Projection</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Banner header */}
         <View style={styles.banner}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="body" size={32} color={COLORS.secondaryLight} />
+            <Ionicons name="body" size={32} color={COLORS.primary} />
           </View>
           <View style={styles.bannerText}>
             <Text style={styles.bannerTitle}>Your Future Health Twin</Text>
-            <Text style={styles.bannerSub}>6-Month Predictive Trajectory based on dietary habits</Text>
+            <Text style={styles.bannerSub}>{timeframe === '6M' ? '6-Month' : '12-Month'} Predictive Trajectory based on dietary habits</Text>
           </View>
         </View>
 
-        {/* Weight & Risk Comparison Grid (Slide 7 Screen 12) */}
+        {/* Weight & Risk Comparison Grid */}
         <View style={styles.comparisonGrid}>
           <View style={styles.compCard}>
             <Text style={styles.compLabel}>Current Weight</Text>
@@ -49,9 +77,9 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
           <View style={styles.compCardWarning}>
             <Text style={styles.compLabelWarning}>Predicted Weight</Text>
             <Text style={styles.compValWarning}>
-              {DIGITAL_TWIN_PREDICTION.predictedWeight6Months} kg
+              {predictedWeight} kg
             </Text>
-            <Text style={styles.compSubWarning}>+4kg After 6 Months</Text>
+            <Text style={styles.compSubWarning}>{weightGain}</Text>
           </View>
         </View>
 
@@ -62,14 +90,14 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
             <View style={styles.riskTitleGroup}>
               <Text style={styles.riskTitle}>Predicted Disease Risk Increase</Text>
               <Text style={styles.riskSub}>
-                +{DIGITAL_TWIN_PREDICTION.riskIncreasePercentage}% Increase in{' '}
+                +{riskIncrease}% Increase in{' '}
                 <Text style={styles.highlightText}>{DIGITAL_TWIN_PREDICTION.riskIncreaseDisease}</Text>
               </Text>
             </View>
           </View>
 
           <View style={styles.riskBarBg}>
-            <View style={styles.riskBarFill} />
+            <View style={[styles.riskBarFill, { width: progressWidth as any }]} />
           </View>
         </View>
 
@@ -95,7 +123,7 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
           {/* Increase List */}
           <View style={styles.recGroup}>
             <View style={styles.groupTitleRow}>
-              <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+              <Ionicons name="checkmark-circle" size={18} color={COLORS.success} />
               <Text style={styles.groupTitleGreen}>Foods to Increase:</Text>
             </View>
             <View style={styles.chipsWrap}>
@@ -125,13 +153,44 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
   },
+  timeframeRow: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 14,
+    gap: 10,
+  },
+  timeChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: COLORS.cardBg,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  timeChipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  timeChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  timeChipTextActive: {
+    color: COLORS.white,
+    fontWeight: '800',
+  },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 14,
     padding: 18,
     borderRadius: 20,
     borderWidth: 1,
@@ -141,7 +200,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -190,12 +249,12 @@ const styles = StyleSheet.create({
   },
   compCardWarning: {
     flex: 1,
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
     padding: 16,
     borderRadius: 18,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.25)',
   },
   compLabelWarning: {
     fontSize: 12,
@@ -247,13 +306,12 @@ const styles = StyleSheet.create({
   },
   riskBarBg: {
     height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: COLORS.trackBg,
     borderRadius: 4,
     overflow: 'hidden',
   },
   riskBarFill: {
     height: '100%',
-    width: '65%',
     backgroundColor: COLORS.danger,
     borderRadius: 4,
   },
@@ -288,7 +346,7 @@ const styles = StyleSheet.create({
   groupTitleGreen: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: COLORS.success,
   },
   chipsWrap: {
     flexDirection: 'row',
@@ -318,8 +376,8 @@ const styles = StyleSheet.create({
   },
   greenChipText: {
     fontSize: 11,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
+    color: COLORS.success,
+    fontWeight: '700',
   },
   agentActionBtn: {
     flexDirection: 'row',
@@ -338,3 +396,4 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
 });
+

@@ -246,7 +246,8 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11,
-    color: COLORS.secondaryLight,
+    color: COLORS.warningDark,
+    fontWeight: '700',
   },
   barChartContainer: {
     flexDirection: 'row',
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
   barWrapper: {
     width: 14,
     height: 110,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: COLORS.trackBg,
     borderRadius: 7,
     justifyContent: 'flex-end',
     overflow: 'hidden',
@@ -298,17 +299,17 @@ const styles = StyleSheet.create({
   },
   riskTrendTextYellow: {
     fontSize: 11,
-    color: COLORS.warning,
+    color: COLORS.warningDark,
     fontWeight: '700',
   },
   riskTrendTextGreen: {
     fontSize: 11,
-    color: COLORS.primary,
+    color: COLORS.success,
     fontWeight: '700',
   },
   progressBg: {
     height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: COLORS.trackBg,
     borderRadius: 4,
     overflow: 'hidden',
   },

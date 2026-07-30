@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
@@ -20,9 +20,38 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
     'What ingredients inside Cheese Burger trigger my Migraine or blood sugar spike?'
   );
 
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    let animation: Animated.CompositeAnimation;
+    if (isListening) {
+      animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.25,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+    return () => {
+      if (animation) animation.stop();
+    };
+  }, [isListening]);
+
   const toggleListening = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
+    const nextState = !isListening;
+    setIsListening(nextState);
+    if (nextState) {
       setTimeout(() => {
         setTranscript('Recommend a low-sodium dinner bowl with high protein.');
         setIsListening(false);
@@ -47,14 +76,28 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
 
         {/* Audio Pulse Ring Visualizer */}
         <View style={styles.pulseContainer}>
-          <View style={[styles.pulseRing3, isListening && styles.activePulse]} />
-          <View style={[styles.pulseRing2, isListening && styles.activePulse]} />
+          <Animated.View
+            style={[
+              styles.pulseRing3,
+              isListening && styles.activePulse,
+              { transform: [{ scale: pulseAnim }] },
+            ]}
+          />
+          <Animated.View
+            style={[
+              styles.pulseRing2,
+              isListening && styles.activePulse,
+              { transform: [{ scale: pulseAnim }] },
+            ]}
+          />
           <View style={[styles.pulseRing1, isListening && styles.activePulse]} />
 
           <TouchableOpacity
             style={[styles.micBtn, isListening && styles.micBtnActive]}
             onPress={toggleListening}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle Microphone Recording"
           >
             <Ionicons name={isListening ? 'mic' : 'mic-outline'} size={48} color={COLORS.white} />
           </TouchableOpacity>

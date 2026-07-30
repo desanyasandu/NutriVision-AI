@@ -68,53 +68,57 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           </View>
 
           <View style={styles.actionGrid}>
-            <TouchableOpacity
-              style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.07)' }]}
-              onPress={() => onNavigate('FoodScan')}
-              activeOpacity={0.78}
-            >
-              <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
-                <Ionicons name="camera" size={22} color={COLORS.white} />
-              </View>
-              <Text style={styles.actionTitle}>Scan Food</Text>
-              <Text style={styles.actionSub}>Camera & OCR</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.07)' }]}
+                onPress={() => onNavigate('FoodScan')}
+                activeOpacity={0.78}
+              >
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
+                  <Ionicons name="camera" size={22} color={COLORS.white} />
+                </View>
+                <Text style={styles.actionTitle}>Scan Food</Text>
+                <Text style={styles.actionSub}>Camera & OCR</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.08)' }]}
-              onPress={() => onNavigate('VoiceAssistant')}
-              activeOpacity={0.78}
-            >
-              <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
-                <Ionicons name="mic" size={22} color={COLORS.white} />
-              </View>
-              <Text style={styles.actionTitle}>Voice Scan</Text>
-              <Text style={styles.actionSub}>NLP Audio</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.08)' }]}
+                onPress={() => onNavigate('VoiceAssistant')}
+                activeOpacity={0.78}
+              >
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
+                  <Ionicons name="mic" size={22} color={COLORS.white} />
+                </View>
+                <Text style={styles.actionTitle}>Voice Scan</Text>
+                <Text style={styles.actionSub}>NLP Audio</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.08)' }]}
-              onPress={() => onNavigate('HealthDashboard')}
-              activeOpacity={0.78}
-            >
-              <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
-                <Ionicons name="stats-chart" size={22} color={COLORS.white} />
-              </View>
-              <Text style={styles.actionTitle}>Health Report</Text>
-              <Text style={styles.actionSub}>Analytics</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.08)' }]}
+                onPress={() => onNavigate('HealthDashboard')}
+                activeOpacity={0.78}
+              >
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
+                  <Ionicons name="stats-chart" size={22} color={COLORS.white} />
+                </View>
+                <Text style={styles.actionTitle}>Health Report</Text>
+                <Text style={styles.actionSub}>Analytics</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.glassActionCard, { backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}
-              onPress={() => onNavigate('AIAgentCoach')}
-              activeOpacity={0.78}
-            >
-              <View style={[styles.actionIconBox, { backgroundColor: COLORS.warning }]}>
-                <Ionicons name="sparkles" size={22} color={COLORS.white} />
-              </View>
-              <Text style={styles.actionTitle}>AI Coach</Text>
-              <Text style={styles.actionSub}>Agentic Guidance</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}
+                onPress={() => onNavigate('AIAgentCoach')}
+                activeOpacity={0.78}
+              >
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.warning }]}>
+                  <Ionicons name="sparkles" size={22} color={COLORS.white} />
+                </View>
+                <Text style={styles.actionTitle}>AI Coach</Text>
+                <Text style={styles.actionSub}>Agentic Guidance</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Proactive Agent Alert with Glassmorphism */}
@@ -210,13 +214,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   actionGrid: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  actionRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
     gap: 10,
   },
   glassActionCard: {
-    width: '47%',
+    flex: 1,
     padding: 16,
     borderRadius: 18,
     borderWidth: 1.5,

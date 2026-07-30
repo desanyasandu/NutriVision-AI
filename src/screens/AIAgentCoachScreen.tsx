@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,11 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
   const { chatMessages, addChatMessage } = useApp();
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [chatMessages, isTyping]);
 
   const handleSend = () => {
     if (inputText.trim()) {
@@ -75,7 +80,12 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
       </View>
 
       {/* Chat Messages Log */}
-      <ScrollView contentContainerStyle={styles.chatList} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={styles.chatList}
+        showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+      >
         <MedicalDisclaimerBox compact />
 
         {chatMessages.map((msg) => {

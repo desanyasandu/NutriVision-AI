@@ -4,7 +4,9 @@ export const COLORS = {
   cardBg: '#FFFFFF',               // Pure white card surface
   cardBorder: '#E2E8F0',           // Light subtle border
   jetBlack: '#31393C',             // Jet Black for titles & dark text
-  
+  trackBg: '#E2E8F0',              // High-contrast background track for progress bars & charts
+  trackBgLight: 'rgba(0, 0, 0, 0.06)', // Subtle track overlay
+
   // Primary Blues (Palette: 2176FF & 33A1FD)
   primary: '#2176FF',              // Crayola Blue (Vibrant Brand Primary)
   primaryLight: '#33A1FD',         // Blue Bell (Sky Blue Accent)
@@ -13,13 +15,16 @@ export const COLORS = {
   // Warm Accent Colors (Palette: FDCA40 & F79824)
   secondary: '#F79824',            // Carrot Orange (Secondary Brand Accent)
   secondaryLight: '#FDCA40',       // Golden Pollen (Warm Yellow Accent)
+  secondaryDark: '#D97706',        // Dark Amber for high-contrast text on white
   accent: '#33A1FD',               // Sky Blue accent
   
   // Status & Utility Colors
   warning: '#F59E0B',              // Amber warning
+  warningDark: '#D97706',          // Accessible amber text on white
   danger: '#EF4444',               // Alert Red
   dangerAlert: '#DC2626',          // Dark Red
   info: '#2176FF',                 // Crayola Blue Info
+  success: '#10B981',              // Emerald Green Success
   
   // Light Mode Typography
   textPrimary: '#31393C',          // Jet Black for Headers & Body Text
@@ -47,4 +52,12 @@ export const SHADOWS = {
     shadowRadius: 10,
     elevation: 4,
   },
+  glow: {
+    shadowColor: '#2176FF',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 6,
+  },
 };
+

@@ -8,18 +8,28 @@ import { COLORS } from './src/theme/colors';
 export default function App() {
   return (
     <AppProvider>
-      <View style={styles.container}>
-        <StatusBar style="light" />
-        <AppNavigator />
+      <View style={styles.outerContainer}>
+        <View style={styles.container}>
+          <StatusBar style="dark" />
+          <AppNavigator />
+        </View>
       </View>
     </AppProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
+    width: '100%',
+    maxWidth: 480,
     backgroundColor: COLORS.background,
-    minHeight: '100vh' as any,
+    overflow: 'hidden',
   },
 });

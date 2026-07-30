@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useApp } from '../context/AppContext';
+import { MOCK_RECENT_FOODS } from '../data/mockData';
 import { Header } from '../components/Header';
 import { StepProgressBar } from '../components/StepProgressBar';
 import { COLORS } from '../theme/colors';
@@ -16,12 +18,22 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
   onScanComplete,
   onVoiceScan,
 }) => {
+  const { setCurrentScan } = useApp();
   const [flash, setFlash] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<'burger' | 'salad'>('burger');
 
   const foodImages = {
     burger: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
     salad: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+  };
+
+  const handleSelectPreset = (preset: 'burger' | 'salad') => {
+    setSelectedPreset(preset);
+    if (preset === 'burger') {
+      setCurrentScan(MOCK_RECENT_FOODS[0]);
+    } else {
+      setCurrentScan(MOCK_RECENT_FOODS[1]);
+    }
   };
 
   return (
@@ -55,14 +67,16 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
 
         {/* Viewfinder Target Box Overlay */}
         <View style={styles.targetOverlay}>
-          <View style={[styles.corner, styles.topLeft]} />
-          <View style={[styles.corner, styles.topRight]} />
-          <View style={[styles.corner, styles.bottomLeft]} />
-          <View style={[styles.corner, styles.bottomRight]} />
+          <View style={styles.targetFrame}>
+            <View style={[styles.corner, styles.topLeft]} />
+            <View style={[styles.corner, styles.topRight]} />
+            <View style={[styles.corner, styles.bottomLeft]} />
+            <View style={[styles.corner, styles.bottomRight]} />
 
-          <View style={styles.scanInstructionBadge}>
-            <Ionicons name="scan-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.scanInstructionText}>Position food inside frame</Text>
+            <View style={styles.scanInstructionBadge}>
+              <Ionicons name="scan-outline" size={16} color={COLORS.primary} />
+              <Text style={styles.scanInstructionText}>Position food inside frame</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -73,7 +87,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
         <View style={styles.presetButtons}>
           <TouchableOpacity
             style={[styles.presetBtn, selectedPreset === 'burger' && styles.presetBtnActive]}
-            onPress={() => setSelectedPreset('burger')}
+            onPress={() => handleSelectPreset('burger')}
             accessibilityRole="button"
             accessibilityLabel="Select Cheese Burger Preset"
           >
@@ -84,7 +98,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
 
           <TouchableOpacity
             style={[styles.presetBtn, selectedPreset === 'salad' && styles.presetBtnActive]}
-            onPress={() => setSelectedPreset('salad')}
+            onPress={() => handleSelectPreset('salad')}
             accessibilityRole="button"
             accessibilityLabel="Select Chicken Salad Preset"
           >
@@ -163,7 +177,13 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
+  },
+  targetFrame: {
+    width: 220,
+    height: 220,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   corner: {
     position: 'absolute',
@@ -172,29 +192,29 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   topLeft: {
-    top: 40,
-    left: 40,
+    top: 0,
+    left: 0,
     borderTopWidth: 4,
     borderLeftWidth: 4,
     borderTopLeftRadius: 12,
   },
   topRight: {
-    top: 40,
-    right: 40,
+    top: 0,
+    right: 0,
     borderTopWidth: 4,
     borderRightWidth: 4,
     borderTopRightRadius: 12,
   },
   bottomLeft: {
-    bottom: 40,
-    left: 40,
+    bottom: 0,
+    left: 0,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
     borderBottomLeftRadius: 12,
   },
   bottomRight: {
-    bottom: 40,
-    right: 40,
+    bottom: 0,
+    right: 0,
     borderBottomWidth: 4,
     borderRightWidth: 4,
     borderBottomRightRadius: 12,

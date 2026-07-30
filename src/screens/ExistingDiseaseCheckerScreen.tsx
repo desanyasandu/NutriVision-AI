@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.cardBorder,
   },
   diseaseChipSelected: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
   diseaseChipText: {
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   diseaseChipTextSelected: {
-    color: COLORS.primaryLight,
+    color: COLORS.white,
     fontWeight: '800',
   },
   searchBox: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   disclaimerNote: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    borderTopColor: COLORS.cardBorder,
     paddingTop: 10,
   },
   disclaimerText: {

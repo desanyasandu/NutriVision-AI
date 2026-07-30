@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   barBg: {
     height: 8,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: COLORS.trackBg,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 10,

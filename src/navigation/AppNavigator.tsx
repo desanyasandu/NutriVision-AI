@@ -148,6 +148,7 @@ export const AppNavigator: React.FC = () => {
             >
               Home
             </Text>
+            {currentScreen === 'Home' && <View style={styles.activeDot} />}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -179,6 +180,7 @@ export const AppNavigator: React.FC = () => {
             >
               AI Agent
             </Text>
+            {currentScreen === 'AIAgentCoach' && <View style={styles.activeDot} />}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -199,6 +201,7 @@ export const AppNavigator: React.FC = () => {
             >
               Dashboard
             </Text>
+            {currentScreen === 'HealthDashboard' && <View style={styles.activeDot} />}
           </TouchableOpacity>
         </View>
       )}
@@ -220,25 +223,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: COLORS.cardBg,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: COLORS.cardBorder,
+    shadowColor: COLORS.jetBlack,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 10,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
     flex: 1,
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.textMuted,
     fontWeight: '600',
   },
   tabLabelActive: {
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
     fontWeight: '800',
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    marginTop: 2,
   },
   scanTabCircle: {
     width: 44,
@@ -247,9 +261,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -18,
+    marginTop: -16,
     borderWidth: 3,
     borderColor: COLORS.cardBg,
     elevation: 6,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
 });

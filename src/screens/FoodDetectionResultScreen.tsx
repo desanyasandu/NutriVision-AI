@@ -123,23 +123,27 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.ingredientsChipsRow}>
-            {ingredients.map((item, idx) => (
-              <View key={idx} style={styles.ingredientChip}>
-                <Text style={styles.ingredientText}>{item}</Text>
-                {isEditing && (
-                  <TouchableOpacity
-                    onPress={() => removeIngredient(idx)}
-                    style={styles.removeBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remove ingredient ${item}`}
-                  >
-                    <Ionicons name="close-circle" size={18} color={COLORS.danger} />
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
-          </View>
+          {ingredients.length === 0 ? (
+            <Text style={styles.emptyIngredientsText}>No ingredients listed. Tap "Edit List" to add ingredients.</Text>
+          ) : (
+            <View style={styles.ingredientsChipsRow}>
+              {ingredients.map((item, idx) => (
+                <View key={idx} style={styles.ingredientChip}>
+                  <Text style={styles.ingredientText}>{item}</Text>
+                  {isEditing && (
+                    <TouchableOpacity
+                      onPress={() => removeIngredient(idx)}
+                      style={styles.removeBtn}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Remove ingredient ${item}`}
+                    >
+                      <Ionicons name="close-circle" size={18} color={COLORS.danger} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
 
           {isEditing && (
             <View style={styles.addInputRow}>
@@ -149,6 +153,8 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
                 placeholderTextColor={COLORS.textMuted}
                 value={newIngredient}
                 onChangeText={setNewIngredient}
+                onSubmitEditing={addIngredient}
+                returnKeyType="done"
               />
               <TouchableOpacity
                 style={styles.addBtn}
@@ -164,28 +170,32 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
 
         {/* Quick Nutrition Highlights */}
         <View style={styles.macroGrid}>
-          <View style={styles.macroCard}>
-            <Ionicons name="flame" size={18} color={COLORS.secondary} />
-            <Text style={styles.macroVal}>{food.calories}</Text>
-            <Text style={styles.macroLabel}>Calories (kcal)</Text>
+          <View style={styles.macroRow}>
+            <View style={styles.macroCard}>
+              <Ionicons name="flame" size={18} color={COLORS.secondary} />
+              <Text style={styles.macroVal}>{food.calories} kcal</Text>
+              <Text style={styles.macroLabel}>Calories</Text>
+            </View>
+
+            <View style={styles.macroCard}>
+              <Ionicons name="fitness" size={18} color={COLORS.primary} />
+              <Text style={styles.macroVal}>{food.proteinGrams}g</Text>
+              <Text style={styles.macroLabel}>Protein</Text>
+            </View>
           </View>
 
-          <View style={styles.macroCard}>
-            <Ionicons name="fitness" size={18} color={COLORS.primary} />
-            <Text style={styles.macroVal}>{food.proteinGrams}g</Text>
-            <Text style={styles.macroLabel}>Protein</Text>
-          </View>
+          <View style={styles.macroRow}>
+            <View style={styles.macroCard}>
+              <Ionicons name="water" size={18} color={COLORS.danger} />
+              <Text style={styles.macroVal}>{food.fatGrams}g</Text>
+              <Text style={styles.macroLabel}>Total Fat</Text>
+            </View>
 
-          <View style={styles.macroCard}>
-            <Ionicons name="water" size={18} color={COLORS.danger} />
-            <Text style={styles.macroVal}>{food.fatGrams}g</Text>
-            <Text style={styles.macroLabel}>Total Fat</Text>
-          </View>
-
-          <View style={styles.macroCard}>
-            <Ionicons name="cube" size={18} color={COLORS.primaryLight} />
-            <Text style={styles.macroVal}>{food.carbsGrams}g</Text>
-            <Text style={styles.macroLabel}>Carbs</Text>
+            <View style={styles.macroCard}>
+              <Ionicons name="cube" size={18} color={COLORS.primaryLight} />
+              <Text style={styles.macroVal}>{food.carbsGrams}g</Text>
+              <Text style={styles.macroLabel}>Carbs</Text>
+            </View>
           </View>
         </View>
 
@@ -390,10 +400,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   macroGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginVertical: 14,
-    gap: 8,
+    gap: 10,
+  },
+  macroRow: {
+    flexDirection: 'row',
+    gap: 10,
   },
   macroCard: {
     flex: 1,
@@ -465,5 +478,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: COLORS.white,
+  },
+  emptyIngredientsText: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    fontStyle: 'italic',
+    paddingVertical: 8,
   },
 });
