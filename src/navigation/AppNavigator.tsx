@@ -69,15 +69,14 @@ export const AppNavigator: React.FC = () => {
         return (
           <NutritionAnalysisScreen
             onBack={() => navigateTo('FoodDetectionResult')}
-            onNavigateToRisk={() => navigateTo('DiseaseRiskAnalysis')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
           />
         );
       case 'DiseaseRiskAnalysis':
         return (
           <DiseaseRiskAnalysisScreen
             onBack={() => navigateTo('FoodDetectionResult')}
-            onNavigateToChecker={() => navigateTo('ExistingDiseaseChecker')}
-            onAskAgent={() => navigateTo('AIAgentCoach')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
           />
         );
       case 'ExistingDiseaseChecker':
@@ -98,25 +97,31 @@ export const AppNavigator: React.FC = () => {
         return (
           <AIAgentCoachScreen
             onBack={() => navigateTo('Home')}
-            onNavigateToTwin={() => navigateTo('DigitalHealthTwin')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
           />
         );
       case 'HealthDashboard':
         return (
           <HealthDashboardScreen
             onBack={() => navigateTo('Home')}
-            onNavigateToTwin={() => navigateTo('DigitalHealthTwin')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
           />
         );
       case 'DigitalHealthTwin':
         return (
           <DigitalHealthTwinScreen
             onBack={() => navigateTo('HealthDashboard')}
-            onAskAgent={() => navigateTo('AIAgentCoach')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
           />
         );
       case 'UserProfile':
-        return <UserProfileScreen onBack={() => navigateTo('Home')} />;
+        return (
+          <UserProfileScreen
+            onBack={() => navigateTo('Home')}
+            onNavigate={(s) => navigateTo(s as ScreenName)}
+            onLogout={() => navigateTo('Splash')}
+          />
+        );
       case 'KanbanPlanner':
         return <KanbanPlannerScreen onBack={() => navigateTo('Home')} />;
       default:

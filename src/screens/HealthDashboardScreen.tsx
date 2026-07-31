@@ -119,7 +119,7 @@ export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({ on
             { label: 'Heart Rate', val: '72 bpm', icon: 'heart' as const, color: COLORS.danger, sub: 'Resting' },
             { label: 'Blood Pressure', val: '118/76', icon: 'pulse' as const, color: COLORS.primary, sub: 'Optimal' },
             { label: 'Blood Glucose', val: '94 mg/dL', icon: 'water' as const, color: COLORS.warning, sub: 'Pre-Diabetic Watch' },
-            { label: 'BMI', val: userProfile.bmi.toFixed(1), icon: 'body' as const, color: COLORS.accent, sub: 'Normal Range' },
+            { label: 'BMI', val: (userProfile.bmi ?? 23.5).toFixed(1), icon: 'body' as const, color: COLORS.accent, sub: 'Normal Range' },
             { label: 'VO₂ Max', val: '42.1', icon: 'fitness' as const, color: COLORS.secondary, sub: 'Above Average' },
             { label: 'Sleep Quality', val: '87%', icon: 'moon' as const, color: COLORS.primaryLight, sub: '7h 45m Deep' },
           ].map((v) => (

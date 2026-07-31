@@ -23,8 +23,8 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(scanLine, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sine), useNativeDriver: true }),
-        Animated.timing(scanLine, { toValue: 0, duration: 2500, easing: Easing.inOut(Easing.sine), useNativeDriver: true }),
+        Animated.timing(scanLine, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(scanLine, { toValue: 0, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
       ])
     ).start();
 

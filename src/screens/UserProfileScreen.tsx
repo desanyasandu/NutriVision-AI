@@ -22,7 +22,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack, on
 
   const PROFILE_STATS = [
     { label: 'Health Score', val: `${userProfile.healthScore}`, icon: 'star' as const, color: COLORS.primary },
-    { label: 'BMI', val: userProfile.bmi.toFixed(1), icon: 'body' as const, color: COLORS.accent },
+    { label: 'BMI', val: (userProfile.bmi ?? 23.5).toFixed(1), icon: 'body' as const, color: COLORS.accent },
     { label: 'Goal', val: 'Protect', icon: 'shield-checkmark' as const, color: COLORS.secondary },
     { label: 'Streak', val: '14d', icon: 'flame' as const, color: COLORS.warning },
   ];

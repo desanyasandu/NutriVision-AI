@@ -83,7 +83,8 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   iconWrap: {
-    transition: 'transform 0.2s' as any,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabLabel: {
     fontSize: 10,

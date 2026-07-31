@@ -38,6 +38,11 @@ export interface UserHealthProfile {
   age: number;
   weightKg: number;
   heightCm: number;
+  // Convenience aliases used in UI screens
+  weight?: number;
+  height?: number;
+  bmi?: number;
+  diseases?: string[];
   dailyCalorieTarget: number;
   todayCaloriesConsumed: number;
   healthScore: number;
@@ -81,6 +86,10 @@ export const INITIAL_USER_PROFILE: UserHealthProfile = {
   age: 24,
   weightKg: 72,
   heightCm: 175,
+  weight: 72,
+  height: 175,
+  bmi: 23.5,
+  diseases: ['Migraine', 'Pre-diabetes', 'Hypertension'],
   dailyCalorieTarget: 2500,
   todayCaloriesConsumed: 1250,
   healthScore: 82,

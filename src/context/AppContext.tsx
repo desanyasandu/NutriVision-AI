@@ -20,7 +20,9 @@ interface AppContextType {
   setCurrentScan: (food: FoodItem | null) => void;
   diseaseRisks: DiseaseRisk[];
   chatMessages: AgentChatMessage[];
+  chatHistory: AgentChatMessage[];  // alias for chatMessages
   addChatMessage: (text: string, sender?: 'user' | 'agent') => void;
+  sendChatMessage: (text: string) => Promise<void>;  // alias for addChatMessage
   addFoodScan: (food: FoodItem) => void;
   selectedDiseaseFilter: string;
   setSelectedDiseaseFilter: (disease: string) => void;
@@ -119,7 +121,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCurrentScan,
         diseaseRisks,
         chatMessages,
+        chatHistory: chatMessages,
         addChatMessage,
+        sendChatMessage: async (text: string) => { addChatMessage(text, 'user'); },
         addFoodScan,
         selectedDiseaseFilter,
         setSelectedDiseaseFilter,

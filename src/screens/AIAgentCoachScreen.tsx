@@ -22,6 +22,7 @@ const STARTER_PROMPTS = [
 
 export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, onNavigate }) => {
   const { chatHistory, sendChatMessage } = useApp();
+  const chatMessages = chatHistory as Array<{ sender: string; text: string; timestamp: string; recommendations?: string[] }>;
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
@@ -36,7 +37,7 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
     scrollRef.current?.scrollToEnd({ animated: true });
   };
 
-  const hasMessages = chatHistory && chatHistory.length > 0;
+  const hasMessages = chatMessages && chatMessages.length > 0;
 
   return (
     <LayeredBackground>
@@ -99,13 +100,13 @@ export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, 
             </View>
           )}
 
-          {chatHistory?.map((msg, i) => (
+          {chatMessages?.map((msg, i) => (
             <AIMessageBubble
               key={i}
-              sender={msg.role === 'user' ? 'user' : 'agent'}
-              text={msg.content}
+              sender={msg.sender === 'user' ? 'user' : 'agent'}
+              text={msg.text}
               timestamp={msg.timestamp}
-              recommendations={msg.role === 'assistant' ? msg.suggestions : undefined}
+              recommendations={msg.sender === 'agent' ? msg.recommendations : undefined}
               onSelectRecommendation={(r) => handleSend(r)}
             />
           ))}

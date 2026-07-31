@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
   dot: {
     height: 6,
     borderRadius: 3,
-    transition: 'all 0.3s' as any,
   },
   progressTrack: {
     width: '100%',
