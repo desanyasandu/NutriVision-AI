@@ -12,14 +12,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Top Header Pill Badge */}
-        <View style={styles.topBadgeRow}>
-          <View style={styles.badgePill}>
-            <Ionicons name="sparkles" size={14} color={COLORS.primary} />
-            <Text style={styles.badgePillText}>IDEALIZE 2026 • Health AI</Text>
-          </View>
-        </View>
-
         {/* Brand Logo & Tagline */}
         <View style={styles.logoSection}>
           <View style={styles.logoRow}>
