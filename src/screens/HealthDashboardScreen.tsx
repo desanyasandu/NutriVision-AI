@@ -1,350 +1,242 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Rect, Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface HealthDashboardScreenProps {
   onBack: () => void;
-  onNavigateToTwin: () => void;
+  onNavigate: (screen: string) => void;
 }
 
-type Timeframe = 'Weekly' | 'Monthly' | 'Yearly';
-
-const CHART_DATA: Record<Timeframe, { labels: string[]; values: number[] }> = {
-  Weekly: {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    values: [78, 82, 80, 85, 88, 84, 82],
-  },
-  Monthly: {
-    labels: ['W1', 'W2', 'W3', 'W4'],
-    values: [75, 80, 84, 82],
-  },
-  Yearly: {
-    labels: ['Jan', 'Apr', 'Jul', 'Oct'],
-    values: [70, 76, 80, 82],
-  },
-};
-
-const ACHIEVEMENTS = [
-  { title: '7-Day Clean Log', icon: 'flame' as const, color: COLORS.warning, desc: 'Logged all meals for 7 consecutive days' },
-  { title: 'Hydration Hero', icon: 'water' as const, color: '#0EA5E9', desc: 'Hit 2.5L water intake 5 times this week' },
-  { title: 'Migraine Shield', icon: 'shield-checkmark' as const, color: COLORS.secondary, desc: 'Zero migraine triggers detected for 10 days' },
-  { title: 'Low Glycemic Master', icon: 'sparkles' as const, color: COLORS.accent, desc: 'Maintained sugar under 25g daily' },
+const BODY_SYSTEMS = [
+  { name: 'Cardiovascular', score: 82, icon: 'heart' as const, color: COLORS.danger, unit: 'BPM 72' },
+  { name: 'Metabolic', score: 67, icon: 'flame' as const, color: COLORS.warning, unit: '1820 kcal' },
+  { name: 'Neurological', score: 74, icon: 'flash' as const, color: COLORS.accent, unit: 'Stable' },
+  { name: 'Immunity', score: 89, icon: 'shield-checkmark' as const, color: COLORS.secondary, unit: 'Strong' },
 ];
 
-export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({
-  onBack,
-  onNavigateToTwin,
-}) => {
+export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({ onBack, onNavigate }) => {
   const { userProfile } = useApp();
-  const [timeframe, setTimeframe] = useState<Timeframe>('Weekly');
+  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d'>('7d');
 
-  const currentChart = CHART_DATA[timeframe];
-
-  // SVG Animated Bar Chart Renderer
-  const renderBarChart = () => {
-    const chartHeight = 130;
-    const width = 280;
-    const barWidth = 24;
-    const maxVal = 100;
-
-    return (
-      <Svg width={width} height={chartHeight + 30} style={{ alignSelf: 'center' }}>
-        <Defs>
-          <LinearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor="#3B82F6" />
-            <Stop offset="100%" stopColor="#60A5FA" />
-          </LinearGradient>
-        </Defs>
-
-        {currentChart.values.map((val, idx) => {
-          const x = idx * (width / currentChart.values.length) + 12;
-          const h = (val / maxVal) * chartHeight;
-          const y = chartHeight - h;
-
-          return (
-            <React.Fragment key={idx}>
-              <Rect
-                x={x}
-                y={y}
-                width={barWidth}
-                height={h}
-                rx={8}
-                fill="url(#barGrad)"
-              />
-            </React.Fragment>
-          );
-        })}
-      </Svg>
-    );
-  };
+  const weeklyData = [78, 82, 79, 85, 88, 84, userProfile.healthScore];
+  const maxH = Math.max(...weeklyData);
 
   return (
     <LayeredBackground>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Animated App Bar */}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AnimatedAppBar
-          title="Health Dashboard"
-          subtitle="Apple Health Inspired Trends & Analytics"
+          title="Health Insights"
+          subtitle="Comprehensive Clinical Overview"
           showBack
           onBack={onBack}
-          rightActionIcon="body-outline"
-          onRightAction={onNavigateToTwin}
+          rightActionIcon="download-outline"
+          onRightAction={() => {}}
         />
 
-        {/* Timeframe Toggle Buttons (Weekly, Monthly, Yearly) */}
-        <View style={styles.toggleRow}>
-          {(['Weekly', 'Monthly', 'Yearly'] as Timeframe[]).map((tf) => {
-            const isActive = timeframe === tf;
-            return (
-              <AnimatedPressable
-                key={tf}
-                style={[styles.toggleBtn, isActive && styles.toggleBtnActive]}
-                onPress={() => setTimeframe(tf)}
-              >
-                <Text style={[styles.toggleText, isActive && styles.toggleTextActive]}>{tf}</Text>
-              </AnimatedPressable>
-            );
-          })}
-        </View>
+        {/* Central Health Ring */}
+        <View style={[styles.ringPanel, SHADOWS.md]}>
+          <ProgressRing
+            size={170}
+            strokeWidth={14}
+            progress={userProfile.healthScore}
+            gradientColors={['#7B61FF', '#00C48C']}
+            id="dashboard-main"
+            trackColor="rgba(255,255,255,0.1)"
+          >
+            <Text style={styles.ringScore}>{userProfile.healthScore}</Text>
+            <Text style={styles.ringLabel}>out of 100</Text>
+          </ProgressRing>
 
-        {/* Apple Health Style Large Animated Graph Glass Card */}
-        <GlassCard variant="glass" style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <View>
-              <Text style={styles.chartTitle}>Metabolic Health Trend</Text>
-              <Text style={styles.chartSub}>Average Health Index: 82/100 (+4% vs last week)</Text>
-            </View>
-            <View style={styles.trendBadge}>
-              <Ionicons name="trending-up" size={14} color={COLORS.secondary} />
-              <Text style={styles.trendText}>+4%</Text>
+          <View style={styles.ringMeta}>
+            <Text style={styles.ringMetaTitle}>Clinical Health Score</Text>
+            <Text style={styles.ringMetaSub}>Based on nutrition, vitals & AI risk modeling</Text>
+            <View style={styles.ringBadge}>
+              <View style={styles.ringBadgeDot} />
+              <Text style={styles.ringBadgeText}>
+                {userProfile.healthScore >= 80 ? 'Excellent' : userProfile.healthScore >= 60 ? 'Good' : 'Needs Attention'}
+              </Text>
             </View>
           </View>
-
-          <View style={styles.chartWrapper}>
-            {renderBarChart()}
-            <View style={styles.labelsRow}>
-              {currentChart.labels.map((lbl, i) => (
-                <Text key={i} style={styles.axisLabel}>{lbl}</Text>
-              ))}
-            </View>
-          </View>
-        </GlassCard>
-
-        {/* Health Trends Summary Grid */}
-        <Text style={styles.sectionTitle}>Key Health Trends</Text>
-        <View style={styles.trendsGrid}>
-          <GlassCard variant="solid" style={styles.trendTile}>
-            <Ionicons name="flame" size={20} color={COLORS.primary} />
-            <Text style={styles.trendTileTitle}>Caloric Stability</Text>
-            <Text style={styles.trendTileVal}>92% Balanced</Text>
-            <Text style={styles.trendTileSub}>Daily target adherence</Text>
-          </GlassCard>
-
-          <GlassCard variant="solid" style={styles.trendTile}>
-            <Ionicons name="shield-checkmark" size={20} color={COLORS.secondary} />
-            <Text style={styles.trendTileTitle}>Sodium Control</Text>
-            <Text style={styles.trendTileVal}>1150mg Avg</Text>
-            <Text style={styles.trendTileSub}>Well below 2000mg</Text>
-          </GlassCard>
         </View>
 
-        {/* Achievements, Streaks & Badges Grid */}
-        <Text style={styles.sectionTitle}>Achievements & Streaks</Text>
-        <View style={styles.achievementsGrid}>
-          {ACHIEVEMENTS.map((ach, idx) => (
-            <GlassCard key={idx} style={styles.achievementCard}>
-              <View style={styles.achHeader}>
-                <View style={[styles.achIconBox, { backgroundColor: ach.color + '15' }]}>
-                  <Ionicons name={ach.icon} size={22} color={ach.color} />
-                </View>
-                <View style={styles.achBadge}>
-                  <Text style={styles.achBadgeText}>UNLOCKED</Text>
-                </View>
-              </View>
-
-              <Text style={styles.achTitle}>{ach.title}</Text>
-              <Text style={styles.achDesc}>{ach.desc}</Text>
-            </GlassCard>
+        {/* Period Switcher */}
+        <View style={styles.periodRow}>
+          {(['7d', '30d', '90d'] as const).map((p) => (
+            <AnimatedPressable key={p} style={[styles.periodBtn, selectedPeriod === p && styles.periodBtnActive]} onPress={() => setSelectedPeriod(p)} scaleTo={0.94}>
+              <Text style={[styles.periodText, selectedPeriod === p && styles.periodTextActive]}>{p}</Text>
+            </AnimatedPressable>
           ))}
         </View>
 
-        {/* Explore Digital Twin CTA */}
-        <PrimaryButton
-          title="Open Digital Health Twin Model"
-          icon="body"
-          onPress={onNavigateToTwin}
-          style={{ marginTop: 16 }}
-        />
+        {/* Bar Chart */}
+        <GlassCard title="Health Score Trend" subtitle="Daily composite score">
+          <View style={styles.chartRow}>
+            {weeklyData.map((v, i) => (
+              <View key={i} style={styles.barCol}>
+                <Text style={styles.barVal}>{v}</Text>
+                <View style={styles.barTrack}>
+                  <View style={[styles.barFill, {
+                    height: `${Math.round((v / maxH) * 100)}%`,
+                    backgroundColor: i === weeklyData.length - 1 ? COLORS.primary : 'rgba(79,110,247,0.35)',
+                  }]} />
+                </View>
+                <Text style={styles.barDay}>{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}</Text>
+              </View>
+            ))}
+          </View>
+        </GlassCard>
 
-        <View style={{ height: 40 }} />
+        {/* Body Systems */}
+        <Text style={styles.sectionTitle}>Body System Analysis</Text>
+        <View style={styles.bodyGrid}>
+          {BODY_SYSTEMS.map((sys) => (
+            <AnimatedPressable key={sys.name} style={[styles.systemCard, SHADOWS.sm]} onPress={() => onNavigate('DigitalHealthTwin')} scaleTo={0.96}>
+              <View style={[styles.sysIconBox, { backgroundColor: sys.color + '15' }]}>
+                <Ionicons name={sys.icon} size={20} color={sys.color} />
+              </View>
+              <Text style={styles.sysName}>{sys.name}</Text>
+              <Text style={styles.sysScore}>{sys.score}</Text>
+              <Text style={styles.sysUnit}>{sys.unit}</Text>
+              <View style={styles.sysTrack}>
+                <View style={[styles.sysFill, { width: `${sys.score}%`, backgroundColor: sys.color }]} />
+              </View>
+            </AnimatedPressable>
+          ))}
+        </View>
+
+        {/* Vitals Grid */}
+        <Text style={styles.sectionTitle}>Biometric Vitals</Text>
+        <View style={styles.vitalsGrid}>
+          {[
+            { label: 'Heart Rate', val: '72 bpm', icon: 'heart' as const, color: COLORS.danger, sub: 'Resting' },
+            { label: 'Blood Pressure', val: '118/76', icon: 'pulse' as const, color: COLORS.primary, sub: 'Optimal' },
+            { label: 'Blood Glucose', val: '94 mg/dL', icon: 'water' as const, color: COLORS.warning, sub: 'Pre-Diabetic Watch' },
+            { label: 'BMI', val: userProfile.bmi.toFixed(1), icon: 'body' as const, color: COLORS.accent, sub: 'Normal Range' },
+            { label: 'VO₂ Max', val: '42.1', icon: 'fitness' as const, color: COLORS.secondary, sub: 'Above Average' },
+            { label: 'Sleep Quality', val: '87%', icon: 'moon' as const, color: COLORS.primaryLight, sub: '7h 45m Deep' },
+          ].map((v) => (
+            <View key={v.label} style={[styles.vitalCard, SHADOWS.xs]}>
+              <View style={[styles.vitalIcon, { backgroundColor: v.color + '15' }]}>
+                <Ionicons name={v.icon} size={16} color={v.color} />
+              </View>
+              <Text style={styles.vitalLabel}>{v.label}</Text>
+              <Text style={styles.vitalVal}>{v.val}</Text>
+              <Text style={styles.vitalSub}>{v.sub}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* CTA */}
+        <PrimaryButton variant="accent" title="View 3D Digital Health Twin" icon="body" onPress={() => onNavigate('DigitalHealthTwin')} />
+
+        <View style={{ height: 30 }} />
       </ScrollView>
     </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  toggleRow: {
+  content: { paddingHorizontal: 16, paddingBottom: 20 },
+  ringPanel: {
+    backgroundColor: COLORS.darkPanel,
+    borderRadius: 28,
+    padding: 24,
     flexDirection: 'row',
-    backgroundColor: 'rgba(241, 245, 249, 0.9)',
-    borderRadius: 18,
-    padding: 4,
-    marginVertical: 10,
-  },
-  toggleBtn: {
-    flex: 1,
-    paddingVertical: 8,
     alignItems: 'center',
-    borderRadius: 14,
+    gap: 20,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.darkStroke,
   },
-  toggleBtnActive: {
-    backgroundColor: COLORS.white,
-    ...SHADOWS.sm,
-  },
-  toggleText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-  },
-  toggleTextActive: {
-    color: COLORS.primary,
+  ringScore: {
+    fontSize: 42,
     fontWeight: '900',
+    color: COLORS.darkText,
+    letterSpacing: -1,
   },
-  chartCard: {
-    marginVertical: 8,
-    padding: 20,
-  },
-  chartHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-  },
-  chartSub: {
-    fontSize: 12,
+  ringLabel: {
+    fontSize: 11,
     fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: 2,
+    color: 'rgba(228,231,255,0.55)',
   },
-  trendBadge: {
+  ringMeta: { flex: 1 },
+  ringMetaTitle: { fontSize: 18, fontWeight: '900', color: COLORS.darkText, letterSpacing: -0.3 },
+  ringMetaSub: { fontSize: 12, color: 'rgba(228,231,255,0.55)', marginTop: 4, lineHeight: 17 },
+  ringBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingHorizontal: 8,
+    gap: 5,
+    marginTop: 10,
+    backgroundColor: 'rgba(0,196,140,0.15)',
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
-    gap: 3,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
   },
-  trendText: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: COLORS.secondaryDark,
+  ringBadgeDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.secondary },
+  ringBadgeText: { fontSize: 12, fontWeight: '800', color: COLORS.secondary },
+  periodRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(200,207,228,0.25)',
+    borderRadius: 14,
+    padding: 4,
+    gap: 4,
+    marginBottom: 12,
   },
-  chartWrapper: {
+  periodBtn: { flex: 1, paddingVertical: 8, borderRadius: 11, alignItems: 'center' },
+  periodBtnActive: { backgroundColor: COLORS.white, ...SHADOWS.xs },
+  periodText: { fontSize: 13, fontWeight: '600', color: COLORS.textMuted },
+  periodTextActive: { fontWeight: '800', color: COLORS.primary },
+  chartRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 6,
+    height: 100,
     marginTop: 8,
   },
-  labelsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 6,
+  barCol: { flex: 1, alignItems: 'center', gap: 4 },
+  barVal: { fontSize: 9, fontWeight: '700', color: COLORS.textMuted },
+  barTrack: { flex: 1, width: '100%', backgroundColor: COLORS.trackBg, borderRadius: 4, overflow: 'hidden', justifyContent: 'flex-end' },
+  barFill: { width: '100%', borderRadius: 4, minHeight: 4 },
+  barDay: { fontSize: 9, fontWeight: '700', color: COLORS.textMuted },
+  sectionTitle: { fontSize: 20, fontWeight: '800', color: COLORS.textPrimary, letterSpacing: -0.3, marginTop: 16, marginBottom: 10 },
+  bodyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 8 },
+  systemCard: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 20,
+    padding: 14,
+    width: '47%',
+    borderWidth: 1,
+    borderColor: 'rgba(200,207,228,0.55)',
   },
-  axisLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-    marginTop: 18,
-    marginBottom: 10,
-  },
-  trendsGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginVertical: 4,
-  },
-  trendTile: {
+  sysIconBox: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  sysName: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary },
+  sysScore: { fontSize: 28, fontWeight: '900', color: COLORS.textPrimary, letterSpacing: -0.6, marginTop: 2 },
+  sysUnit: { fontSize: 11, color: COLORS.textMuted, marginTop: 1 },
+  sysTrack: { height: 4, borderRadius: 2, backgroundColor: COLORS.trackBg, overflow: 'hidden', marginTop: 8 },
+  sysFill: { height: '100%', borderRadius: 2 },
+  vitalsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
+  vitalCard: {
+    width: '30%',
     flex: 1,
-    padding: 16,
-  },
-  trendTileTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginTop: 6,
-  },
-  trendTileVal: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    marginTop: 2,
-  },
-  trendTileSub: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  achievementsGrid: {
-    gap: 8,
-    marginVertical: 4,
-  },
-  achievementCard: {
-    padding: 16,
-  },
-  achHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: 18,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(200,207,228,0.55)',
     alignItems: 'center',
-    marginBottom: 8,
+    minWidth: 100,
   },
-  achIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  achBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  achBadgeText: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: COLORS.secondaryDark,
-  },
-  achTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  achDesc: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
+  vitalIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
+  vitalLabel: { fontSize: 9, fontWeight: '700', color: COLORS.textMuted, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 0.3 },
+  vitalVal: { fontSize: 16, fontWeight: '900', color: COLORS.textPrimary, marginTop: 3, textAlign: 'center', letterSpacing: -0.3 },
+  vitalSub: { fontSize: 10, fontWeight: '500', color: COLORS.textSecondary, textAlign: 'center', marginTop: 2 },
 });

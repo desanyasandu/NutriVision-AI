@@ -1,77 +1,93 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LayeredBackground } from '../components/LayeredBackground';
-import { GlassCard } from '../components/GlassCard';
-import { SkeletonLoader } from '../components/SkeletonLoader';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface AnalyzingScreenProps {
   onComplete: () => void;
 }
 
 const STAGES = [
-  'Initializing Neural Segmentation...',
-  'Extracting Macronutrients (Protein, Fat, Sodium)...',
-  'Cross-referencing Pre-Diabetes Risk Guidelines...',
-  'Evaluating Vascular Migraine Triggers...',
-  'Finalizing Personal Health Score Impact...',
+  { label: 'Initializing Neural Segmentation', icon: 'hardware-chip' as const },
+  { label: 'Extracting Macronutrients', icon: 'nutrition' as const },
+  { label: 'Cross-referencing Disease Guidelines', icon: 'medical' as const },
+  { label: 'Evaluating Migraine Trigger Markers', icon: 'flash' as const },
+  { label: 'Building Your Health Impact Report', icon: 'sparkles' as const },
 ];
 
 export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) => {
-  const [stageIndex, setStageIndex] = useState(0);
-  const progressAnim = useRef(new Animated.Value(0)).current;
+  const [stage, setStage] = useState(0);
+  const progress = useRef(new Animated.Value(0)).current;
+  const orbPulse = useRef(new Animated.Value(1)).current;
+  const orbGlow = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
-    Animated.timing(progressAnim, {
+    Animated.timing(progress, {
       toValue: 100,
-      duration: 3200,
+      duration: 3400,
       easing: Easing.linear,
       useNativeDriver: false,
-    }).start(() => {
-      onComplete();
-    });
+    }).start(() => onComplete());
 
-    const interval = setInterval(() => {
-      setStageIndex((prev) => (prev < STAGES.length - 1 ? prev + 1 : prev));
-    }, 640);
+    const int = setInterval(() => {
+      setStage((p) => (p < STAGES.length - 1 ? p + 1 : p));
+    }, 680);
 
-    return () => clearInterval(interval);
-  }, [onComplete, progressAnim]);
+    Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(orbPulse, { toValue: 1.15, duration: 1200, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+          Animated.timing(orbGlow, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(orbPulse, { toValue: 1, duration: 1200, useNativeDriver: true }),
+          Animated.timing(orbGlow, { toValue: 0.6, duration: 1200, useNativeDriver: true }),
+        ]),
+      ])
+    ).start();
 
-  const widthInterpolate = progressAnim.interpolate({
-    inputRange: [0, 100],
-    outputRange: ['0%', '100%'],
-  });
+    return () => clearInterval(int);
+  }, [onComplete, progress, orbPulse, orbGlow]);
+
+  const barWidth = progress.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] });
 
   return (
-    <LayeredBackground style={styles.centerContainer}>
-      <View style={styles.contentBox}>
-        {/* Glowing AI Radar Orb Visualizer */}
-        <View style={styles.orbContainer}>
-          <View style={[styles.orbOuter, SHADOWS.glow]}>
-            <View style={styles.orbInner}>
-              <Ionicons name="hardware-chip-outline" size={44} color={COLORS.white} />
+    <LayeredBackground variant="dark" style={styles.root}>
+      <View style={styles.center}>
+        {/* Glow Pulse Orb */}
+        <View style={styles.orbStack}>
+          <Animated.View style={[styles.orbGlowRing, { opacity: orbGlow, transform: [{ scale: orbPulse }] }]} />
+          <Animated.View style={[styles.orbMiddle, { transform: [{ scale: orbPulse }] }]}>
+            <View style={styles.orbCore}>
+              <Ionicons name="hardware-chip" size={44} color={COLORS.white} />
             </View>
-          </View>
+          </Animated.View>
         </View>
 
-        <Text style={styles.titleText}>AI Deep Analysis</Text>
-        <Text style={styles.stageText}>{STAGES[stageIndex]}</Text>
+        <Text style={styles.mainTitle}>Deep AI Analysis</Text>
+        <Text style={styles.stageText}>{STAGES[stage].label}...</Text>
 
-        {/* Shimmer Progress Track */}
+        {/* Stage Dots */}
+        <View style={styles.dotsRow}>
+          {STAGES.map((_, i) => (
+            <View key={i} style={[styles.dot, { backgroundColor: i <= stage ? COLORS.primary : 'rgba(255,255,255,0.15)', width: i === stage ? 20 : 6 }]} />
+          ))}
+        </View>
+
+        {/* Progress Bar */}
         <View style={styles.progressTrack}>
-          <Animated.View style={[styles.progressBar, { width: widthInterpolate }]} />
+          <Animated.View style={[styles.progressFill, { width: barWidth }]} />
         </View>
 
-        {/* Skeleton Placeholders as AI processes nutrients */}
-        <View style={styles.skeletonSection}>
-          <GlassCard variant="glass" style={styles.skeletonCard}>
-            <SkeletonLoader height={18} width="60%" borderRadius={8} />
-            <SkeletonLoader height={14} width="85%" borderRadius={6} style={{ marginTop: 8 }} />
-            <SkeletonLoader height={14} width="40%" borderRadius={6} style={{ marginTop: 4 }} />
-          </GlassCard>
+        {/* Status Pills */}
+        <View style={styles.pillsRow}>
+          {['Proteins', 'Fats', 'Carbs', 'Micronutrients'].map((l, i) => (
+            <View key={i} style={[styles.statusPill, { opacity: i <= stage ? 1 : 0.3 }]}>
+              <Ionicons name="checkmark-circle" size={12} color={i <= stage ? COLORS.secondary : COLORS.textMuted} />
+              <Text style={[styles.pillText, { color: i <= stage ? COLORS.secondary : COLORS.textMuted }]}>{l}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </LayeredBackground>
@@ -79,30 +95,42 @@ export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) 
 };
 
 const styles = StyleSheet.create({
-  centerContainer: {
+  root: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
-  contentBox: {
-    width: '100%',
-    maxWidth: 420,
+  center: {
     alignItems: 'center',
+    paddingHorizontal: 32,
+    width: '100%',
   },
-  orbContainer: {
-    marginBottom: 24,
+  orbStack: {
+    position: 'relative',
+    width: 140,
+    height: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
   },
-  orbOuter: {
+  orbGlowRing: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(79, 110, 247, 0.2)',
+  },
+  orbMiddle: {
     width: 110,
     height: 110,
     borderRadius: 55,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: 'rgba(255, 255, 255, 0.9)',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.2)',
+    ...SHADOWS.glow,
   },
-  orbInner: {
+  orbCore: {
     width: 76,
     height: 76,
     borderRadius: 38,
@@ -110,38 +138,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  titleText: {
-    fontSize: DESIGN_TOKENS.fontSize.hugeTitle, // 32
+  mainTitle: {
+    fontSize: 30,
     fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.8,
+    color: COLORS.darkText,
+    letterSpacing: -0.6,
     marginBottom: 8,
   },
   stageText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: 'rgba(228,231,255,0.65)',
     textAlign: 'center',
-    height: 40,
+    minHeight: 38,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  dot: {
+    height: 6,
+    borderRadius: 3,
+    transition: 'all 0.3s' as any,
   },
   progressTrack: {
     width: '100%',
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(226, 232, 240, 0.9)',
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     overflow: 'hidden',
-    marginVertical: 20,
+    marginBottom: 20,
   },
-  progressBar: {
+  progressFill: {
     height: '100%',
     backgroundColor: COLORS.primary,
-    borderRadius: 4,
+    borderRadius: 3,
   },
-  skeletonSection: {
-    width: '100%',
-    marginTop: 10,
+  pillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
   },
-  skeletonCard: {
-    padding: 18,
+  statusPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  pillText: {
+    fontSize: 11,
+    fontWeight: '700',
   },
 });

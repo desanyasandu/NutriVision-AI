@@ -6,57 +6,62 @@ import { COLORS } from '../theme/colors';
 interface ProgressRingProps {
   size?: number;
   strokeWidth?: number;
-  progress: number; // 0 to 100
+  progress: number;
   color?: string;
+  trackColor?: string;
   gradientColors?: [string, string];
   centerTitle?: string;
   centerSubtitle?: string;
   children?: React.ReactNode;
   style?: ViewStyle;
+  id?: string;
 }
 
 export const ProgressRing: React.FC<ProgressRingProps> = ({
   size = 140,
   strokeWidth = 12,
   progress,
-  color = COLORS.primary,
-  gradientColors = ['#3B82F6', '#8B5CF6'],
+  trackColor,
+  gradientColors = ['#4F6EF7', '#7B61FF'],
   centerTitle,
   centerSubtitle,
   children,
   style,
+  id = 'default',
 }) => {
   const center = size / 2;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (circumference * Math.min(100, Math.max(0, progress))) / 100;
+  const clampedProgress = Math.min(100, Math.max(0, progress));
+  const strokeDashoffset = circumference - (circumference * clampedProgress) / 100;
+  const gradId = `ring_${id}`;
 
   return (
     <View style={[styles.container, { width: size, height: size }, style]}>
       <Svg width={size} height={size} style={styles.svg}>
         <Defs>
-          <LinearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <LinearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={gradientColors[0]} />
             <Stop offset="100%" stopColor={gradientColors[1]} />
           </LinearGradient>
         </Defs>
 
-        {/* Background Track Circle */}
+        {/* Track */}
         <Circle
           cx={center}
           cy={center}
           r={radius}
-          stroke="rgba(241, 245, 249, 0.9)"
+          stroke={trackColor || 'rgba(200, 207, 228, 0.4)'}
           strokeWidth={strokeWidth}
           fill="transparent"
         />
 
-        {/* Animated Progress Circle */}
+        {/* Progress Arc */}
         <Circle
           cx={center}
           cy={center}
           r={radius}
-          stroke="url(#ringGrad)"
+          stroke={`url(#${gradId})`}
           strokeWidth={strokeWidth}
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={strokeDashoffset}
@@ -66,14 +71,11 @@ export const ProgressRing: React.FC<ProgressRingProps> = ({
         />
       </Svg>
 
-      {/* Center Text or Custom Element */}
-      <View style={styles.centerContent}>
-        {children ? (
-          children
-        ) : (
+      <View style={styles.center}>
+        {children || (
           <>
             {centerTitle && <Text style={styles.titleText}>{centerTitle}</Text>}
-            {centerSubtitle && <Text style={styles.subtitleText}>{centerSubtitle}</Text>}
+            {centerSubtitle && <Text style={styles.subText}>{centerSubtitle}</Text>}
           </>
         )}
       </View>
@@ -90,22 +92,22 @@ const styles = StyleSheet.create({
   svg: {
     position: 'absolute',
   },
-  centerContent: {
+  center: {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
   },
   titleText: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '900',
     color: COLORS.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
-  subtitleText: {
+  subText: {
     fontSize: 12,
     fontWeight: '700',
     color: COLORS.textMuted,
     textTransform: 'uppercase',
-    marginTop: 2,
+    letterSpacing: 0.4,
   },
 });

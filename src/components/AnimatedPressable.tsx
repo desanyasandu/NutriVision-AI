@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Animated, TouchableWithoutFeedback, StyleProp, ViewStyle } from 'react-native';
 
 interface AnimatedPressableProps {
@@ -13,7 +13,7 @@ export const AnimatedPressable: React.FC<AnimatedPressableProps> = ({
   children,
   onPress,
   style,
-  scaleTo = 0.97,
+  scaleTo = 0.95,
   disabled = false,
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -23,8 +23,8 @@ export const AnimatedPressable: React.FC<AnimatedPressableProps> = ({
     Animated.spring(scaleAnim, {
       toValue: scaleTo,
       useNativeDriver: true,
-      speed: 30,
-      bounciness: 4,
+      speed: 40,
+      bounciness: 2,
     }).start();
   };
 
@@ -33,8 +33,8 @@ export const AnimatedPressable: React.FC<AnimatedPressableProps> = ({
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
-      speed: 25,
-      bounciness: 6,
+      speed: 28,
+      bounciness: 8,
     }).start();
   };
 

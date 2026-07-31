@@ -10,351 +10,388 @@ import { ProgressRing } from '../components/ProgressRing';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
-  const { userProfile, foodHistory, currentScan } = useApp();
-
-  const caloriesProgress = Math.min(
-    100,
-    Math.round((userProfile.todayCaloriesConsumed / userProfile.dailyCalorieTarget) * 100)
-  );
+  const { userProfile, currentScan } = useApp();
+  const calPct = Math.min(100, Math.round((userProfile.todayCaloriesConsumed / userProfile.dailyCalorieTarget) * 100));
 
   return (
     <LayeredBackground>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Transparent Animated App Bar with Profile Avatar */}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+        {/* App Bar */}
         <AnimatedAppBar
           showProfile
           onProfilePress={() => onNavigate('UserProfile')}
           rightActionIcon="notifications-outline"
+          rightAction2Icon="sparkles-outline"
           onRightAction={() => onNavigate('AIAgentCoach')}
+          onRightAction2={() => onNavigate('AIAgentCoach')}
         />
 
-        {/* Large Greeting Header */}
-        <View style={styles.greetingHeader}>
-          <Text style={styles.greetingSub}>WELCOME BACK</Text>
+        {/* Greeting */}
+        <View style={styles.greetingBlock}>
+          <Text style={styles.greetingLabel}>THURSDAY · JUL 31</Text>
           <Text style={styles.greetingTitle}>Hello, {userProfile.name} 👋</Text>
-          <Text style={styles.greetingDesc}>Your vital signs & daily nutrition are performing optimally today.</Text>
+          <Text style={styles.greetingSub}>Your metabolic health is looking great today.</Text>
         </View>
 
-        {/* Daily Health Score Hero Glass Card */}
-        <GlassCard variant="glass" style={styles.scoreHeroCard}>
-          <View style={styles.scoreRow}>
-            <View style={styles.scoreTextCol}>
-              <View style={styles.scoreBadge}>
-                <Ionicons name="shield-checkmark" size={14} color={COLORS.secondary} />
-                <Text style={styles.scoreBadgeText}>Optimal Status</Text>
+        {/* Hero Health Score Card — Dark Panel */}
+        <View style={[styles.heroCard, SHADOWS.md]}>
+          <View style={styles.heroCardInner}>
+            {/* Left: Score Text */}
+            <View style={styles.heroLeft}>
+              <View style={styles.heroBadge}>
+                <View style={styles.heroBadgeDot} />
+                <Text style={styles.heroBadgeText}>Optimal Status</Text>
               </View>
-              <Text style={styles.scoreHeroTitle}>Daily Health Score</Text>
-              <Text style={styles.scoreHeroDesc}>
-                Calculated from real-time metabolic rate, meal log balance, and migraine vulnerability metrics.
+              <Text style={styles.heroScore}>{userProfile.healthScore}</Text>
+              <Text style={styles.heroScoreLabel}>Daily Health Score</Text>
+              <Text style={styles.heroDesc}>
+                Metabolic index, meal balance, and vulnerability modeling — all optimal.
               </Text>
-              <AnimatedPressable style={styles.viewTwinBtn} onPress={() => onNavigate('DigitalHealthTwin')}>
-                <Text style={styles.viewTwinText}>Explore Digital Twin</Text>
-                <Ionicons name="sparkles" size={14} color={COLORS.accent} />
+              <AnimatedPressable style={styles.heroLink} onPress={() => onNavigate('DigitalHealthTwin')}>
+                <Text style={styles.heroLinkText}>View 3D Twin</Text>
+                <Ionicons name="arrow-forward" size={14} color={COLORS.primaryLight} />
               </AnimatedPressable>
             </View>
 
+            {/* Right: Ring */}
             <ProgressRing
-              size={124}
-              strokeWidth={11}
+              size={116}
+              strokeWidth={10}
               progress={userProfile.healthScore}
-              gradientColors={['#3B82F6', '#10B981']}
-              centerTitle={`${userProfile.healthScore}`}
-              centerSubtitle="Score"
-            />
+              gradientColors={['#7B61FF', '#00C48C']}
+              id="home-health"
+              trackColor="rgba(255,255,255,0.1)"
+            >
+              <Text style={styles.ringVal}>{userProfile.healthScore}</Text>
+              <Text style={styles.ringLabel}>/100</Text>
+            </ProgressRing>
           </View>
-        </GlassCard>
+        </View>
 
-        {/* Today's Vital Metrics Grid (Calories, Water, Heart, Sleep) */}
-        <View style={styles.sectionHeaderRow}>
+        {/* Vitals Header */}
+        <View style={styles.sectionRow}>
           <Text style={styles.sectionTitle}>Today's Vitals</Text>
           <AnimatedPressable onPress={() => onNavigate('HealthDashboard')}>
-            <Text style={styles.seeAllText}>Dashboard →</Text>
+            <Text style={styles.seeAll}>Dashboard →</Text>
           </AnimatedPressable>
         </View>
 
-        <View style={styles.metricsGrid}>
+        {/* Stat Cards Grid */}
+        <View style={styles.statsGrid}>
           <StatCard
-            title="Today's Calories"
+            title="Calories"
             value={`${userProfile.todayCaloriesConsumed}`}
-            unit={`/ ${userProfile.dailyCalorieTarget} kcal`}
+            unit={`/${userProfile.dailyCalorieTarget}`}
             icon="flame"
             iconColor={COLORS.primary}
-            iconBg="rgba(59, 130, 246, 0.1)"
-            progress={caloriesProgress}
-            subtitle={`${caloriesProgress}% of daily limit`}
-            sparklineData={[400, 650, 920, 1100, userProfile.todayCaloriesConsumed]}
+            iconBg={COLORS.primarySubtle}
+            progress={calPct}
+            sparklineData={[320, 600, 850, 1100, userProfile.todayCaloriesConsumed]}
             onPress={() => onNavigate('NutritionAnalysis')}
           />
-
           <StatCard
-            title="Water Intake"
+            title="Hydration"
             value="1.8"
-            unit="/ 2.5 L"
+            unit="/2.5L"
             icon="water"
             iconColor="#0EA5E9"
-            iconBg="rgba(14, 165, 233, 0.1)"
+            iconBg="rgba(14,165,233,0.12)"
             progress={72}
-            trend="+0.4L"
-            trendPositive={true}
-            sparklineData={[0.5, 0.8, 1.2, 1.5, 1.8]}
+            trend="+0.3L"
+            sparklineData={[0.4, 0.8, 1.2, 1.5, 1.8]}
             onPress={() => onNavigate('NutritionAnalysis')}
           />
         </View>
 
-        <View style={styles.metricsGrid}>
+        <View style={styles.statsGrid}>
           <StatCard
             title="Heart Rate"
             value="72"
             unit="BPM"
             icon="heart"
             iconColor={COLORS.danger}
-            iconBg="rgba(239, 68, 68, 0.1)"
+            iconBg={COLORS.dangerSubtle}
             trend="Normal"
-            trendPositive={true}
-            sparklineData={[68, 74, 71, 69, 75, 72]}
+            sparklineData={[68, 72, 70, 74, 71, 72]}
             onPress={() => onNavigate('HealthDashboard')}
           />
-
           <StatCard
-            title="Restful Sleep"
+            title="Sleep"
             value="7h 45m"
-            unit="Deep"
             icon="moon"
             iconColor={COLORS.accent}
-            iconBg="rgba(124, 58, 237, 0.1)"
-            progress={86}
+            iconBg={COLORS.accentSubtle}
+            progress={87}
             trend="+45m"
-            trendPositive={true}
-            sparklineData={[6, 6.5, 7, 7.2, 7.75]}
+            sparklineData={[6.2, 6.8, 7.1, 7.5, 7.75]}
             onPress={() => onNavigate('HealthDashboard')}
           />
         </View>
 
-        {/* AI Recommendation Banner Card */}
+        {/* AI Recommendation Card */}
         <GlassCard
           variant="gradient"
           icon="sparkles"
           iconColor={COLORS.accent}
-          iconBg="rgba(124, 58, 237, 0.12)"
-          title="NutriVision AI Clinical Advice"
+          iconBg={COLORS.accentSubtle}
+          title="NutriVision Clinical AI"
           subtitle="Pre-Diabetes & Migraine Shield"
-          badgeText="AI Recommendation"
+          badgeText="Live Insight"
           badgeColor={COLORS.accent}
-          ctaText="Consult Clinical AI Assistant"
+          ctaText="Consult AI Assistant"
           onCtaPress={() => onNavigate('AIAgentCoach')}
         >
-          <Text style={styles.aiAdviceBody}>
-            "Your recent lunch recorded 680 kcal with elevated sodium. For dinner, choose grilled salmon with quinoa to protect against blood sugar spikes and vascular migraine triggers."
+          <Text style={styles.aiAdvice}>
+            "Your sodium intake today is at 57% daily limit from lunch alone. Choose a potassium-rich dinner like grilled salmon to protect vascular balance."
           </Text>
         </GlassCard>
 
-        {/* Quick Actions Bar */}
-        <Text style={styles.sectionTitle}>Quick Health Actions</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickActionsScroll}>
-          <AnimatedPressable style={styles.actionChip} onPress={() => onNavigate('FoodScan')}>
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.12)' }]}>
-              <Ionicons name="camera" size={22} color={COLORS.primary} />
-            </View>
-            <Text style={styles.actionChipTitle}>Scan Food</Text>
-            <Text style={styles.actionChipSub}>AI Camera</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable style={styles.actionChip} onPress={() => onNavigate('AIAgentCoach')}>
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(124, 58, 237, 0.12)' }]}>
-              <Ionicons name="sparkles" size={22} color={COLORS.accent} />
-            </View>
-            <Text style={styles.actionChipTitle}>AI Coach</Text>
-            <Text style={styles.actionChipSub}>ChatGPT v2</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable style={styles.actionChip} onPress={() => onNavigate('DigitalHealthTwin')}>
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
-              <Ionicons name="body" size={22} color={COLORS.secondary} />
-            </View>
-            <Text style={styles.actionChipTitle}>Health Twin</Text>
-            <Text style={styles.actionChipSub}>3D Organ Model</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable style={styles.actionChip} onPress={() => onNavigate('VoiceAssistant')}>
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.12)' }]}>
-              <Ionicons name="mic" size={22} color={COLORS.warning} />
-            </View>
-            <Text style={styles.actionChipTitle}>Voice Assistant</Text>
-            <Text style={styles.actionChipSub}>Live Speech</Text>
-          </AnimatedPressable>
+        {/* Quick Actions */}
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionsScroll}>
+          {[
+            { label: 'Scan Food', sub: 'AI Camera', icon: 'camera', color: COLORS.primary, bg: COLORS.primarySubtle, screen: 'FoodScan' },
+            { label: 'AI Coach', sub: 'ChatGPT Style', icon: 'sparkles', color: COLORS.accent, bg: COLORS.accentSubtle, screen: 'AIAgentCoach' },
+            { label: 'Health Twin', sub: '3D Model', icon: 'body', color: COLORS.secondary, bg: COLORS.secondarySubtle, screen: 'DigitalHealthTwin' },
+            { label: 'Voice AI', sub: 'Speak Now', icon: 'mic', color: COLORS.warning, bg: COLORS.warningSubtle, screen: 'VoiceAssistant' },
+            { label: 'Disease Risk', sub: 'Analysis', icon: 'shield-checkmark', color: COLORS.danger, bg: COLORS.dangerSubtle, screen: 'DiseaseRiskAnalysis' },
+          ].map((action) => (
+            <AnimatedPressable
+              key={action.screen}
+              style={[styles.actionChip, SHADOWS.sm]}
+              onPress={() => onNavigate(action.screen)}
+              scaleTo={0.94}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: action.bg }]}>
+                <Ionicons name={action.icon as any} size={22} color={action.color} />
+              </View>
+              <Text style={styles.actionLabel}>{action.label}</Text>
+              <Text style={styles.actionSub}>{action.sub}</Text>
+            </AnimatedPressable>
+          ))}
         </ScrollView>
 
-        {/* Recent Meal Scan Card */}
+        {/* Last Scanned Meal */}
         {currentScan && (
-          <GlassCard
-            icon="restaurant"
-            iconColor={COLORS.primary}
-            title="Last Scanned Meal"
-            subtitle={currentScan.scannedAt}
-            ctaText="Detailed Nutrition Breakdown"
-            onCtaPress={() => onNavigate('FoodDetectionResult')}
-          >
-            <View style={styles.recentMealRow}>
-              <Image source={{ uri: currentScan.imageUrl }} style={styles.recentMealImg} />
-              <View style={styles.recentMealDetails}>
-                <Text style={styles.recentMealName}>{currentScan.name}</Text>
-                <Text style={styles.recentMealCategory}>{currentScan.category} • {currentScan.calories} kcal</Text>
-                <View style={styles.macroPillsRow}>
-                  <Text style={styles.macroPill}>P: {currentScan.proteinGrams}g</Text>
-                  <Text style={styles.macroPill}>F: {currentScan.fatGrams}g</Text>
-                  <Text style={styles.macroPill}>C: {currentScan.carbsGrams}g</Text>
+          <>
+            <Text style={styles.sectionTitle}>Last Scanned</Text>
+            <AnimatedPressable onPress={() => onNavigate('FoodDetectionResult')} scaleTo={0.98}>
+              <View style={[styles.mealCard, SHADOWS.sm]}>
+                <Image source={{ uri: currentScan.imageUrl }} style={styles.mealImg} />
+                <View style={styles.mealOverlay} />
+                <View style={styles.mealContent}>
+                  <View style={styles.mealTopRow}>
+                    <View style={styles.mealBadge}>
+                      <Text style={styles.mealBadgeText}>{currentScan.scannedAt}</Text>
+                    </View>
+                    <View style={styles.mealScoreBadge}>
+                      <Text style={[styles.mealScoreText, { color: currentScan.healthScore > 70 ? COLORS.secondary : COLORS.warning }]}>
+                        {currentScan.healthScore}/100
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.mealName}>{currentScan.name}</Text>
+                  <View style={styles.mealMacros}>
+                    <Text style={styles.macroPill}>{currentScan.calories} kcal</Text>
+                    <Text style={styles.macroPill}>P {currentScan.proteinGrams}g</Text>
+                    <Text style={styles.macroPill}>F {currentScan.fatGrams}g</Text>
+                    <Text style={styles.macroPill}>C {currentScan.carbsGrams}g</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </GlassCard>
+            </AnimatedPressable>
+          </>
         )}
 
-        <View style={{ height: 40 }} />
+        {/* Weekly Insights Dark Card */}
+        <GlassCard
+          variant="dark"
+          icon="analytics"
+          iconColor={COLORS.accentLight}
+          title="Weekly Performance"
+          subtitle="Health index vs last 7 days"
+          badgeText="+4% 📈"
+          badgeColor={COLORS.secondary}
+          ctaText="Full Dashboard"
+          onCtaPress={() => onNavigate('HealthDashboard')}
+        >
+          <View style={styles.weeklyBarsRow}>
+            {[78, 82, 80, 85, 88, 84, userProfile.healthScore].map((v, i) => (
+              <View key={i} style={styles.weeklyBarWrap}>
+                <View style={[styles.weeklyBar, { height: Math.round((v / 100) * 48), backgroundColor: i === 6 ? COLORS.primary : 'rgba(79,110,247,0.4)' }]} />
+                <Text style={styles.weeklyBarLabel}>{['M','T','W','T','F','S','T'][i]}</Text>
+              </View>
+            ))}
+          </View>
+        </GlassCard>
+
+        <View style={{ height: 30 }} />
       </ScrollView>
     </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
+  content: {
     paddingHorizontal: 16,
-    paddingBottom: 30,
+    paddingBottom: 20,
   },
-  greetingHeader: {
+  greetingBlock: {
     marginTop: 4,
     marginBottom: 16,
   },
-  greetingSub: {
-    fontSize: 11,
-    fontWeight: '900',
+  greetingLabel: {
+    fontSize: 10,
+    fontWeight: '800',
     color: COLORS.primary,
-    letterSpacing: 1.2,
+    letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   greetingTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.hugeTitle, // 32
+    fontSize: 32,
     fontWeight: '900',
     color: COLORS.textPrimary,
     letterSpacing: -0.8,
     marginTop: 2,
   },
-  greetingDesc: {
+  greetingSub: {
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.textSecondary,
-    marginTop: 4,
-    lineHeight: 20,
+    marginTop: 3,
   },
-  scoreHeroCard: {
-    marginVertical: 10,
+  heroCard: {
+    backgroundColor: COLORS.darkPanel,
+    borderRadius: 26,
     padding: 20,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: COLORS.darkStroke,
+    overflow: 'hidden',
   },
-  scoreRow: {
+  heroCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  scoreTextCol: {
+  heroLeft: {
     flex: 1,
     marginRight: 12,
   },
-  scoreBadge: {
+  heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 99,
-    alignSelf: 'flex-start',
-    gap: 4,
+    gap: 5,
     marginBottom: 8,
   },
-  scoreBadgeText: {
-    fontSize: 11,
+  heroBadgeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.secondary,
+  },
+  heroBadgeText: {
+    fontSize: 10,
     fontWeight: '800',
-    color: COLORS.secondaryDark,
+    color: COLORS.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
-  scoreHeroTitle: {
-    fontSize: 20,
+  heroScore: {
+    fontSize: 52,
     fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
+    color: COLORS.darkText,
+    letterSpacing: -2,
+    lineHeight: 56,
   },
-  scoreHeroDesc: {
+  heroScoreLabel: {
     fontSize: 13,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-    marginTop: 4,
-    lineHeight: 18,
+    fontWeight: '700',
+    color: 'rgba(228,231,255,0.7)',
+    marginTop: 2,
   },
-  viewTwinBtn: {
+  heroDesc: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(228,231,255,0.55)',
+    marginTop: 6,
+    lineHeight: 17,
+  },
+  heroLink: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     marginTop: 12,
   },
-  viewTwinText: {
-    fontSize: 13,
+  heroLinkText: {
+    fontSize: 12,
     fontWeight: '800',
-    color: COLORS.accent,
+    color: COLORS.primaryLight,
   },
-  sectionHeaderRow: {
+  ringVal: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: COLORS.darkText,
+    letterSpacing: -0.5,
+  },
+  ringLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(228,231,255,0.55)',
+  },
+  sectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 18,
     marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-    marginTop: 14,
-    marginBottom: 10,
-  },
-  seeAllText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  metricsGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginVertical: 4,
-  },
-  aiAdviceBody: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.textPrimary,
-    lineHeight: 21,
-    fontStyle: 'italic',
     marginTop: 4,
   },
-  quickActionsScroll: {
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
+    marginBottom: 10,
+    marginTop: 8,
+  },
+  seeAll: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  statsGrid: {
     flexDirection: 'row',
-    marginVertical: 4,
-    paddingBottom: 8,
+    gap: 10,
+    marginBottom: 10,
+  },
+  aiAdvice: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.textPrimary,
+    lineHeight: 20,
+    fontStyle: 'italic',
+  },
+  actionsScroll: {
+    marginBottom: 8,
   },
   actionChip: {
-    width: 124,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    width: 112,
+    backgroundColor: 'rgba(255,255,255,0.88)',
     borderRadius: 20,
     padding: 14,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    borderColor: 'rgba(200,207,228,0.55)',
     alignItems: 'center',
-    ...SHADOWS.sm,
   },
-  actionIconBox: {
+  actionIcon: {
     width: 44,
     height: 44,
     borderRadius: 15,
@@ -362,54 +399,110 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 8,
   },
-  actionChipTitle: {
-    fontSize: 13,
+  actionLabel: {
+    fontSize: 12,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    textAlign: 'center',
   },
-  actionChipSub: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  recentMealRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 4,
-  },
-  recentMealImg: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-  },
-  recentMealDetails: {
-    flex: 1,
-  },
-  recentMealName: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  recentMealCategory: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
+  actionSub: {
+    fontSize: 10,
     fontWeight: '500',
+    color: COLORS.textMuted,
+    textAlign: 'center',
     marginTop: 2,
   },
-  macroPillsRow: {
+  mealCard: {
+    height: 220,
+    borderRadius: 24,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 8,
+  },
+  mealImg: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+  },
+  mealOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(13,14,26,0.5)',
+  },
+  mealContent: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  mealTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  mealBadge: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  mealBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.85)',
+  },
+  mealScoreBadge: {
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  mealScoreText: {
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  mealName: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: COLORS.white,
+    letterSpacing: -0.5,
+  },
+  mealMacros: {
     flexDirection: 'row',
     gap: 6,
     marginTop: 6,
+    flexWrap: 'wrap',
   },
   macroPill: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.primary,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    color: COLORS.white,
+    backgroundColor: 'rgba(79,110,247,0.5)',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingVertical: 3,
+    borderRadius: 7,
+  },
+  weeklyBarsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 8,
+    marginTop: 8,
+    height: 60,
+  },
+  weeklyBarWrap: {
+    alignItems: 'center',
+    flex: 1,
+    gap: 4,
+  },
+  weeklyBar: {
+    width: '100%',
+    borderRadius: 4,
+    minHeight: 4,
+  },
+  weeklyBarLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: 'rgba(228,231,255,0.5)',
   },
 });

@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Text, TextStyle, ViewStyle } from 'react-native';
+import { View, StyleSheet, Text, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Stop, Rect, Circle } from 'react-native-svg';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 import { AnimatedPressable } from './AnimatedPressable';
 
 interface AIMessageBubbleProps {
@@ -28,39 +27,39 @@ export const AIMessageBubble: React.FC<AIMessageBubbleProps> = ({
   const isUser = sender === 'user';
 
   return (
-    <View style={[styles.messageRow, isUser ? styles.userRow : styles.agentRow]}>
+    <View style={[styles.row, isUser ? styles.userRow : styles.agentRow]}>
       {!isUser && (
-        <View style={styles.avatarContainer}>
-          <Svg width={36} height={36}>
+        <View style={styles.avatarWrap}>
+          <Svg width={34} height={34}>
             <Defs>
-              <LinearGradient id="aiAvatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0%" stopColor="#7C3AED" />
-                <Stop offset="100%" stopColor="#3B82F6" />
+              <LinearGradient id="aiAvGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <Stop offset="0%" stopColor="#7B61FF" />
+                <Stop offset="100%" stopColor="#4F6EF7" />
               </LinearGradient>
             </Defs>
-            <Circle cx={18} cy={18} r={18} fill="url(#aiAvatarGrad)" />
+            <Circle cx={17} cy={17} r={17} fill="url(#aiAvGrad)" />
           </Svg>
           <View style={styles.avatarIcon}>
-            <Ionicons name="sparkles" size={16} color={COLORS.white} />
+            <Ionicons name="sparkles" size={14} color={COLORS.white} />
           </View>
         </View>
       )}
 
-      <View style={[styles.bubble, isUser ? styles.userBubble : styles.agentBubble, SHADOWS.sm]}>
+      <View style={[styles.bubble, isUser ? styles.userBubble : styles.agentBubble, SHADOWS.xs]}>
         <Text style={[styles.messageText, isUser ? styles.userText : styles.agentText]}>{text}</Text>
 
-        {/* Action Recommendation Chips */}
         {recommendations && recommendations.length > 0 && (
-          <View style={styles.recommendationsWrapper}>
-            <Text style={styles.chipHeader}>Suggested Actions:</Text>
-            <View style={styles.chipGrid}>
-              {recommendations.map((rec, index) => (
+          <View style={styles.recsWrap}>
+            <Text style={styles.recHeader}>Suggested Actions</Text>
+            <View style={styles.chipRow}>
+              {recommendations.map((rec, i) => (
                 <AnimatedPressable
-                  key={index}
+                  key={i}
                   style={styles.chip}
-                  onPress={() => onSelectRecommendation && onSelectRecommendation(rec)}
+                  onPress={() => onSelectRecommendation?.(rec)}
+                  scaleTo={0.94}
                 >
-                  <Ionicons name="add-circle-outline" size={14} color={COLORS.accent} />
+                  <Ionicons name="add-circle-outline" size={13} color={COLORS.accent} />
                   <Text style={styles.chipText}>{rec}</Text>
                 </AnimatedPressable>
               ))}
@@ -68,18 +67,15 @@ export const AIMessageBubble: React.FC<AIMessageBubbleProps> = ({
           </View>
         )}
 
-        {/* Action Button */}
         {suggestedAction && (
-          <AnimatedPressable style={styles.actionBtn} onPress={onActionPress}>
+          <AnimatedPressable style={styles.actionBtn} onPress={onActionPress} scaleTo={0.95}>
             <Text style={styles.actionBtnText}>{suggestedAction}</Text>
-            <Ionicons name="chevron-forward" size={14} color={COLORS.white} />
+            <Ionicons name="chevron-forward" size={13} color={COLORS.white} />
           </AnimatedPressable>
         )}
 
         {timestamp && (
-          <Text style={[styles.timestampText, isUser ? styles.userTimestamp : styles.agentTimestamp]}>
-            {timestamp}
-          </Text>
+          <Text style={[styles.ts, isUser ? styles.userTs : styles.agentTs]}>{timestamp}</Text>
         )}
       </View>
     </View>
@@ -87,24 +83,20 @@ export const AIMessageBubble: React.FC<AIMessageBubbleProps> = ({
 };
 
 const styles = StyleSheet.create({
-  messageRow: {
+  row: {
     flexDirection: 'row',
-    marginVertical: 8,
+    marginVertical: 7,
     paddingHorizontal: 12,
   },
-  userRow: {
-    justifyContent: 'flex-end',
-  },
-  agentRow: {
-    justifyContent: 'flex-start',
-  },
-  avatarContainer: {
-    width: 36,
-    height: 36,
-    marginRight: 10,
+  userRow: { justifyContent: 'flex-end' },
+  agentRow: { justifyContent: 'flex-start' },
+  avatarWrap: {
+    width: 34,
+    height: 34,
+    marginRight: 8,
     position: 'relative',
     alignSelf: 'flex-start',
-    marginTop: 2,
+    marginTop: 4,
   },
   avatarIcon: {
     ...StyleSheet.absoluteFill,
@@ -112,46 +104,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bubble: {
-    maxWidth: '80%',
+    maxWidth: '78%',
     borderRadius: 20,
     padding: 14,
   },
   userBubble: {
     backgroundColor: COLORS.primary,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 5,
   },
   agentBubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
-    borderBottomLeftRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    borderBottomLeftRadius: 5,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    borderColor: 'rgba(200, 207, 228, 0.7)',
   },
   messageText: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  userText: {
-    color: COLORS.white,
-    fontWeight: '600',
-  },
-  agentText: {
-    color: COLORS.textPrimary,
+    fontSize: 14,
+    lineHeight: 21,
     fontWeight: '500',
   },
-  recommendationsWrapper: {
-    marginTop: 12,
+  userText: { color: COLORS.white },
+  agentText: { color: COLORS.textPrimary },
+  recsWrap: {
+    marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+    borderTopColor: 'rgba(200, 207, 228, 0.45)',
   },
-  chipHeader: {
-    fontSize: 12,
+  recHeader: {
+    fontSize: 11,
     fontWeight: '800',
     color: COLORS.accent,
-    marginBottom: 6,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
   },
-  chipGrid: {
+  chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
@@ -159,12 +147,12 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(124, 58, 237, 0.08)',
-    borderColor: 'rgba(124, 58, 237, 0.2)',
+    backgroundColor: COLORS.accentSubtle,
+    borderColor: 'rgba(123, 97, 255, 0.2)',
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 14,
+    borderRadius: 12,
     gap: 4,
   },
   chipText: {
@@ -175,28 +163,25 @@ const styles = StyleSheet.create({
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: COLORS.accent,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 12,
     marginTop: 10,
     gap: 4,
+    justifyContent: 'center',
   },
   actionBtnText: {
     fontSize: 13,
     fontWeight: '800',
     color: COLORS.white,
   },
-  timestampText: {
-    fontSize: 11,
+  ts: {
+    fontSize: 10,
     marginTop: 6,
     alignSelf: 'flex-end',
+    fontWeight: '500',
   },
-  userTimestamp: {
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
-  agentTimestamp: {
-    color: COLORS.textMuted,
-  },
+  userTs: { color: 'rgba(255,255,255,0.6)' },
+  agentTs: { color: COLORS.textMuted },
 });

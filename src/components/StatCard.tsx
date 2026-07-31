@@ -3,7 +3,6 @@ import { View, StyleSheet, Text, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 import { AnimatedPressable } from './AnimatedPressable';
 
 interface StatCardProps {
@@ -14,12 +13,13 @@ interface StatCardProps {
   icon: keyof typeof Ionicons.glyphMap;
   iconColor?: string;
   iconBg?: string;
-  progress?: number; // 0 to 100
+  progress?: number;
   trend?: string;
   trendPositive?: boolean;
   sparklineData?: number[];
   onPress?: () => void;
   style?: ViewStyle;
+  dark?: boolean;
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -29,96 +29,101 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtitle,
   icon,
   iconColor = COLORS.primary,
-  iconBg = 'rgba(59, 130, 246, 0.1)',
+  iconBg = 'rgba(79, 110, 247, 0.12)',
   progress,
   trend,
   trendPositive = true,
-  sparklineData = [10, 25, 18, 40, 30, 55, 45],
+  sparklineData = [20, 40, 30, 60, 50, 75, 65],
   onPress,
   style,
+  dark = false,
 }) => {
-  // Generate simple sparkline SVG path string
   const renderSparkline = () => {
-    const width = 80;
+    const width = 72;
     const height = 28;
     const max = Math.max(...sparklineData, 1);
     const min = Math.min(...sparklineData, 0);
-    const step = width / (sparklineData.length - 1);
-
-    const points = sparklineData
-      .map((val, idx) => {
-        const x = idx * step;
-        const y = height - ((val - min) / (max - min || 1)) * (height - 4) - 2;
-        return `${x},${y}`;
-      })
-      .join(' L ');
+    const step = width / Math.max(1, sparklineData.length - 1);
+    const pts = sparklineData.map((v, i) => {
+      const x = i * step;
+      const y = height - ((v - min) / (max - min || 1)) * (height - 4) - 2;
+      return `${x},${y}`;
+    });
 
     return (
       <Svg width={width} height={height}>
         <Path
-          d={`M ${points}`}
+          d={`M ${pts.join(' L ')}`}
           fill="none"
           stroke={iconColor}
-          strokeWidth="2.5"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          opacity={0.7}
         />
       </Svg>
     );
   };
 
-  return (
-    <AnimatedPressable style={[styles.card, SHADOWS.sm, style]} onPress={onPress}>
-      <View style={styles.topRow}>
-        <View style={[styles.iconBox, { backgroundColor: iconBg }]}>
-          <Ionicons name={icon} size={18} color={iconColor} />
-        </View>
+  const bg = dark ? '#1E2040' : 'rgba(255, 255, 255, 0.9)';
+  const border = dark ? 'rgba(255,255,255,0.08)' : 'rgba(200, 207, 228, 0.55)';
+  const titleClr = dark ? 'rgba(228, 231, 255, 0.65)' : COLORS.textSecondary;
+  const valClr = dark ? COLORS.darkText : COLORS.textPrimary;
 
+  return (
+    <AnimatedPressable
+      style={[styles.card, { backgroundColor: bg, borderColor: border }, SHADOWS.sm, style]}
+      onPress={onPress}
+      scaleTo={0.96}
+    >
+      <View style={styles.topRow}>
+        <View style={[styles.iconBox, { backgroundColor: dark ? 'rgba(255,255,255,0.1)' : iconBg }]}>
+          <Ionicons name={icon} size={17} color={dark ? COLORS.white : iconColor} />
+        </View>
         {trend && (
-          <View style={[styles.trendBadge, { backgroundColor: trendPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)' }]}>
+          <View style={[
+            styles.trendBadge,
+            { backgroundColor: trendPositive ? 'rgba(0,196,140,0.12)' : 'rgba(255,92,122,0.12)' }
+          ]}>
             <Ionicons
               name={trendPositive ? 'trending-up' : 'trending-down'}
-              size={12}
+              size={11}
               color={trendPositive ? COLORS.secondary : COLORS.danger}
             />
-            <Text style={[styles.trendText, { color: trendPositive ? COLORS.secondary : COLORS.danger }]}>{trend}</Text>
+            <Text style={[styles.trendText, { color: trendPositive ? COLORS.secondary : COLORS.danger }]}>
+              {trend}
+            </Text>
           </View>
         )}
       </View>
 
-      <Text style={styles.titleText}>{title}</Text>
+      <Text style={[styles.titleText, { color: titleClr }]}>{title}</Text>
+      <Text style={[styles.valueText, { color: valClr }]}>
+        {value}
+        {unit && <Text style={[styles.unitText, { color: dark ? 'rgba(228,231,255,0.45)' : COLORS.textMuted }]}> {unit}</Text>}
+      </Text>
 
-      <View style={styles.valueRow}>
-        <Text style={styles.valueText}>
-          {value}
-          {unit && <Text style={styles.unitText}> {unit}</Text>}
-        </Text>
+      <View style={styles.bottomRow}>
+        {renderSparkline()}
+        {progress !== undefined && (
+          <View style={[styles.progressTrack, { backgroundColor: dark ? 'rgba(255,255,255,0.08)' : COLORS.trackBg }]}>
+            <View style={[styles.progressFill, { width: `${Math.min(100, progress)}%`, backgroundColor: iconColor }]} />
+          </View>
+        )}
       </View>
 
-      {/* Mini Sparkline Chart */}
-      <View style={styles.sparklineRow}>{renderSparkline()}</View>
-
-      {/* Progress Track if provided */}
-      {progress !== undefined && (
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressBar, { width: `${Math.min(100, Math.max(0, progress))}%`, backgroundColor: iconColor }]} />
-        </View>
-      )}
-
-      {subtitle && <Text style={styles.subtitleText}>{subtitle}</Text>}
+      {subtitle && <Text style={[styles.subtitleText, { color: dark ? 'rgba(228,231,255,0.45)' : COLORS.textMuted }]}>{subtitle}</Text>}
     </AnimatedPressable>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    borderRadius: DESIGN_TOKENS.borderRadius.card, // 24
-    padding: 16,
+    borderRadius: 22,
+    padding: 15,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
     flex: 1,
-    minWidth: 150,
+    minWidth: 148,
   },
   topRow: {
     flexDirection: 'row',
@@ -127,64 +132,55 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
   },
   trendBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 99,
     gap: 3,
   },
   trendText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
   },
   titleText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    marginBottom: 2,
-  },
-  valueRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 3,
   },
   valueText: {
     fontSize: 22,
     fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
   },
   unitText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-  },
-  sparklineRow: {
-    marginTop: 8,
-    marginBottom: 6,
-  },
-  progressTrack: {
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: 'rgba(241, 245, 249, 0.9)',
-    overflow: 'hidden',
-    marginTop: 4,
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  subtitleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.textMuted,
+  },
+  bottomRow: {
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  progressTrack: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
     marginTop: 6,
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  subtitleText: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 4,
   },
 });
