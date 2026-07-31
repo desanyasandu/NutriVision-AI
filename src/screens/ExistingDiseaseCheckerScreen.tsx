@@ -175,7 +175,14 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
           <Text style={styles.adviceText}>{data.advice}</Text>
         </GlassCard>
 
-        <PrimaryButton variant="accent" title="Get Full AI Prevention Plan" icon="shield-checkmark" onPress={onAskAgent} />
+        <PrimaryButton
+          variant="accent"
+          waterEffect={true}
+          waterVariant="purple"
+          title="Get Full AI Prevention Plan"
+          icon="shield-checkmark"
+          onPress={onAskAgent}
+        />
 
         <View style={{ height: 30 }} />
       </ScrollView>

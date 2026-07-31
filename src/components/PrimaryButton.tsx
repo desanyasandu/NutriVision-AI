@@ -5,6 +5,8 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { COLORS, SHADOWS } from '../theme/colors';
 import { AnimatedPressable } from './AnimatedPressable';
 
+import { WaterButton, WaterVariant } from './WaterButton';
+
 interface PrimaryButtonProps {
   title: string;
   onPress?: () => void;
@@ -14,6 +16,8 @@ interface PrimaryButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   variant?: 'primary' | 'accent' | 'success' | 'danger' | 'dark';
+  waterEffect?: boolean;
+  waterVariant?: WaterVariant;
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -26,8 +30,30 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   style,
   textStyle,
   variant = 'primary',
+  waterEffect = false,
+  waterVariant,
   size = 'md',
 }) => {
+  if (waterEffect) {
+    const defaultWaterVariant: WaterVariant = 
+      variant === 'success' ? 'emerald' :
+      variant === 'accent' ? 'purple' :
+      variant === 'danger' ? 'coral' : 'cyan';
+
+    return (
+      <WaterButton
+        title={title}
+        icon={icon}
+        onPress={onPress}
+        loading={loading}
+        disabled={disabled}
+        style={style}
+        textStyle={textStyle}
+        size={size}
+        variant={waterVariant || defaultWaterVariant}
+      />
+    );
+  }
   const getColors = () => {
     switch (variant) {
       case 'accent': return ['#7B61FF', '#5A3FE0'];

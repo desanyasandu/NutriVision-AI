@@ -174,7 +174,13 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
         </AnimatedPressable>
 
         <View style={styles.btnGroup}>
-          <PrimaryButton title="Check Disease Compatibility" icon="shield-checkmark" onPress={onCheckDisease} />
+          <PrimaryButton
+            title="Check Disease Compatibility"
+            icon="shield-checkmark"
+            waterEffect={true}
+            waterVariant="purple"
+            onPress={onCheckDisease}
+          />
           <SecondaryButton title="View Nutrition Timeline" icon="pie-chart-outline" onPress={onViewNutrition} />
         </View>
 

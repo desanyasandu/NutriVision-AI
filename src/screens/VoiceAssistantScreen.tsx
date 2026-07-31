@@ -5,6 +5,7 @@ import Svg, { Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { WaterButton } from '../components/WaterButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { COLORS, SHADOWS } from '../theme/colors';
@@ -104,14 +105,14 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({ onBa
         </View>
 
         {/* Toggle Button */}
-        <AnimatedPressable
-          style={[styles.listenBtn, { backgroundColor: listening ? COLORS.danger : COLORS.primary }, SHADOWS.glow]}
+        <WaterButton
+          title={listening ? 'Stop Voice Logging' : 'Start Voice Logging'}
+          icon={listening ? 'stop' : 'mic'}
+          variant={listening ? 'coral' : 'purple'}
+          size="lg"
           onPress={() => setListening(!listening)}
-          scaleTo={0.92}
-        >
-          <Ionicons name={listening ? 'stop' : 'mic'} size={22} color={COLORS.white} />
-          <Text style={styles.listenBtnText}>{listening ? 'Stop Listening' : 'Start Voice Logging'}</Text>
-        </AnimatedPressable>
+          style={{ width: 260, marginTop: 16 }}
+        />
       </View>
 
       {/* Capabilities */}

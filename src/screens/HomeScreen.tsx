@@ -8,6 +8,7 @@ import { GlassCard } from '../components/GlassCard';
 import { StatCard } from '../components/StatCard';
 import { ProgressRing } from '../components/ProgressRing';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { WaterButton } from '../components/WaterButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -74,6 +75,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             </ProgressRing>
           </View>
         </View>
+
+        {/* Instant Water Button Scanner CTA */}
+        <WaterButton
+          title="Instant AI Food Scanner"
+          icon="scan-outline"
+          variant="cyan"
+          size="lg"
+          onPress={() => onNavigate('FoodScan')}
+          style={{ marginVertical: 12 }}
+        />
 
         {/* Vitals Header */}
         <View style={styles.sectionRow}>

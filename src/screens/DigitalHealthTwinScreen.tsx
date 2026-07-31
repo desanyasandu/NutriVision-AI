@@ -183,7 +183,15 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
           </AnimatedPressable>
         ))}
 
-        <PrimaryButton variant="accent" title="Generate Full Prediction Report" icon="document-text" onPress={() => onNavigate('DiseaseRiskAnalysis')} style={{ marginTop: 14 }} />
+        <PrimaryButton
+          variant="accent"
+          waterEffect={true}
+          waterVariant="cyan"
+          title="Generate Full Prediction Report"
+          icon="document-text"
+          onPress={() => onNavigate('DiseaseRiskAnalysis')}
+          style={{ marginTop: 14 }}
+        />
 
         <View style={{ height: 30 }} />
       </ScrollView>

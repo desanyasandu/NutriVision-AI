@@ -6,6 +6,7 @@ import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { WaterButton } from '../components/WaterButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -74,11 +75,14 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
 
           {/* Capture FAB */}
           <Animated.View style={[styles.fabWrap, { transform: [{ scale: pulseAnim }] }]}>
-            <AnimatedPressable onPress={onScanComplete} scaleTo={0.88}>
-              <View style={[styles.captureFab, SHADOWS.glow]}>
-                <Ionicons name="camera" size={28} color={COLORS.white} />
-              </View>
-            </AnimatedPressable>
+            <WaterButton
+              onPress={onScanComplete}
+              variant="cyan"
+              size="lg"
+              style={{ width: 68, height: 68, borderRadius: 34 }}
+            >
+              <Ionicons name="camera" size={28} color={COLORS.white} />
+            </WaterButton>
           </Animated.View>
         </View>
 
@@ -96,7 +100,13 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
           </View>
         </GlassCard>
 
-        <PrimaryButton title="Capture & Analyze" icon="scan" onPress={onScanComplete} />
+        <WaterButton
+          title="Capture & Analyze Food"
+          icon="scan"
+          variant="cyan"
+          size="lg"
+          onPress={onScanComplete}
+        />
 
         {/* Recent Scans */}
         <Text style={styles.sectionTitle}>Recent Scans</Text>
