@@ -147,7 +147,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <View style={styles.sectionHeaderBetween}>
             <View style={styles.titleRowFlex}>
               <Ionicons name="grid" size={18} color={COLORS.primary} />
-              <Text style={styles.sectionTitle}>Daily Kanban Action Cards</Text>
+              <Text style={styles.sectionTitle}>Daily Meal Plan Cards</Text>
             </View>
             <AnimatedPressable onPress={() => onNavigate('KanbanPlanner')}>
               <Text style={styles.viewAllText}>Full Board →</Text>

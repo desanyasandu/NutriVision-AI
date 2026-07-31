@@ -22,8 +22,8 @@ export const KanbanPlannerScreen: React.FC<KanbanPlannerScreenProps> = ({ onBack
   return (
     <View style={styles.container}>
       <Header
-        title="Kanban Health Board"
-        subtitle="Daily Dietary & Action Pipeline"
+        title="Meal Planner Board"
+        subtitle="Daily Dietary & Nutrition Pipeline"
         showBack={Boolean(onBack)}
         onBack={onBack}
       />

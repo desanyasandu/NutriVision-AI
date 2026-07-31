@@ -170,7 +170,7 @@ export const AppNavigator: React.FC = () => {
                 currentScreen === 'KanbanPlanner' && styles.tabLabelActive,
               ]}
             >
-              Kanban
+              Planner
             </Text>
             {currentScreen === 'KanbanPlanner' && <View style={styles.activeDot} />}
           </AnimatedPressable>

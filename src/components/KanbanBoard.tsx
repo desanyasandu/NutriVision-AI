@@ -110,7 +110,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       <View style={styles.progressHeaderCard}>
         <View style={styles.progressHeaderRow}>
           <View>
-            <Text style={styles.progressTitle}>Daily Health Pipeline</Text>
+            <Text style={styles.progressTitle}>Daily Meal Plan</Text>
             <Text style={styles.progressSub}>
               {completedCount} of {totalCount} goals completed ({completionPercentage}%)
             </Text>
@@ -216,7 +216,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Create Kanban Task</Text>
+              <Text style={styles.modalTitle}>Create Meal Plan Goal</Text>
               <TouchableOpacity onPress={() => setIsModalOpen(false)}>
                 <Ionicons name="close-circle-outline" size={24} color={COLORS.textMuted} />
               </TouchableOpacity>
@@ -313,7 +313,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               activeOpacity={0.85}
             >
               <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.white} />
-              <Text style={styles.submitBtnText}>Create Kanban Card</Text>
+              <Text style={styles.submitBtnText}>Create Goal Card</Text>
             </TouchableOpacity>
           </View>
         </View>
