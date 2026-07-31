@@ -9,6 +9,7 @@ import { StatCard } from '../components/StatCard';
 import { ProgressRing } from '../components/ProgressRing';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { WaterButton } from '../components/WaterButton';
+import { SuccessCheck } from '../components/SuccessCheck';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -47,7 +48,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             {/* Left: Score Text */}
             <View style={styles.heroLeft}>
               <View style={styles.heroBadge}>
-                <View style={styles.heroBadgeDot} />
+                <SuccessCheck size={18} color="#00C48C" strokeWidth={3} />
                 <Text style={styles.heroBadgeText}>Optimal Status</Text>
               </View>
               <Text style={styles.heroScore}>{userProfile.healthScore}</Text>

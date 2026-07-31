@@ -7,6 +7,7 @@ import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { WaterButton } from '../components/WaterButton';
+import { SuccessCheck } from '../components/SuccessCheck';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -89,7 +90,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
         {/* Neural Status Card */}
         <GlassCard variant="outline">
           <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: COLORS.secondary }]} />
+            <SuccessCheck size={22} color={COLORS.secondary} strokeWidth={3.5} />
             <View style={styles.statusText}>
               <Text style={styles.statusTitle}>Neural Vision v2.4 · Active</Text>
               <Text style={styles.statusSub}>Multi-ingredient segmentation · Precision Mode</Text>

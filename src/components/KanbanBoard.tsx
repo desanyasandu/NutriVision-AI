@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { KanbanCardItem } from '../data/mockData';
@@ -212,111 +214,124 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       </View>
 
       {/* Add Kanban Task Modal */}
-      <Modal visible={isModalOpen} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
+      <Modal visible={isModalOpen} animationType="fade" transparent onRequestClose={() => setIsModalOpen(false)}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => setIsModalOpen(false)}
+          />
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Create Meal Plan Goal</Text>
-              <TouchableOpacity onPress={() => setIsModalOpen(false)}>
+              <View style={styles.modalTitleRow}>
+                <Ionicons name="sparkles" size={18} color={COLORS.primary} />
+                <Text style={styles.modalTitle}>Create Meal Plan Goal</Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsModalOpen(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                 <Ionicons name="close-circle-outline" size={24} color={COLORS.textMuted} />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Task Title *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g. Low Sodium Salmon Bowl"
-                placeholderTextColor={COLORS.textMuted}
-                value={newTitle}
-                onChangeText={setNewTitle}
-              />
-            </View>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScrollBody}>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Task Title *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. Low Sodium Salmon Bowl"
+                  placeholderTextColor={COLORS.textMuted}
+                  value={newTitle}
+                  onChangeText={setNewTitle}
+                />
+              </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Subtitle / Goal Description</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g. Zero refined sugar, high protein"
-                placeholderTextColor={COLORS.textMuted}
-                value={newSubtitle}
-                onChangeText={setNewSubtitle}
-              />
-            </View>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Subtitle / Goal Description</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. Zero refined sugar, high protein"
+                  placeholderTextColor={COLORS.textMuted}
+                  value={newSubtitle}
+                  onChangeText={setNewSubtitle}
+                />
+              </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Category</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {['Meal Plan', 'Hydration', 'Risk Mitigation', 'Exercise', 'Supplement'].map(
-                  (c) => (
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Category</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+                  {['Meal Plan', 'Hydration', 'Risk Mitigation', 'Exercise', 'Supplement'].map(
+                    (c) => (
+                      <TouchableOpacity
+                        key={c}
+                        style={[
+                          styles.chipOption,
+                          newCategory === c && styles.chipOptionSelected,
+                        ]}
+                        onPress={() => setNewCategory(c as any)}
+                      >
+                        <Text
+                          style={[
+                            styles.chipOptionText,
+                            newCategory === c && styles.chipOptionTextSelected,
+                          ]}
+                        >
+                          {c}
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  )}
+                </ScrollView>
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Priority Level</Text>
+                <View style={styles.rowGroup}>
+                  {(['High', 'Medium', 'Low'] as const).map((p) => (
                     <TouchableOpacity
-                      key={c}
+                      key={p}
                       style={[
                         styles.chipOption,
-                        newCategory === c && styles.chipOptionSelected,
+                        newPriority === p && styles.chipOptionSelected,
                       ]}
-                      onPress={() => setNewCategory(c as any)}
+                      onPress={() => setNewPriority(p)}
                     >
                       <Text
                         style={[
                           styles.chipOptionText,
-                          newCategory === c && styles.chipOptionTextSelected,
+                          newPriority === p && styles.chipOptionTextSelected,
                         ]}
                       >
-                        {c}
+                        {p}
                       </Text>
                     </TouchableOpacity>
-                  )
-                )}
-              </ScrollView>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Priority Level</Text>
-              <View style={styles.rowGroup}>
-                {(['High', 'Medium', 'Low'] as const).map((p) => (
-                  <TouchableOpacity
-                    key={p}
-                    style={[
-                      styles.chipOption,
-                      newPriority === p && styles.chipOptionSelected,
-                    ]}
-                    onPress={() => setNewPriority(p)}
-                  >
-                    <Text
-                      style={[
-                        styles.chipOptionText,
-                        newPriority === p && styles.chipOptionTextSelected,
-                      ]}
-                    >
-                      {p}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Target Value / Calories (Optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g. 500 kcal or 2.5 L"
-                placeholderTextColor={COLORS.textMuted}
-                value={newTargetValue}
-                onChangeText={setNewTargetValue}
-              />
-            </View>
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Target Value / Calories (Optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g. 500 kcal or 2.5 L"
+                  placeholderTextColor={COLORS.textMuted}
+                  value={newTargetValue}
+                  onChangeText={setNewTargetValue}
+                />
+              </View>
 
-            <TouchableOpacity
-              style={styles.submitBtn}
-              onPress={handleCreateTask}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.white} />
-              <Text style={styles.submitBtnText}>Create Goal Card</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.submitBtn}
+                onPress={handleCreateTask}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.white} />
+                <Text style={styles.submitBtnText}>Create Goal Card</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -457,26 +472,48 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(15, 23, 42, 0.68)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
   },
   modalContent: {
     backgroundColor: COLORS.cardBg,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20,
-    gap: 14,
+    borderRadius: 24,
+    padding: 22,
+    width: '100%',
+    maxWidth: 520,
+    maxHeight: '90%',
+    borderWidth: 1,
+    borderColor: 'rgba(200, 207, 228, 0.5)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.28,
+    shadowRadius: 24,
+    elevation: 12,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 14,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+  },
+  modalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '800',
     color: COLORS.textPrimary,
+  },
+  modalScrollBody: {
+    gap: 14,
+    paddingBottom: 6,
   },
   formGroup: {
     gap: 6,

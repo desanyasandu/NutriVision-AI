@@ -7,6 +7,7 @@ import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SecondaryButton } from '../components/SecondaryButton';
+import { SuccessCheck } from '../components/SuccessCheck';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -63,7 +64,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
           {/* Top badges */}
           <View style={styles.heroBadgesRow}>
             <View style={styles.aiConfBadge}>
-              <Ionicons name="sparkles" size={11} color={COLORS.white} />
+              <SuccessCheck size={16} color={COLORS.white} strokeWidth={3} />
               <Text style={styles.aiConfText}>{scan.confidence}% Conf. {scan.confidenceInterval}</Text>
             </View>
             <View style={[styles.scoreBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>

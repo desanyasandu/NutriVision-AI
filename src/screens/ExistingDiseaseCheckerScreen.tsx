@@ -7,6 +7,7 @@ import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { SuccessCheck } from '../components/SuccessCheck';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
@@ -157,7 +158,7 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
           <View style={styles.chipGrid}>
             {data.safe.map((s, i) => (
               <View key={i} style={styles.safeChip}>
-                <Ionicons name="leaf" size={12} color={COLORS.secondary} />
+                <SuccessCheck size={16} color={COLORS.secondary} strokeWidth={3} />
                 <Text style={styles.safeText}>{s}</Text>
               </View>
             ))}

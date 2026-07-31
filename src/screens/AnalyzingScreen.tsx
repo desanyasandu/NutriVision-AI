@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LayeredBackground } from '../components/LayeredBackground';
+import { SuccessCheck } from '../components/SuccessCheck';
 import { COLORS, SHADOWS } from '../theme/colors';
 
 interface AnalyzingScreenProps {
@@ -55,12 +56,16 @@ export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) 
   return (
     <LayeredBackground variant="dark" style={styles.root}>
       <View style={styles.center}>
-        {/* Glow Pulse Orb */}
+        {/* Glow Pulse Orb with Success Check */}
         <View style={styles.orbStack}>
           <Animated.View style={[styles.orbGlowRing, { opacity: orbGlow, transform: [{ scale: orbPulse }] }]} />
           <Animated.View style={[styles.orbMiddle, { transform: [{ scale: orbPulse }] }]}>
             <View style={styles.orbCore}>
-              <Ionicons name="hardware-chip" size={44} color={COLORS.white} />
+              {stage >= STAGES.length - 1 ? (
+                <SuccessCheck key="stage-done" size={42} color={COLORS.secondary} />
+              ) : (
+                <Ionicons name="hardware-chip" size={44} color={COLORS.white} />
+              )}
             </View>
           </Animated.View>
         </View>
@@ -84,7 +89,11 @@ export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) 
         <View style={styles.pillsRow}>
           {['Proteins', 'Fats', 'Carbs', 'Micronutrients'].map((l, i) => (
             <View key={i} style={[styles.statusPill, { opacity: i <= stage ? 1 : 0.3 }]}>
-              <Ionicons name="checkmark-circle" size={12} color={i <= stage ? COLORS.secondary : COLORS.textMuted} />
+              {i <= stage ? (
+                <SuccessCheck key={`pill-${i}`} size={16} color={COLORS.secondary} strokeWidth={3} />
+              ) : (
+                <Ionicons name="checkmark-circle" size={12} color={COLORS.textMuted} />
+              )}
               <Text style={[styles.pillText, { color: i <= stage ? COLORS.secondary : COLORS.textMuted }]}>{l}</Text>
             </View>
           ))}
