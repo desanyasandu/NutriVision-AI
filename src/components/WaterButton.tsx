@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Svg, { Defs, LinearGradient, Stop, Path, Circle, G } from 'react-native-svg';
 import { COLORS } from '../theme/colors';
 
-export type WaterVariant = 'cyan' | 'emerald' | 'purple' | 'ocean' | 'coral';
+export type WaterVariant = 'cyan' | 'emerald' | 'purple' | 'ocean' | 'coral' | 'primary';
 
 export interface WaterButtonProps {
   title?: string;
@@ -26,6 +26,7 @@ export interface WaterButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   variant?: WaterVariant;
+  transparent?: boolean; // Glassmorphic transparent backdrop
   size?: 'sm' | 'md' | 'lg';
   fullness?: number; // 0.2 to 0.8
   children?: React.ReactNode;
@@ -41,9 +42,10 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
   disabled = false,
   style,
   textStyle,
-  variant = 'cyan',
+  variant = 'primary',
+  transparent = true,
   size = 'md',
-  fullness = 0.55,
+  fullness = 0.65,
   children,
 }) => {
   const [dimensions, setDimensions] = useState({ width: 240, height: 52 });
@@ -61,7 +63,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     const waveLoop = Animated.loop(
       Animated.timing(phaseAnim, {
         toValue: 1,
-        duration: 3200,
+        duration: 3000,
         easing: Easing.linear,
         useNativeDriver: false,
       })
@@ -71,7 +73,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     const b1 = Animated.loop(
       Animated.timing(bubbleY1, {
         toValue: 1,
-        duration: 2200,
+        duration: 2000,
         easing: Easing.ease,
         useNativeDriver: false,
       })
@@ -80,7 +82,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     const b2 = Animated.loop(
       Animated.timing(bubbleY2, {
         toValue: 1,
-        duration: 2900,
+        duration: 2700,
         easing: Easing.ease,
         useNativeDriver: false,
       })
@@ -89,7 +91,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     const b3 = Animated.loop(
       Animated.timing(bubbleY3, {
         toValue: 1,
-        duration: 2500,
+        duration: 2300,
         easing: Easing.ease,
         useNativeDriver: false,
       })
@@ -108,7 +110,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     };
   }, [phaseAnim, bubbleY1, bubbleY2, bubbleY3]);
 
-  // Handle Press dynamics (liquid compression & spring scale)
+  // Handle Press dynamics
   const handlePressIn = () => {
     if (disabled || loading) return;
     Animated.spring(scaleAnim, {
@@ -136,53 +138,56 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
     }
   };
 
-  // Color schemes for water variants
+  // Color schemes for transparent water variants
   const getTheme = () => {
     switch (variant) {
       case 'emerald':
         return {
           water1: '#00E5A3',
           water2: '#009E71',
-          waterBack: 'rgba(0,229,163,0.35)',
           glow: '#00C48C',
-          bgDark: '#04281E',
-          glassBorder: 'rgba(0, 229, 163, 0.4)',
+          bgDark: transparent ? 'rgba(0, 196, 140, 0.12)' : '#04281E',
+          glassBorder: 'rgba(0, 229, 163, 0.5)',
         };
       case 'purple':
         return {
           water1: '#A855F7',
           water2: '#6B21A8',
-          waterBack: 'rgba(168,85,247,0.35)',
           glow: '#8B5CF6',
-          bgDark: '#1E0B36',
-          glassBorder: 'rgba(168, 85, 247, 0.4)',
+          bgDark: transparent ? 'rgba(123, 97, 255, 0.15)' : '#1E0B36',
+          glassBorder: 'rgba(168, 85, 247, 0.5)',
         };
       case 'ocean':
         return {
           water1: '#38BDF8',
           water2: '#0284C7',
-          waterBack: 'rgba(56,189,248,0.35)',
           glow: '#0EA5E9',
-          bgDark: '#0C2A4A',
-          glassBorder: 'rgba(56, 189, 248, 0.4)',
+          bgDark: transparent ? 'rgba(14, 165, 233, 0.14)' : '#0C2A4A',
+          glassBorder: 'rgba(56, 189, 248, 0.5)',
         };
       case 'coral':
         return {
           water1: '#FF6B8B',
           water2: '#D93D58',
-          waterBack: 'rgba(255,107,139,0.35)',
           glow: '#FF5C7A',
-          bgDark: '#380D17',
-          glassBorder: 'rgba(255, 107, 139, 0.4)',
+          bgDark: transparent ? 'rgba(255, 92, 122, 0.15)' : '#380D17',
+          glassBorder: 'rgba(255, 107, 139, 0.5)',
         };
-      default: // cyan
+      case 'cyan':
         return {
           water1: '#06B6D4',
           water2: '#0284C7',
-          waterBack: 'rgba(6,182,212,0.38)',
           glow: '#06B6D4',
-          bgDark: '#082F49',
-          glassBorder: 'rgba(6, 182, 212, 0.4)',
+          bgDark: transparent ? 'rgba(6, 182, 212, 0.15)' : '#082F49',
+          glassBorder: 'rgba(6, 182, 212, 0.5)',
+        };
+      default: // primary blue
+        return {
+          water1: '#4F6EF7',
+          water2: '#2743D4',
+          glow: '#4F6EF7',
+          bgDark: transparent ? 'rgba(79, 110, 247, 0.18)' : '#10194A',
+          glassBorder: 'rgba(79, 110, 247, 0.55)',
         };
     }
   };
@@ -201,22 +206,22 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
   const w = dimensions.width;
   const waterY = h * (1 - fullness);
 
-  // Dynamic SVG path interpolation for front wave and back wave
+  // Dynamic SVG wave path interpolations
   const frontWavePath = phaseAnim.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [
-      `M 0 ${waterY} Q ${w * 0.25} ${waterY - 8} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
-      `M 0 ${waterY} Q ${w * 0.25} ${waterY + 8} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
-      `M 0 ${waterY} Q ${w * 0.25} ${waterY - 8} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY} Q ${w * 0.25} ${waterY - 7} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY} Q ${w * 0.25} ${waterY + 7} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY} Q ${w * 0.25} ${waterY - 7} ${w * 0.5} ${waterY} T ${w} ${waterY} L ${w} ${h} L 0 ${h} Z`,
     ],
   });
 
   const backWavePath = phaseAnim.interpolate({
     inputRange: [0, 0.5, 1],
     outputRange: [
-      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY + 6} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
-      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY - 6} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
-      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY + 6} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY + 5} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY - 5} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
+      `M 0 ${waterY - 3} Q ${w * 0.25} ${waterY + 5} ${w * 0.5} ${waterY - 3} T ${w} ${waterY - 3} L ${w} ${h} L 0 ${h} Z`,
     ],
   });
 
@@ -225,9 +230,9 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
   const b2Y = bubbleY2.interpolate({ inputRange: [0, 1], outputRange: [h - 2, waterY - 6] });
   const b3Y = bubbleY3.interpolate({ inputRange: [0, 1], outputRange: [h - 6, waterY - 2] });
 
-  const b1Opacity = bubbleY1.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.7, 0.7, 0] });
-  const b2Opacity = bubbleY2.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.6, 0.6, 0] });
-  const b3Opacity = bubbleY3.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.8, 0.8, 0] });
+  const b1Opacity = bubbleY1.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.75, 0.75, 0] });
+  const b2Opacity = bubbleY2.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.65, 0.65, 0] });
+  const b3Opacity = bubbleY3.interpolate({ inputRange: [0, 0.2, 0.8, 1], outputRange: [0, 0.85, 0.85, 0] });
 
   return (
     <TouchableWithoutFeedback
@@ -243,6 +248,7 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
             height: h,
             borderColor: theme.glassBorder,
             shadowColor: theme.glow,
+            backgroundColor: theme.bgDark,
           },
           disabled && styles.disabled,
           style,
@@ -250,17 +256,17 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
         ]}
         onLayout={handleLayout}
       >
-        {/* Background Deep Liquid Container */}
-        <View style={[styles.bgContainer, { backgroundColor: theme.bgDark }]}>
+        {/* Background Liquid Container */}
+        <View style={styles.bgContainer}>
           <Svg width={w} height={h} style={StyleSheet.absoluteFill}>
             <Defs>
               <LinearGradient id={`waterGrad_${variant}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <Stop offset="0%" stopColor={theme.water1} stopOpacity="0.9" />
-                <Stop offset="100%" stopColor={theme.water2} stopOpacity="0.98" />
+                <Stop offset="0%" stopColor={theme.water1} stopOpacity={transparent ? "0.75" : "0.92"} />
+                <Stop offset="100%" stopColor={theme.water2} stopOpacity={transparent ? "0.9" : "0.98"} />
               </LinearGradient>
               <LinearGradient id={`waterBackGrad_${variant}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                <Stop offset="0%" stopColor={theme.water1} stopOpacity="0.4" />
-                <Stop offset="100%" stopColor={theme.water2} stopOpacity="0.6" />
+                <Stop offset="0%" stopColor={theme.water1} stopOpacity={transparent ? "0.3" : "0.4"} />
+                <Stop offset="100%" stopColor={theme.water2} stopOpacity={transparent ? "0.45" : "0.6"} />
               </LinearGradient>
             </Defs>
 
@@ -270,15 +276,15 @@ export const WaterButton: React.FC<WaterButtonProps> = ({
             {/* Front Wave Layer */}
             <AnimatedPath d={frontWavePath} fill={`url(#waterGrad_${variant})`} />
 
-            {/* Micro Bubbles */}
+            {/* Floating Micro Bubbles */}
             <G>
-              <AnimatedCircle cx={w * 0.2} cy={b1Y} r={2.5} fill="#FFFFFF" opacity={b1Opacity} />
-              <AnimatedCircle cx={w * 0.55} cy={b2Y} r={1.8} fill="#FFFFFF" opacity={b2Opacity} />
-              <AnimatedCircle cx={w * 0.8} cy={b3Y} r={2.2} fill="#FFFFFF" opacity={b3Opacity} />
+              <AnimatedCircle cx={w * 0.18} cy={b1Y} r={2.8} fill="#FFFFFF" opacity={b1Opacity} />
+              <AnimatedCircle cx={w * 0.52} cy={b2Y} r={2.0} fill="#FFFFFF" opacity={b2Opacity} />
+              <AnimatedCircle cx={w * 0.82} cy={b3Y} r={2.5} fill="#FFFFFF" opacity={b3Opacity} />
             </G>
           </Svg>
 
-          {/* Frosted Top Specular Reflection Highlight */}
+          {/* Frosted Top Edge Highlight */}
           <View style={styles.topSpecularHighlight} />
         </View>
 
@@ -306,7 +312,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 20,
     overflow: 'hidden',
-    borderWidth: 1.2,
+    borderWidth: 1.4,
     position: 'relative',
     marginVertical: 6,
     shadowOffset: { width: 0, height: 6 },
@@ -321,10 +327,10 @@ const styles = StyleSheet.create({
   topSpecularHighlight: {
     position: 'absolute',
     top: 0,
-    left: 12,
-    right: 12,
+    left: 10,
+    right: 10,
     height: 1.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderRadius: 1,
   },
   contentOverlay: {
@@ -337,16 +343,16 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   iconStyle: {
-    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '800',
     color: COLORS.white,
     letterSpacing: 0.2,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },

@@ -30,7 +30,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   style,
   textStyle,
   variant = 'primary',
-  waterEffect = false,
+  waterEffect = true,
   waterVariant,
   size = 'md',
 }) => {
@@ -38,7 +38,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
     const defaultWaterVariant: WaterVariant = 
       variant === 'success' ? 'emerald' :
       variant === 'accent' ? 'purple' :
-      variant === 'danger' ? 'coral' : 'cyan';
+      variant === 'danger' ? 'coral' : 'primary';
 
     return (
       <WaterButton
@@ -50,6 +50,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
         style={style}
         textStyle={textStyle}
         size={size}
+        transparent={true}
         variant={waterVariant || defaultWaterVariant}
       />
     );
