@@ -1,394 +1,227 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { SecondaryButton } from '../components/SecondaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface DiseaseRiskAnalysisScreenProps {
   onBack: () => void;
-  onNavigateToChecker: () => void;
-  onAskAgent: () => void;
+  onNavigate: (screen: string) => void;
 }
 
-export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps> = ({
-  onBack,
-  onNavigateToChecker,
-  onAskAgent,
-}) => {
-  const { diseaseRisks, selectedDiseaseFilter, setSelectedDiseaseFilter } = useApp();
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+const DISEASES = [
+  { name: 'Pre-Diabetes / T2D', risk: 68, icon: 'water' as const, color: COLORS.warning, category: 'Metabolic', trend: '+2% this week' },
+  { name: 'Hypertension', risk: 42, icon: 'pulse' as const, color: COLORS.primary, category: 'Cardiovascular', trend: '-3%' },
+  { name: 'Migraine Disorder', risk: 55, icon: 'flash' as const, color: COLORS.accent, category: 'Neurological', trend: '+8% (sodium spike)' },
+  { name: 'Metabolic Syndrome', risk: 38, icon: 'fitness' as const, color: COLORS.secondary, category: 'Metabolic', trend: 'Stable' },
+  { name: 'Kidney Stones', risk: 24, icon: 'medical' as const, color: COLORS.danger, category: 'Renal', trend: '-5%' },
+];
 
-  const selectedRisk =
-    diseaseRisks.find((r) => r.disease === selectedDiseaseFilter) || diseaseRisks[0];
+const getRiskLevel = (r: number) => {
+  if (r >= 70) return { label: 'HIGH', color: COLORS.danger, bg: COLORS.dangerSubtle };
+  if (r >= 50) return { label: 'MODERATE', color: COLORS.warning, bg: COLORS.warningSubtle };
+  return { label: 'LOW', color: COLORS.secondary, bg: COLORS.secondarySubtle };
+};
 
-  // SVG Gauge Arc calculations
-  const renderGaugeArc = (percent: number) => {
-    const size = 160;
-    const strokeWidth = 14;
-    const center = size / 2;
-    const radius = (size - strokeWidth) / 2;
-    const circumference = Math.PI * radius; // Semi-circle
-    const dashoffset = circumference - (circumference * percent) / 100;
-
-    return (
-      <Svg width={size} height={size / 2 + 20} style={{ alignSelf: 'center' }}>
-        <Defs>
-          <LinearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <Stop offset="0%" stopColor="#10B981" />
-            <Stop offset="50%" stopColor="#F59E0B" />
-            <Stop offset="100%" stopColor="#EF4444" />
-          </LinearGradient>
-        </Defs>
-        <Path
-          d={`M ${strokeWidth / 2} ${center} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${center}`}
-          fill="none"
-          stroke="rgba(241, 245, 249, 0.9)"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-        />
-        <Path
-          d={`M ${strokeWidth / 2} ${center} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${center}`}
-          fill="none"
-          stroke="url(#gaugeGrad)"
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={dashoffset}
-          strokeLinecap="round"
-        />
-      </Svg>
-    );
-  };
+export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps> = ({ onBack, onNavigate }) => {
+  const { userProfile } = useApp();
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const overallRisk = 48;
 
   return (
     <LayeredBackground>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Animated App Bar */}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AnimatedAppBar
-          title="Disease Risk Analysis"
-          subtitle="Clinical Predictive Modeling Engine"
+          title="Disease Risk"
+          subtitle="Predictive AI Risk Modeling"
           showBack
           onBack={onBack}
-          rightActionIcon="sparkles"
-          onRightAction={onAskAgent}
+          rightActionIcon="document-text-outline"
+          onRightAction={() => {}}
         />
 
-        {/* Condition Filter Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-          {diseaseRisks.map((risk) => {
-            const isActive = selectedDiseaseFilter === risk.disease;
-            return (
-              <AnimatedPressable
-                key={risk.disease}
-                style={[styles.filterChip, isActive && styles.filterChipActive]}
-                onPress={() => setSelectedDiseaseFilter(risk.disease)}
-              >
-                <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
-                  {risk.disease}
-                </Text>
-              </AnimatedPressable>
-            );
-          })}
-        </ScrollView>
+        {/* Overall Risk Ring */}
+        <View style={[styles.riskHero, SHADOWS.md]}>
+          <ProgressRing
+            size={150}
+            strokeWidth={12}
+            progress={overallRisk}
+            gradientColors={['#FFAA00', '#FF5C7A']}
+            id="risk-overall"
+            trackColor="rgba(255,255,255,0.1)"
+          >
+            <Text style={styles.riskScore}>{overallRisk}</Text>
+            <Text style={styles.riskScoreLabel}>Overall</Text>
+          </ProgressRing>
 
-        {/* Risk Gauge Hero Card */}
-        <GlassCard variant="glass" style={styles.heroCard}>
-          <Text style={styles.heroRiskTitle}>{selectedRisk.disease}</Text>
-          <Text style={styles.heroRiskSub}>Calculated vulnerability score based on active meal history</Text>
-
-          <View style={styles.gaugeWrapper}>
-            {renderGaugeArc(selectedRisk.riskPercentage)}
-            <View style={styles.gaugeTextContainer}>
-              <Text style={styles.gaugeVal}>{selectedRisk.riskPercentage}%</Text>
-              <Text
-                style={[
-                  styles.gaugeLevelBadge,
-                  {
-                    color:
-                      selectedRisk.level === 'High' || selectedRisk.level === 'Severe'
-                        ? COLORS.danger
-                        : selectedRisk.level === 'Moderate'
-                        ? COLORS.warning
-                        : COLORS.secondary,
-                  },
-                ]}
-              >
-                {selectedRisk.level} Risk
-              </Text>
+          <View style={styles.riskMeta}>
+            <Text style={styles.riskTitle}>Composite Disease Risk</Text>
+            <Text style={styles.riskSub}>Based on nutrition, genetics & biometrics</Text>
+            <View style={styles.riskBadge}>
+              <View style={styles.riskDot} />
+              <Text style={styles.riskBadgeText}>Moderate Risk · Monitor</Text>
             </View>
-          </View>
-
-          {/* AI Confidence Meter */}
-          <View style={styles.confidenceMeterRow}>
-            <Ionicons name="hardware-chip-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.confidenceText}>AI Model Confidence: 96.8% (Clinical Grade)</Text>
-          </View>
-        </GlassCard>
-
-        {/* Severity Card & Clinical Description */}
-        <GlassCard
-          icon="alert-circle-outline"
-          iconColor={selectedRisk.level === 'High' ? COLORS.danger : COLORS.warning}
-          iconBg={selectedRisk.level === 'High' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}
-          title="Clinical Risk Summary"
-          subtitle={`Severity Assessment: ${selectedRisk.level}`}
-        >
-          <Text style={styles.descText}>{selectedRisk.description}</Text>
-
-          <View style={styles.contributingBox}>
-            <Text style={styles.contributingTitle}>Key Contributing Foods Logged:</Text>
-            <View style={styles.contributingGrid}>
-              {selectedRisk.contributingFoods.map((food, i) => (
-                <View key={i} style={styles.foodTag}>
-                  <Text style={styles.foodTagText}>{food}</Text>
+            <View style={styles.riskFactorsRow}>
+              {['Nutrition', 'Hydration', 'Sleep'].map((f) => (
+                <View key={f} style={styles.riskFactor}>
+                  <Ionicons name="checkmark-circle" size={11} color={COLORS.secondary} />
+                  <Text style={styles.riskFactorText}>{f}</Text>
                 </View>
               ))}
             </View>
           </View>
-        </GlassCard>
+        </View>
 
-        {/* Doctor Advice & Mitigation Steps */}
-        <GlassCard
-          variant="gradient"
-          icon="medkit"
-          iconColor={COLORS.secondary}
-          title="Doctor Advice & Actionable Tip"
-          subtitle="Dietary adjustment recommendations"
-        >
-          <Text style={styles.mitigationText}>💡 {selectedRisk.mitigationTip}</Text>
-        </GlassCard>
-
-        {/* Expandable AI Explanation */}
-        <Text style={styles.sectionTitle}>Detailed Risk Breakdown</Text>
-        {diseaseRisks.map((risk, index) => {
-          const isExpanded = expandedIndex === index;
+        {/* Disease Cards */}
+        <Text style={styles.sectionTitle}>Individual Risk Assessment</Text>
+        {DISEASES.map((d) => {
+          const level = getRiskLevel(d.risk);
+          const isExpanded = expanded === d.name;
           return (
-            <GlassCard key={risk.disease} style={styles.breakdownCard}>
-              <AnimatedPressable
-                style={styles.breakdownHeader}
-                onPress={() => setExpandedIndex(isExpanded ? null : index)}
-              >
-                <View style={styles.breakdownTitleCol}>
-                  <Text style={styles.breakdownName}>{risk.disease}</Text>
-                  <Text style={styles.breakdownLevel}>{risk.level} Level • {risk.riskPercentage}% Risk</Text>
+            <AnimatedPressable key={d.name} onPress={() => setExpanded(isExpanded ? null : d.name)} scaleTo={0.98} style={[styles.diseaseCard, SHADOWS.sm]}>
+              <View style={styles.diseaseHeader}>
+                <View style={[styles.diseaseIcon, { backgroundColor: d.color + '15' }]}>
+                  <Ionicons name={d.icon} size={18} color={d.color} />
                 </View>
-                <Ionicons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18} color={COLORS.primary} />
-              </AnimatedPressable>
+                <View style={styles.diseaseMeta}>
+                  <Text style={styles.diseaseName}>{d.name}</Text>
+                  <Text style={styles.diseaseCategory}>{d.category} · {d.trend}</Text>
+                </View>
+                <View style={[styles.riskLevelBadge, { backgroundColor: level.bg }]}>
+                  <Text style={[styles.riskLevelText, { color: level.color }]}>{level.label}</Text>
+                  <Text style={[styles.riskLevelPct, { color: level.color }]}>{d.risk}%</Text>
+                </View>
+              </View>
+
+              <View style={styles.riskBar}>
+                <View style={[styles.riskFill, { width: `${d.risk}%`, backgroundColor: d.color }]} />
+              </View>
 
               {isExpanded && (
                 <View style={styles.expandedContent}>
-                  <Text style={styles.expandedDesc}>{risk.description}</Text>
-                  <Text style={styles.expandedTip}>Tip: {risk.mitigationTip}</Text>
+                  <Text style={styles.expandedTitle}>AI Clinical Recommendation</Text>
+                  <Text style={styles.expandedText}>
+                    Your {d.name.toLowerCase()} risk is {level.label.toLowerCase()}. Key actions: reduce processed sugar, increase fiber, add 20min daily movement, and monitor with weekly blood panels.
+                  </Text>
+                  <AnimatedPressable
+                    style={styles.expandedCta}
+                    onPress={() => onNavigate('AIAgentCoach')}
+                    scaleTo={0.96}
+                  >
+                    <Ionicons name="sparkles" size={14} color={COLORS.white} />
+                    <Text style={styles.expandedCtaText}>Get AI Prevention Plan</Text>
+                  </AnimatedPressable>
                 </View>
               )}
-            </GlassCard>
+            </AnimatedPressable>
           );
         })}
 
-        {/* Navigation Action Buttons */}
-        <View style={styles.actionGroup}>
-          <PrimaryButton
-            title="Check Existing Conditions"
-            icon="shield-checkmark"
-            onPress={onNavigateToChecker}
-          />
-          <SecondaryButton
-            title="Ask AI Assistant for Meal Plan"
-            icon="sparkles"
-            onPress={onAskAgent}
-          />
-        </View>
+        {/* Prevention Tips */}
+        <GlassCard
+          variant="dark"
+          icon="shield-checkmark"
+          iconColor={COLORS.secondary}
+          title="AI Prevention Shield"
+          subtitle="Personalized disease prevention protocol"
+        >
+          {[
+            'Eliminate refined sugar from lunch — pre-diabetic insulin spike prevention',
+            'Take 400mg magnesium glycinate at bedtime — migraine block',
+            'Limit sodium to <1600mg daily — vascular pressure control',
+            'Add 2000 IU Vitamin D3 weekly — metabolic syndrome protection',
+          ].map((tip, i) => (
+            <Text key={i} style={styles.preventTip}>◉ {tip}</Text>
+          ))}
+        </GlassCard>
 
-        <View style={{ height: 40 }} />
+        <PrimaryButton title="Consult AI Disease Coach" icon="sparkles" variant="accent" onPress={() => onNavigate('AIAgentCoach')} />
+
+        <View style={{ height: 30 }} />
       </ScrollView>
     </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  filterScroll: {
+  content: { paddingHorizontal: 16, paddingBottom: 20 },
+  riskHero: {
+    backgroundColor: COLORS.darkPanel,
+    borderRadius: 28,
+    padding: 20,
     flexDirection: 'row',
-    marginVertical: 8,
-  },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    marginRight: 8,
+    alignItems: 'center',
+    gap: 16,
+    marginVertical: 12,
     borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    borderColor: COLORS.darkStroke,
   },
-  filterChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  filterChipText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-  },
-  filterChipTextActive: {
-    color: COLORS.white,
-    fontWeight: '800',
-  },
-  heroCard: {
-    marginVertical: 10,
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  heroRiskTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-  },
-  heroRiskSub: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginTop: 2,
-    marginBottom: 12,
-  },
-  gaugeWrapper: {
-    alignItems: 'center',
-    position: 'relative',
-    marginVertical: 6,
-  },
-  gaugeTextContainer: {
-    position: 'absolute',
-    bottom: 0,
-    alignItems: 'center',
-  },
-  gaugeVal: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.8,
-  },
-  gaugeLevelBadge: {
-    fontSize: 12,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-    marginTop: -2,
-  },
-  confidenceMeterRow: {
+  riskScore: { fontSize: 38, fontWeight: '900', color: COLORS.darkText, letterSpacing: -1, textAlign: 'center' },
+  riskScoreLabel: { fontSize: 12, fontWeight: '700', color: 'rgba(228,231,255,0.6)', textAlign: 'center' },
+  riskMeta: { flex: 1 },
+  riskTitle: { fontSize: 17, fontWeight: '900', color: COLORS.darkText, letterSpacing: -0.3 },
+  riskSub: { fontSize: 12, color: 'rgba(228,231,255,0.55)', marginTop: 3, lineHeight: 17 },
+  riskBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 6,
-    marginTop: 16,
-  },
-  confidenceText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  descText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.textPrimary,
-    lineHeight: 20,
-  },
-  contributingBox: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(241, 245, 249, 0.9)',
-  },
-  contributingTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-  },
-  contributingGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  foodTag: {
-    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-    paddingHorizontal: 10,
+    gap: 5,
+    backgroundColor: 'rgba(255,170,0,0.15)',
+    paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.15)',
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginTop: 8,
   },
-  foodTagText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.dangerDark,
-  },
-  mitigationText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.secondaryDark,
-    lineHeight: 20,
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-    marginTop: 18,
+  riskDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: COLORS.warning },
+  riskBadgeText: { fontSize: 11, fontWeight: '800', color: COLORS.warning },
+  riskFactorsRow: { flexDirection: 'row', gap: 8, marginTop: 8, flexWrap: 'wrap' },
+  riskFactor: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  riskFactorText: { fontSize: 10, fontWeight: '600', color: 'rgba(228,231,255,0.55)' },
+  sectionTitle: { fontSize: 20, fontWeight: '800', color: COLORS.textPrimary, letterSpacing: -0.3, marginTop: 4, marginBottom: 10 },
+  diseaseCard: {
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    borderRadius: 20,
+    padding: 16,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(200,207,228,0.55)',
   },
-  breakdownCard: {
-    marginVertical: 4,
+  diseaseHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  diseaseIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  diseaseMeta: { flex: 1 },
+  diseaseName: { fontSize: 14, fontWeight: '800', color: COLORS.textPrimary },
+  diseaseCategory: { fontSize: 11, fontWeight: '500', color: COLORS.textMuted, marginTop: 1 },
+  riskLevelBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignItems: 'center' },
+  riskLevelText: { fontSize: 9, fontWeight: '900', letterSpacing: 0.5 },
+  riskLevelPct: { fontSize: 16, fontWeight: '900', marginTop: 1 },
+  riskBar: { height: 5, borderRadius: 2.5, backgroundColor: COLORS.trackBg, overflow: 'hidden', marginTop: 12 },
+  riskFill: { height: '100%', borderRadius: 2.5 },
+  expandedContent: {
+    marginTop: 14,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(200,207,228,0.45)',
   },
-  breakdownHeader: {
+  expandedTitle: { fontSize: 12, fontWeight: '800', color: COLORS.accent, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 },
+  expandedText: { fontSize: 13, fontWeight: '500', color: COLORS.textSecondary, lineHeight: 19 },
+  expandedCta: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  breakdownTitleCol: {
-    flex: 1,
-  },
-  breakdownName: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  breakdownLevel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  expandedContent: {
+    justifyContent: 'center',
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    paddingVertical: 9,
+    paddingHorizontal: 14,
     marginTop: 10,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+    gap: 5,
+    alignSelf: 'flex-start',
   },
-  expandedDesc: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-    lineHeight: 19,
-  },
-  expandedTip: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.secondary,
-    marginTop: 6,
-  },
-  actionGroup: {
-    marginTop: 16,
-    gap: 4,
-  },
+  expandedCtaText: { fontSize: 13, fontWeight: '800', color: COLORS.white },
+  preventTip: { fontSize: 13, fontWeight: '500', color: COLORS.darkText, lineHeight: 20, marginBottom: 5 },
 });

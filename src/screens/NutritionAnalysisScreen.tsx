@@ -1,354 +1,202 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, ViewStyle } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
-import { ProgressRing } from '../components/ProgressRing';
-import { StatCard } from '../components/StatCard';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { AnimatedPressable } from '../components/AnimatedPressable';
+import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface NutritionAnalysisScreenProps {
   onBack: () => void;
-  onNavigateToRisk: () => void;
+  onNavigate: (screen: string) => void;
 }
 
-export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = ({
-  onBack,
-  onNavigateToRisk,
-}) => {
-  const { userProfile, foodHistory } = useApp();
-  const [waterMl, setWaterMl] = useState(1800);
+const MACROS = [
+  { key: 'protein', label: 'Protein', unit: 'g', goal: 80, curr: 56, color: COLORS.secondary, icon: 'barbell' as const },
+  { key: 'fat', label: 'Fat', unit: 'g', goal: 65, curr: 38, color: COLORS.warning, icon: 'water' as const },
+  { key: 'carbs', label: 'Carbs', unit: 'g', goal: 250, curr: 172, color: COLORS.accent, icon: 'leaf' as const },
+  { key: 'fiber', label: 'Fiber', unit: 'g', goal: 30, curr: 18, color: COLORS.primary, icon: 'nutrition' as const },
+];
 
-  const remainingCalories = userProfile.dailyCalorieTarget - userProfile.todayCaloriesConsumed;
-  const progressPercent = Math.min(
-    100,
-    Math.round((userProfile.todayCaloriesConsumed / userProfile.dailyCalorieTarget) * 100)
-  );
+const VITAMINS = [
+  { name: 'Vitamin D', pct: 48, rda: '400 IU', curr: '192 IU' },
+  { name: 'Magnesium', pct: 66, rda: '400 mg', curr: '264 mg' },
+  { name: 'Vitamin B12', pct: 82, rda: '2.4 mcg', curr: '1.97 mcg' },
+  { name: 'Omega-3', pct: 35, rda: '1.6 g', curr: '0.56 g' },
+  { name: 'Iron', pct: 78, rda: '18 mg', curr: '14 mg' },
+];
 
-  const addWater = (amount: number) => {
-    setWaterMl((prev) => Math.min(3000, prev + amount));
-  };
+export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = ({ onBack, onNavigate }) => {
+  const { userProfile } = useApp();
+  const calPct = Math.min(100, Math.round((userProfile.todayCaloriesConsumed / userProfile.dailyCalorieTarget) * 100));
 
   return (
     <LayeredBackground>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Animated App Bar */}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AnimatedAppBar
-          title="Nutrition & Macros"
-          subtitle="Daily Target & Micronutrient Metrics"
+          title="Nutrition Analysis"
+          subtitle="Today's Micronutrient Report"
           showBack
           onBack={onBack}
-          rightActionIcon="fitness"
-          onRightAction={onNavigateToRisk}
+          rightActionIcon="share-outline"
+          onRightAction={() => {}}
         />
 
-        {/* Circular Nutrition Ring Hero Card */}
-        <GlassCard variant="glass" style={styles.heroCard}>
-          <View style={styles.ringContainer}>
-            <ProgressRing
-              size={180}
-              strokeWidth={16}
-              progress={progressPercent}
-              gradientColors={['#3B82F6', '#8B5CF6']}
-            >
-              <Text style={styles.consumedVal}>{userProfile.todayCaloriesConsumed}</Text>
-              <Text style={styles.consumedLabel}>kCal Consumed</Text>
-              <Text style={styles.remainingBadge}>
-                {remainingCalories >= 0 ? `${remainingCalories} Left` : `${Math.abs(remainingCalories)} Over`}
-              </Text>
-            </ProgressRing>
-          </View>
+        {/* Calorie Ring Hero */}
+        <View style={[styles.calHero, SHADOWS.md]}>
+          <ProgressRing
+            size={160}
+            strokeWidth={13}
+            progress={calPct}
+            gradientColors={['#4F6EF7', '#00C48C']}
+            id="nutrition-cal"
+            trackColor="rgba(255,255,255,0.1)"
+          >
+            <Text style={styles.calVal}>{userProfile.todayCaloriesConsumed}</Text>
+            <Text style={styles.calLabel}>kcal</Text>
+            <Text style={styles.calGoal}>of {userProfile.dailyCalorieTarget}</Text>
+          </ProgressRing>
 
-          {/* Daily Target Summary Grid */}
-          <View style={styles.targetGrid}>
-            <View style={styles.targetStatBox}>
-              <Text style={styles.statLabel}>Daily Target</Text>
-              <Text style={styles.statVal}>{userProfile.dailyCalorieTarget} kcal</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.targetStatBox}>
-              <Text style={styles.statLabel}>Remaining</Text>
-              <Text style={[styles.statVal, { color: COLORS.primary }]}>{remainingCalories} kcal</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.targetStatBox}>
-              <Text style={styles.statLabel}>Metabolic Index</Text>
-              <Text style={[styles.statVal, { color: COLORS.secondary }]}>Normal</Text>
+          <View style={styles.calMeta}>
+            <Text style={styles.calMetaTitle}>Energy Balance</Text>
+            <Text style={styles.calMetaSub}>{calPct}% of daily target consumed</Text>
+
+            <View style={styles.calBreakRow}>
+              <View style={styles.calBreakItem}>
+                <Text style={styles.calBreakVal}>{userProfile.dailyCalorieTarget - userProfile.todayCaloriesConsumed}</Text>
+                <Text style={styles.calBreakLabel}>Remaining</Text>
+              </View>
+              <View style={styles.calDivider} />
+              <View style={styles.calBreakItem}>
+                <Text style={styles.calBreakVal}>340</Text>
+                <Text style={styles.calBreakLabel}>Burned</Text>
+              </View>
             </View>
           </View>
-        </GlassCard>
-
-        {/* Interactive Water Progress Card */}
-        <GlassCard
-          icon="water"
-          iconColor="#0EA5E9"
-          iconBg="rgba(14, 165, 233, 0.12)"
-          title="Hydration Goal"
-          subtitle="Track daily water balance to prevent vascular headache triggers"
-        >
-          <View style={styles.waterRow}>
-            <View style={styles.waterTextCol}>
-              <Text style={styles.waterVal}>{(waterMl / 1000).toFixed(1)} / 2.5 L</Text>
-              <Text style={styles.waterSub}>
-                {waterMl >= 2500 ? '🎉 Goal Achieved!' : `${2500 - waterMl}ml needed for daily balance`}
-              </Text>
-            </View>
-
-            <AnimatedPressable style={styles.addWaterBtn} onPress={() => addWater(250)}>
-              <Ionicons name="add" size={16} color={COLORS.white} />
-              <Text style={styles.addWaterText}>+250 ml</Text>
-            </AnimatedPressable>
-          </View>
-
-          <View style={styles.waterTrack}>
-            <View style={[styles.waterBar, { width: `${Math.min(100, (waterMl / 2500) * 100)}%` }]} />
-          </View>
-        </GlassCard>
-
-        {/* Vitamin & Micronutrient Score */}
-        <Text style={styles.sectionTitle}>Micronutrient Balance</Text>
-        <View style={styles.vitaminGrid}>
-          <GlassCard variant="glass" style={styles.vitaminTile}>
-            <Ionicons name="sunny-outline" size={22} color={COLORS.warning} />
-            <Text style={styles.vitaminName}>Vitamin D</Text>
-            <Text style={styles.vitaminVal}>85%</Text>
-            <Text style={styles.vitaminSub}>Optimal Level</Text>
-          </GlassCard>
-
-          <GlassCard variant="glass" style={styles.vitaminTile}>
-            <Ionicons name="sparkles-outline" size={22} color={COLORS.accent} />
-            <Text style={styles.vitaminName}>Magnesium</Text>
-            <Text style={styles.vitaminVal}>92%</Text>
-            <Text style={styles.vitaminSub}>Migraine Shield</Text>
-          </GlassCard>
         </View>
 
-        {/* Today's Meal Log Timeline */}
-        <Text style={styles.sectionTitle}>Today's Meal Timeline</Text>
-        {foodHistory.map((item, idx) => (
-          <GlassCard key={item.id || idx} style={styles.timelineCard}>
-            <View style={styles.timelineRow}>
-              <View style={styles.timeBadge}>
-                <Ionicons name="time-outline" size={14} color={COLORS.primary} />
-                <Text style={styles.timeBadgeText}>{item.scannedAt}</Text>
+        {/* Macro Bars */}
+        <GlassCard icon="analytics" iconColor={COLORS.primary} title="Macronutrients" subtitle="vs Daily Recommended">
+          {MACROS.map((m) => {
+            const pct = Math.min(100, Math.round((m.curr / m.goal) * 100));
+            return (
+              <View key={m.key} style={styles.macroItem}>
+                <View style={styles.macroHeaderRow}>
+                  <View style={[styles.macroIcon, { backgroundColor: m.color + '15' }]}>
+                    <Ionicons name={m.icon} size={13} color={m.color} />
+                  </View>
+                  <Text style={styles.macroName}>{m.label}</Text>
+                  <Text style={styles.macroCurr}>{m.curr}{m.unit}</Text>
+                  <Text style={styles.macroGoal}>/{m.goal}{m.unit}</Text>
+                  <Text style={[styles.macroPct, { color: pct >= 80 ? COLORS.secondary : pct >= 50 ? COLORS.warning : COLORS.danger }]}>{pct}%</Text>
+                </View>
+                <View style={styles.macroTrack}>
+                  <View style={[styles.macroFill, { width: `${pct}%`, backgroundColor: m.color }]} />
+                </View>
               </View>
-              <Text style={styles.timelineCal}>{item.calories} kcal</Text>
+            );
+          })}
+        </GlassCard>
+
+        {/* Micronutrients */}
+        <GlassCard icon="flask" iconColor={COLORS.accent} iconBg={COLORS.accentSubtle} title="Micronutrients" subtitle="Critical vitamins & minerals">
+          {VITAMINS.map((v, i) => (
+            <View key={i} style={styles.vitaminRow}>
+              <Text style={styles.vitaminName}>{v.name}</Text>
+              <View style={styles.vitaminMid}>
+                <View style={styles.vitaminTrack}>
+                  <View style={[styles.vitaminFill, {
+                    width: `${v.pct}%`,
+                    backgroundColor: v.pct >= 70 ? COLORS.secondary : v.pct >= 40 ? COLORS.warning : COLORS.danger,
+                  }]} />
+                </View>
+              </View>
+              <Text style={styles.vitaminPct}>{v.pct}%</Text>
+              <Text style={styles.vitaminCurr}>{v.curr}</Text>
             </View>
+          ))}
+        </GlassCard>
 
-            <View style={styles.timelineContent}>
-              <Text style={styles.timelineTitle}>{item.name}</Text>
-              <Text style={styles.timelineSub}>{item.category} • Health Score: {item.healthScore}/100</Text>
+        {/* AI Deficiency Alert */}
+        <GlassCard
+          variant="outline"
+          icon="warning"
+          iconColor={COLORS.warning}
+          iconBg={COLORS.warningSubtle}
+          title="AI Deficiency Alerts"
+          subtitle="Clinical recommendations"
+        >
+          {[
+            { nutrient: 'Vitamin D', action: 'Add 15min sunlight or 800 IU supplement', icon: 'sunny' as const },
+            { nutrient: 'Omega-3', action: 'Add salmon, walnuts, or flaxseeds tonight', icon: 'fish' as const },
+          ].map((a) => (
+            <View key={a.nutrient} style={styles.alertRow}>
+              <View style={styles.alertIcon}>
+                <Ionicons name={a.icon} size={13} color={COLORS.warning} />
+              </View>
+              <View style={styles.alertText}>
+                <Text style={styles.alertNutrient}>{a.nutrient} — Low</Text>
+                <Text style={styles.alertAction}>{a.action}</Text>
+              </View>
             </View>
-          </GlassCard>
-        ))}
+          ))}
+        </GlassCard>
 
-        {/* CTA Button to Disease Analysis */}
-        <PrimaryButton
-          title="Analyze Disease Risk Factors"
-          icon="shield-checkmark-outline"
-          onPress={onNavigateToRisk}
-          style={{ marginTop: 16 }}
-        />
+        <PrimaryButton title="Get Personalized Meal Plan" icon="sparkles" onPress={() => onNavigate('AIAgentCoach')} />
+        <PrimaryButton variant="success" title="Check Disease Risk Impact" icon="shield-checkmark" onPress={() => onNavigate('DiseaseRiskAnalysis')} />
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 30 }} />
       </ScrollView>
     </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  heroCard: {
-    marginVertical: 10,
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  ringContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  consumedVal: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.8,
-  },
-  consumedLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-  },
-  remainingBadge: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.primary,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginTop: 4,
-  },
-  targetGrid: {
+  content: { paddingHorizontal: 16, paddingBottom: 20 },
+  calHero: {
+    backgroundColor: COLORS.darkPanel,
+    borderRadius: 28,
+    padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 20,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+    gap: 16,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: COLORS.darkStroke,
   },
-  targetStatBox: {
-    alignItems: 'center',
-  },
-  statLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-  },
-  statVal: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: 'rgba(226, 232, 240, 0.9)',
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-    marginTop: 18,
-    marginBottom: 10,
-  },
-  waterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 4,
-  },
-  waterTextCol: {
-    flex: 1,
-  },
-  waterVal: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-  },
-  waterSub: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  addWaterBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0EA5E9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
-    gap: 4,
-  },
-  addWaterText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.white,
-  },
-  waterTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(224, 242, 254, 0.9)',
-    overflow: 'hidden',
-    marginTop: 12,
-  },
-  waterBar: {
-    height: '100%',
-    backgroundColor: '#0EA5E9',
-    borderRadius: 4,
-  },
-  vitaminGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginVertical: 4,
-  },
-  vitaminTile: {
-    flex: 1,
-    padding: 16,
-  },
-  vitaminName: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    marginTop: 8,
-  },
-  vitaminVal: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: COLORS.primary,
-    marginTop: 2,
-  },
-  vitaminSub: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-    marginTop: 2,
-  },
-  timelineCard: {
-    marginVertical: 4,
-  },
-  timelineRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  timeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    gap: 4,
-  },
-  timeBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: COLORS.primary,
-  },
-  timelineCal: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  timelineContent: {
-    marginTop: 2,
-  },
-  timelineTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  timelineSub: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
+  calVal: { fontSize: 30, fontWeight: '900', color: COLORS.darkText, letterSpacing: -0.8, textAlign: 'center' },
+  calLabel: { fontSize: 13, fontWeight: '700', color: 'rgba(228,231,255,0.65)', textAlign: 'center' },
+  calGoal: { fontSize: 11, fontWeight: '600', color: 'rgba(228,231,255,0.4)', textAlign: 'center' },
+  calMeta: { flex: 1 },
+  calMetaTitle: { fontSize: 18, fontWeight: '900', color: COLORS.darkText, letterSpacing: -0.3 },
+  calMetaSub: { fontSize: 12, color: 'rgba(228,231,255,0.55)', marginTop: 4 },
+  calBreakRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 16 },
+  calBreakItem: { alignItems: 'center' },
+  calBreakVal: { fontSize: 22, fontWeight: '900', color: COLORS.darkText },
+  calBreakLabel: { fontSize: 11, fontWeight: '600', color: 'rgba(228,231,255,0.5)', marginTop: 2 },
+  calDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.12)' },
+  macroItem: { marginBottom: 12 },
+  macroHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  macroIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  macroName: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, flex: 1 },
+  macroCurr: { fontSize: 14, fontWeight: '800', color: COLORS.textPrimary },
+  macroGoal: { fontSize: 11, fontWeight: '600', color: COLORS.textMuted },
+  macroPct: { fontSize: 12, fontWeight: '800', width: 36, textAlign: 'right' },
+  macroTrack: { height: 7, borderRadius: 3.5, backgroundColor: COLORS.trackBg, overflow: 'hidden' },
+  macroFill: { height: '100%', borderRadius: 3.5 },
+  vitaminRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  vitaminName: { fontSize: 12, fontWeight: '700', color: COLORS.textPrimary, width: 96 },
+  vitaminMid: { flex: 1 },
+  vitaminTrack: { height: 6, borderRadius: 3, backgroundColor: COLORS.trackBg, overflow: 'hidden' },
+  vitaminFill: { height: '100%', borderRadius: 3 },
+  vitaminPct: { fontSize: 11, fontWeight: '800', color: COLORS.textSecondary, width: 34, textAlign: 'right' },
+  vitaminCurr: { fontSize: 10, fontWeight: '500', color: COLORS.textMuted, width: 60, textAlign: 'right' },
+  alertRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
+  alertIcon: { width: 26, height: 26, borderRadius: 8, backgroundColor: COLORS.warningSubtle, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  alertText: { flex: 1 },
+  alertNutrient: { fontSize: 13, fontWeight: '800', color: COLORS.warning },
+  alertAction: { fontSize: 12, fontWeight: '500', color: COLORS.textSecondary, marginTop: 2, lineHeight: 17 },
 });

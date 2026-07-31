@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Rect } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface VoiceAssistantScreenProps {
   onBack: () => void;
@@ -16,100 +16,130 @@ interface VoiceAssistantScreenProps {
 
 const TRANSCRIPTIONS = [
   'Listening to your voice...',
-  '"Log my lunch: Grilled chicken salad with olive oil and sparkling water..."',
-  '"Scanning macros: 340 kcal, 36g Protein. Migraine trigger level: SAFE."',
+  '"Log my lunch: Grilled chicken salad with olive oil..."',
+  '"340 kcal · 36g Protein · Migraine trigger level: SAFE"',
 ];
 
-export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
-  onBack,
-  onNavigateToAgent,
-}) => {
+export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({ onBack, onNavigateToAgent }) => {
   const [transIndex, setTransIndex] = useState(0);
+  const [listening, setListening] = useState(false);
   const orbScale = useRef(new Animated.Value(1)).current;
+  const ring1 = useRef(new Animated.Value(1)).current;
+  const ring2 = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Pulsing Glowing AI Orb Animation
+    if (!listening) return;
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(orbScale, {
-          toValue: 1.2,
-          duration: 1400,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(orbScale, {
-          toValue: 1.0,
-          duration: 1400,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(orbScale, { toValue: 1.12, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(orbScale, { toValue: 1, duration: 900, useNativeDriver: true }),
+      ])
+    );
+    const ring1Loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ring1, { toValue: 1.4, duration: 1600, useNativeDriver: true }),
+        Animated.timing(ring1, { toValue: 1, duration: 0, useNativeDriver: true }),
+      ])
+    );
+    const ring2Loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(ring2, { toValue: 1.8, duration: 2200, useNativeDriver: true }),
+        Animated.timing(ring2, { toValue: 1, duration: 0, useNativeDriver: true }),
       ])
     );
     loop.start();
+    ring1Loop.start();
+    ring2Loop.start();
 
-    const interval = setInterval(() => {
-      setTransIndex((prev) => (prev < TRANSCRIPTIONS.length - 1 ? prev + 1 : prev));
-    }, 2200);
-
-    return () => {
-      loop.stop();
-      clearInterval(interval);
-    };
-  }, [orbScale]);
+    const int = setInterval(() => setTransIndex((p) => (p + 1) % TRANSCRIPTIONS.length), 2200);
+    return () => { loop.stop(); ring1Loop.stop(); ring2Loop.stop(); clearInterval(int); };
+  }, [listening, orbScale, ring1, ring2]);
 
   return (
-    <LayeredBackground style={styles.fullContainer}>
-      {/* Top Header Row */}
-      <View style={styles.headerRow}>
-        <AnimatedPressable style={styles.closeBtn} onPress={onBack}>
-          <Ionicons name="close" size={24} color={COLORS.textPrimary} />
-        </AnimatedPressable>
+    <LayeredBackground variant="dark">
+      <AnimatedAppBar
+        title="Voice AI"
+        subtitle="Real-time voice food logging"
+        showBack
+        onBack={onBack}
+        dark
+      />
 
-        <Text style={styles.assistantHeaderTitle}>Voice Neural Assistant</Text>
+      <View style={styles.center}>
+        {/* Animated Orb */}
+        <View style={styles.orbWrap}>
+          {listening && (
+            <>
+              <Animated.View style={[styles.pulseRing, styles.pulseRing2, { transform: [{ scale: ring2 }], opacity: ring2.interpolate({ inputRange: [1, 1.8], outputRange: [0.15, 0] }) }]} />
+              <Animated.View style={[styles.pulseRing, { transform: [{ scale: ring1 }], opacity: ring1.interpolate({ inputRange: [1, 1.4], outputRange: [0.25, 0] }) }]} />
+            </>
+          )}
+          <Animated.View style={[styles.orb, SHADOWS.glowAccent, { transform: [{ scale: orbScale }] }]}>
+            <Svg width={120} height={120}>
+              <Defs>
+                <LinearGradient id="voiceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor="#7B61FF" />
+                  <Stop offset="100%" stopColor="#4F6EF7" />
+                </LinearGradient>
+              </Defs>
+              <Circle cx={60} cy={60} r={60} fill="url(#voiceGrad)" />
+            </Svg>
+            <View style={styles.orbIconOverlay}>
+              <Ionicons name={listening ? 'mic' : 'mic-outline'} size={40} color={COLORS.white} />
+            </View>
+          </Animated.View>
+        </View>
 
-        <AnimatedPressable style={styles.agentShortcutBtn} onPress={onNavigateToAgent}>
-          <Ionicons name="sparkles" size={18} color={COLORS.accent} />
-        </AnimatedPressable>
-      </View>
+        {/* Status */}
+        <View style={styles.statusChip}>
+          <View style={[styles.statusDot, { backgroundColor: listening ? COLORS.secondary : COLORS.textMuted }]} />
+          <Text style={[styles.statusText, { color: listening ? COLORS.secondary : COLORS.textMuted }]}>
+            {listening ? 'Listening...' : 'Tap to Start'}
+          </Text>
+        </View>
 
-      {/* Main Full-Screen Glowing Pulsing AI Orb */}
-      <View style={styles.centerVisualizer}>
-        <Animated.View
-          style={[
-            styles.glowingOrbOuter,
-            SHADOWS.glow,
-            { transform: [{ scale: orbScale }] },
-          ]}
+        {/* Transcription */}
+        <View style={[styles.transcribeBox, SHADOWS.glass]}>
+          <Text style={styles.transcribeText}>{TRANSCRIPTIONS[transIndex]}</Text>
+        </View>
+
+        {/* Toggle Button */}
+        <AnimatedPressable
+          style={[styles.listenBtn, { backgroundColor: listening ? COLORS.danger : COLORS.primary }, SHADOWS.glow]}
+          onPress={() => setListening(!listening)}
+          scaleTo={0.92}
         >
-          <View style={styles.glowingOrbInner}>
-            <Ionicons name="mic" size={48} color={COLORS.white} />
-          </View>
-        </Animated.View>
-
-        {/* Live Audio Waves Visualizer Bar Mockup */}
-        <View style={styles.audioWaveRow}>
-          {[40, 70, 30, 90, 50, 80, 45, 95, 60, 35].map((h, i) => (
-            <View key={i} style={[styles.waveBar, { height: h }]} />
-          ))}
-        </View>
-
-        <Text style={styles.listeningStatus}>Voice Recognition Active</Text>
+          <Ionicons name={listening ? 'stop' : 'mic'} size={22} color={COLORS.white} />
+          <Text style={styles.listenBtnText}>{listening ? 'Stop Listening' : 'Start Voice Logging'}</Text>
+        </AnimatedPressable>
       </View>
 
-      {/* Live Speech Transcription Card */}
-      <GlassCard variant="glass" style={styles.transcriptionCard}>
-        <View style={styles.transHeaderRow}>
-          <View style={styles.recDot} />
-          <Text style={styles.transHeaderTitle}>LIVE TRANSCRIPTION</Text>
-        </View>
-        <Text style={styles.transcriptionBody}>{TRANSCRIPTIONS[transIndex]}</Text>
-      </GlassCard>
+      {/* Capabilities */}
+      <View style={styles.capsSection}>
+        <GlassCard
+          variant="dark"
+          icon="sparkles"
+          iconColor={COLORS.accentLight}
+          title="Voice Capabilities"
+          subtitle="What NutriVision Voice understands"
+        >
+          {[
+            { icon: 'restaurant' as const, text: 'Log complete meals: "Grilled salmon with quinoa"' },
+            { icon: 'analytics' as const, text: 'Ask for nutrition: "How much protein in my lunch?"' },
+            { icon: 'shield-checkmark' as const, text: 'Disease check: "Is this safe for my migraine?"' },
+            { icon: 'calendar' as const, text: 'Plan meals: "Schedule a low-sodium dinner tomorrow"' },
+          ].map((c) => (
+            <View key={c.text} style={styles.capRow}>
+              <Ionicons name={c.icon} size={14} color={COLORS.accentLight} />
+              <Text style={styles.capText}>{c.text}</Text>
+            </View>
+          ))}
+        </GlassCard>
 
-      {/* Action Bar */}
-      <View style={styles.bottomBar}>
         <PrimaryButton
-          title="Analyze Speech Log"
-          icon="sparkles-outline"
+          variant="accent"
+          title="Open Full AI Chat"
+          icon="sparkles"
           onPress={onNavigateToAgent}
         />
       </View>
@@ -118,118 +148,90 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  fullContainer: {
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
     paddingVertical: 16,
+    gap: 20,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  closeBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+  orbWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(226, 232, 240, 0.9)',
+    width: 180,
+    height: 180,
   },
-  assistantHeaderTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
+  pulseRing: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: COLORS.accent,
   },
-  agentShortcutBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    backgroundColor: 'rgba(124, 58, 237, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(124, 58, 237, 0.2)',
+  pulseRing2: {
+    borderColor: COLORS.primary,
   },
-  centerVisualizer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 40,
+  orb: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    overflow: 'hidden',
+    position: 'relative',
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
-  glowingOrbOuter: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: '#3B82F6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 6,
-    borderColor: 'rgba(255, 255, 255, 0.9)',
-    shadowColor: '#3B82F6',
-    shadowOpacity: 0.6,
-    shadowRadius: 30,
-  },
-  glowingOrbInner: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#1D4ED8',
+  orbIconOverlay: {
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  audioWaveRow: {
+  statusChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 36,
-    height: 100,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 99,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  waveBar: {
-    width: 6,
-    backgroundColor: COLORS.primary,
-    borderRadius: 3,
-  },
-  listeningStatus: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginTop: 16,
-  },
-  transcriptionCard: {
-    marginVertical: 10,
-    padding: 18,
-  },
-  transHeaderRow: {
-    flexDirection: 'row',
+  statusDot: { width: 7, height: 7, borderRadius: 3.5 },
+  statusText: { fontSize: 13, fontWeight: '700' },
+  transcribeBox: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    width: '100%',
+    minHeight: 60,
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    justifyContent: 'center',
   },
-  recDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.danger,
-  },
-  transHeaderTitle: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: COLORS.textMuted,
-    letterSpacing: 0.8,
-  },
-  transcriptionBody: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    lineHeight: 23,
+  transcribeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: 'rgba(228,231,255,0.8)',
+    textAlign: 'center',
+    lineHeight: 21,
     fontStyle: 'italic',
   },
-  bottomBar: {
-    marginBottom: 20,
+  listenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 18,
+    gap: 8,
+    width: '100%',
   },
+  listenBtnText: { fontSize: 16, fontWeight: '800', color: COLORS.white },
+  capsSection: { paddingHorizontal: 16, paddingBottom: 16, gap: 8 },
+  capRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 5 },
+  capText: { fontSize: 12, fontWeight: '500', color: 'rgba(228,231,255,0.65)', flex: 1 },
 });

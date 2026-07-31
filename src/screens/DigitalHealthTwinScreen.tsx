@@ -1,393 +1,275 @@
-import React from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Text, Animated, Easing, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Circle, Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Stop, Ellipse, Circle, Path, Rect } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
-import { DIGITAL_TWIN_PREDICTION } from '../data/mockData';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
-import { ProgressRing } from '../components/ProgressRing';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
-import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface DigitalHealthTwinScreenProps {
   onBack: () => void;
-  onAskAgent: () => void;
+  onNavigate: (screen: string) => void;
 }
 
-const BODY_SYSTEMS = [
-  {
-    name: 'Cardiovascular System',
-    organ: 'Heart',
-    status: 'Optimal',
-    score: 94,
-    icon: 'heart' as const,
-    color: COLORS.danger,
-    bg: 'rgba(239, 68, 68, 0.1)',
-    metrics: 'BP: 118/76 • Resting HR: 68 BPM',
-  },
-  {
-    name: 'Nervous & Vascular System',
-    organ: 'Brain',
-    status: 'Vulnerable (Migraine)',
-    score: 72,
-    icon: 'hardware-chip' as const,
-    color: COLORS.accent,
-    bg: 'rgba(124, 58, 237, 0.1)',
-    metrics: 'Magnesium Level: 85% • Vascular Stress: Low',
-  },
-  {
-    name: 'Respiratory System',
-    organ: 'Lungs',
-    status: 'Excellent',
-    score: 96,
-    icon: 'fitness' as const,
-    color: COLORS.primary,
-    bg: 'rgba(59, 130, 246, 0.1)',
-    metrics: 'SpO2: 99% • VO2 Max: 44 ml/kg',
-  },
-  {
-    name: 'Renal & Filtration System',
-    organ: 'Kidneys',
-    status: 'Balanced',
-    score: 88,
-    icon: 'water' as const,
-    color: '#0EA5E9',
-    bg: 'rgba(14, 165, 233, 0.1)',
-    metrics: 'Hydration Target: 72% • Sodium Balance: Moderate',
-  },
-  {
-    name: 'Immune & Metabolic System',
-    organ: 'Immune',
-    status: 'Pre-Diabetes Shield',
-    score: 80,
-    icon: 'shield-checkmark' as const,
-    color: COLORS.secondary,
-    bg: 'rgba(16, 185, 129, 0.1)',
-    metrics: 'Glycemic Stability: 82% • Inflammation Index: Low',
-  },
+const ORGAN_SYSTEMS = [
+  { id: 'cardio', label: 'Cardiovascular', score: 82, risk: 'Low', color: COLORS.danger, icon: 'heart' as const, desc: 'Normal BP · Resting BPM 72' },
+  { id: 'meta', label: 'Metabolic', score: 67, risk: 'Moderate', color: COLORS.warning, icon: 'flame' as const, desc: 'Pre-diabetic monitoring active' },
+  { id: 'neuro', label: 'Neurological', score: 74, risk: 'Low', color: COLORS.accent, icon: 'flash' as const, desc: 'Migraine risk: 28% this week' },
+  { id: 'digest', label: 'Digestive', score: 89, risk: 'Minimal', color: COLORS.secondary, icon: 'leaf' as const, desc: 'Fiber intake optimal' },
+  { id: 'renal', label: 'Renal', score: 91, risk: 'Minimal', color: COLORS.primaryLight, icon: 'water' as const, desc: 'Hydration markers good' },
 ];
 
-export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = ({
-  onBack,
-  onAskAgent,
-}) => {
+export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = ({ onBack, onNavigate }) => {
   const { userProfile } = useApp();
+  const [selectedOrgan, setSelectedOrgan] = useState('cardio');
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.04, duration: 2000, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
+      ])
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, { toValue: -8, duration: 3000, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 3000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, [pulseAnim, floatAnim]);
+
+  const selected = ORGAN_SYSTEMS.find((o) => o.id === selectedOrgan) || ORGAN_SYSTEMS[0];
 
   return (
-    <LayeredBackground>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Animated App Bar */}
+    <LayeredBackground variant="violet">
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AnimatedAppBar
           title="Digital Health Twin"
-          subtitle="3D Clinical Organ & Predictive Simulation"
+          subtitle="3D Predictive Organ Modeling"
           showBack
           onBack={onBack}
-          rightActionIcon="sparkles"
-          onRightAction={onAskAgent}
+          rightActionIcon="share-outline"
+          onRightAction={() => {}}
+          dark
         />
 
-        {/* 3D Style Avatar Placeholder & Vitality Score Card */}
-        <GlassCard variant="glass" style={styles.avatarCard}>
-          <View style={styles.avatarRow}>
-            {/* Stylized 3D Body Outline Visualizer */}
-            <View style={styles.avatarVisualBox}>
-              <Svg width={110} height={160} viewBox="0 0 100 160">
-                <Defs>
-                  <LinearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <Stop offset="0%" stopColor="#3B82F6" />
-                    <Stop offset="100%" stopColor="#7C3AED" />
-                  </LinearGradient>
-                </Defs>
-                {/* Head */}
-                <Circle cx={50} cy={22} r={14} fill="url(#bodyGrad)" opacity={0.9} />
-                {/* Torso */}
-                <Rect x={36} y={42} width={28} height={50} rx={10} fill="url(#bodyGrad)" opacity={0.8} />
-                {/* Arms */}
-                <Rect x={20} y={44} width={12} height={42} rx={6} fill="url(#bodyGrad)" opacity={0.6} />
-                <Rect x={68} y={44} width={12} height={42} rx={6} fill="url(#bodyGrad)" opacity={0.6} />
-                {/* Legs */}
-                <Rect x={38} y={96} width={10} height={54} rx={5} fill="url(#bodyGrad)" opacity={0.75} />
-                <Rect x={52} y={96} width={10} height={54} rx={5} fill="url(#bodyGrad)" opacity={0.75} />
-                {/* Heart Glow Dot */}
-                <Circle cx={46} cy={54} r={5} fill="#EF4444" />
-              </Svg>
-            </View>
+        {/* 3D Figure Panel */}
+        <Animated.View style={[styles.figurePanelOuter, { transform: [{ translateY: floatAnim }] }]}>
+          <View style={[styles.figurePanel, SHADOWS.glowAccent]}>
+            <Svg width="100%" height="280" viewBox="0 0 320 280">
+              <Defs>
+                <LinearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor="#7B61FF" stopOpacity="0.9" />
+                  <Stop offset="100%" stopColor="#4F6EF7" stopOpacity="0.9" />
+                </LinearGradient>
+                <LinearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <Stop offset="0%" stopColor="#7B61FF" stopOpacity="0.3" />
+                  <Stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                </LinearGradient>
+              </Defs>
 
-            <View style={styles.vitalityCol}>
-              <View style={styles.badgeRow}>
-                <Ionicons name="sparkles" size={12} color={COLORS.accent} />
-                <Text style={styles.badgeText}>3D AI Twin Active</Text>
-              </View>
-              <Text style={styles.vitalityTitle}>{userProfile.name}'s Twin</Text>
-              <Text style={styles.vitalityScore}>
-                {userProfile.healthScore}<Text style={styles.vitalityScoreMax}>/100</Text>
-              </Text>
-              <Text style={styles.vitalitySub}>Overall Organ Vitality Score</Text>
+              {/* Ground Glow */}
+              <Ellipse cx={160} cy={265} rx={80} ry={12} fill="url(#glowGrad)" />
 
-              <View style={styles.twinPill}>
-                <Text style={styles.twinPillText}>Vulnerability: Pre-diabetes & Migraine</Text>
-              </View>
+              {/* Body silhouette */}
+              {/* Head */}
+              <Circle cx={160} cy={52} r={30} fill="none" stroke="url(#bodyGrad)" strokeWidth="2" opacity={0.7} />
+              {/* Neck */}
+              <Rect x={152} y={80} width={16} height={18} rx={4} fill="none" stroke="url(#bodyGrad)" strokeWidth="2" opacity={0.6} />
+              {/* Torso */}
+              <Rect x={120} y={96} width={80} height={100} rx={10} fill="none" stroke="url(#bodyGrad)" strokeWidth="2" opacity={0.6} />
+              {/* Arms */}
+              <Path d="M120 100 L88 170" stroke="url(#bodyGrad)" strokeWidth="2.5" strokeLinecap="round" opacity={0.6} />
+              <Path d="M200 100 L232 170" stroke="url(#bodyGrad)" strokeWidth="2.5" strokeLinecap="round" opacity={0.6} />
+              {/* Legs */}
+              <Path d="M145 196 L135 265" stroke="url(#bodyGrad)" strokeWidth="2.5" strokeLinecap="round" opacity={0.6} />
+              <Path d="M175 196 L185 265" stroke="url(#bodyGrad)" strokeWidth="2.5" strokeLinecap="round" opacity={0.6} />
+
+              {/* Heart pulse dot */}
+              <Circle cx={148} cy={130} r={6} fill={COLORS.danger} opacity={0.9} />
+              <Circle cx={148} cy={130} r={12} fill="none" stroke={COLORS.danger} strokeWidth="1.5" opacity={0.4} />
+
+              {/* Metabolic center dot */}
+              <Circle cx={160} cy={155} r={5} fill={COLORS.warning} opacity={0.85} />
+
+              {/* Brain dot */}
+              <Circle cx={160} cy={45} r={4} fill={COLORS.accent} opacity={0.85} />
+
+              {/* Scan line */}
+              <Animated.View />
+              <Rect x={80} y={138} width={160} height={1.5} rx={0.75} fill={COLORS.primary} opacity={0.3} />
+
+              {/* Score badge */}
+              <Rect x={220} y={115} width={68} height={32} rx={10} fill="rgba(79,110,247,0.2)" />
+              <Rect x={221} y={116} width={66} height={30} rx={9} fill="none" stroke="rgba(79,110,247,0.4)" strokeWidth="1" />
+            </Svg>
+
+            {/* Floating Score */}
+            <View style={styles.floatingScore}>
+              <Text style={styles.floatingScoreVal}>{userProfile.healthScore}</Text>
+              <Text style={styles.floatingScoreLabel}>Twin Score</Text>
             </View>
           </View>
-        </GlassCard>
+        </Animated.View>
 
-        {/* Body Systems (Heart, Brain, Lungs, Kidneys, Immune) */}
-        <Text style={styles.sectionTitle}>Interactive Body Systems</Text>
-        {BODY_SYSTEMS.map((system) => (
-          <GlassCard key={system.organ} style={styles.systemCard}>
-            <View style={styles.systemHeader}>
-              <View style={[styles.systemIconBox, { backgroundColor: system.bg }]}>
-                <Ionicons name={system.icon} size={20} color={system.color} />
-              </View>
+        {/* Organ System Selector */}
+        <View style={styles.organRow}>
+          {ORGAN_SYSTEMS.map((sys) => (
+            <AnimatedPressable
+              key={sys.id}
+              style={[styles.organBtn, selectedOrgan === sys.id && [styles.organBtnActive, { borderColor: sys.color + '60', backgroundColor: sys.color + '15' }]]}
+              onPress={() => setSelectedOrgan(sys.id)}
+              scaleTo={0.92}
+            >
+              <Ionicons name={sys.icon} size={17} color={selectedOrgan === sys.id ? sys.color : 'rgba(228,231,255,0.4)'} />
+            </AnimatedPressable>
+          ))}
+        </View>
 
-              <View style={styles.systemTitleCol}>
-                <Text style={styles.systemName}>{system.name}</Text>
-                <Text style={styles.systemMetrics}>{system.metrics}</Text>
-              </View>
-
-              <View style={styles.systemScoreBox}>
-                <Text style={[styles.systemScoreVal, { color: system.color }]}>{system.score}%</Text>
-                <Text style={styles.systemStatusText}>{system.status}</Text>
-              </View>
+        {/* Selected System Detail */}
+        <View style={[styles.systemDetail, SHADOWS.md]}>
+          <View style={styles.systemDetailHeader}>
+            <View style={[styles.systemDetailIcon, { backgroundColor: selected.color + '20' }]}>
+              <Ionicons name={selected.icon} size={22} color={selected.color} />
             </View>
-          </GlassCard>
+            <View style={styles.systemDetailMeta}>
+              <Text style={styles.systemDetailName}>{selected.label}</Text>
+              <Text style={styles.systemDetailDesc}>{selected.desc}</Text>
+            </View>
+            <View style={[styles.riskBadge, {
+              backgroundColor: selected.risk === 'Low' || selected.risk === 'Minimal' ? 'rgba(0,196,140,0.15)' : 'rgba(255,170,0,0.15)',
+            }]}>
+              <Text style={[styles.riskText, {
+                color: selected.risk === 'Low' || selected.risk === 'Minimal' ? COLORS.secondary : COLORS.warning,
+              }]}>{selected.risk}</Text>
+            </View>
+          </View>
+
+          <ProgressRing
+            size={90}
+            strokeWidth={8}
+            progress={selected.score}
+            gradientColors={[selected.color, selected.color + 'AA']}
+            id={`twin-${selected.id}`}
+            trackColor="rgba(255,255,255,0.08)"
+          >
+            <Text style={[styles.sysMiniScore, { color: COLORS.darkText }]}>{selected.score}</Text>
+          </ProgressRing>
+        </View>
+
+        {/* All System Scores */}
+        <Text style={styles.sectionTitle}>Full System Map</Text>
+        {ORGAN_SYSTEMS.map((sys) => (
+          <AnimatedPressable key={sys.id} onPress={() => setSelectedOrgan(sys.id)} style={[styles.sysRow, SHADOWS.xs]} scaleTo={0.98}>
+            <View style={[styles.sysRowIcon, { backgroundColor: sys.color + '20' }]}>
+              <Ionicons name={sys.icon} size={15} color={sys.color} />
+            </View>
+            <View style={styles.sysRowMeta}>
+              <Text style={styles.sysRowName}>{sys.label}</Text>
+              <Text style={styles.sysRowDesc}>{sys.desc}</Text>
+            </View>
+            <Text style={[styles.sysRowScore, { color: sys.color }]}>{sys.score}</Text>
+            <View style={styles.sysRowTrack}>
+              <View style={[styles.sysRowFill, { width: `${sys.score}%`, backgroundColor: sys.color }]} />
+            </View>
+          </AnimatedPressable>
         ))}
 
-        {/* 6-Month Predictive Health Risk Timeline */}
-        <GlassCard
-          variant="gradient"
-          icon="analytics-outline"
-          iconColor={COLORS.accent}
-          title="6-Month Predictive Projection"
-          subtitle="AI simulation based on current diet trajectory"
-        >
-          <View style={styles.predictRow}>
-            <View style={styles.predictBox}>
-              <Text style={styles.predictLabel}>Current Weight</Text>
-              <Text style={styles.predictVal}>{DIGITAL_TWIN_PREDICTION.currentWeight} kg</Text>
-            </View>
-            <Ionicons name="arrow-forward" size={18} color={COLORS.textMuted} />
-            <View style={styles.predictBox}>
-              <Text style={styles.predictLabel}>Projected (6 Mos)</Text>
-              <Text style={[styles.predictVal, { color: COLORS.warning }]}>
-                {DIGITAL_TWIN_PREDICTION.predictedWeight6Months} kg
-              </Text>
-            </View>
-          </View>
+        <PrimaryButton variant="accent" title="Generate Full Prediction Report" icon="document-text" onPress={() => onNavigate('DiseaseRiskAnalysis')} style={{ marginTop: 14 }} />
 
-          <Text style={styles.predictNotice}>
-            "Without adjusting sodium and refined sugars, pre-diabetes vulnerability increases by +
-            {DIGITAL_TWIN_PREDICTION.riskIncreasePercentage}% over 6 months."
-          </Text>
-        </GlassCard>
-
-        {/* AI Preventive Suggestions */}
-        <Text style={styles.sectionTitle}>AI Twin Suggestions</Text>
-        <GlassCard icon="bulb" iconColor={COLORS.warning} title="Recommended Preventive Protocol">
-          <View style={styles.suggestionsGrid}>
-            <Text style={styles.sugHeader}>Items to Reduce:</Text>
-            {DIGITAL_TWIN_PREDICTION.recommendationsToReduce.map((item, idx) => (
-              <Text key={idx} style={styles.sugItemRed}>❌ {item}</Text>
-            ))}
-
-            <Text style={[styles.sugHeader, { marginTop: 10 }]}>Items to Add:</Text>
-            {DIGITAL_TWIN_PREDICTION.recommendationsToAdd.map((item, idx) => (
-              <Text key={idx} style={styles.sugItemGreen}>✅ {item}</Text>
-            ))}
-          </View>
-        </GlassCard>
-
-        {/* Action Button */}
-        <PrimaryButton
-          title="Consult AI Assistant on Twin Protocol"
-          icon="sparkles"
-          onPress={onAskAgent}
-          style={{ marginTop: 16 }}
-        />
-
-        <View style={{ height: 40 }} />
+        <View style={{ height: 30 }} />
       </ScrollView>
     </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  avatarCard: {
-    marginVertical: 10,
-    padding: 18,
-  },
-  avatarRow: {
-    flexDirection: 'row',
+  content: { paddingHorizontal: 16, paddingBottom: 20 },
+  figurePanelOuter: { marginVertical: 10 },
+  figurePanel: {
+    backgroundColor: '#1A1240',
+    borderRadius: 28,
+    overflow: 'hidden',
     alignItems: 'center',
-  },
-  avatarVisualBox: {
-    width: 110,
-    height: 160,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: 'rgba(123, 97, 255, 0.2)',
+    position: 'relative',
   },
-  vitalityCol: {
-    flex: 1,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(124, 58, 237, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    gap: 4,
-    marginBottom: 6,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.accent,
-    textTransform: 'uppercase',
-  },
-  vitalityTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-  },
-  vitalityScore: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: COLORS.primary,
-    letterSpacing: -0.8,
-    marginTop: 2,
-  },
-  vitalityScoreMax: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textMuted,
-  },
-  vitalitySub: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  twinPill: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    marginTop: 8,
-    alignSelf: 'flex-start',
-  },
-  twinPillText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.secondaryDark,
-  },
-  sectionTitle: {
-    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-    marginTop: 18,
-    marginBottom: 10,
-  },
-  systemCard: {
-    marginVertical: 4,
-  },
-  systemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  systemIconBox: {
-    width: 40,
-    height: 40,
+  floatingScore: {
+    position: 'absolute',
+    top: 20,
+    right: 24,
+    backgroundColor: 'rgba(79,110,247,0.25)',
     borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(79,110,247,0.4)',
+    alignItems: 'center',
+  },
+  floatingScoreVal: { fontSize: 22, fontWeight: '900', color: COLORS.white },
+  floatingScoreLabel: { fontSize: 9, fontWeight: '700', color: 'rgba(255,255,255,0.6)' },
+  organRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  organBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
-  systemTitleCol: {
-    flex: 1,
-  },
-  systemName: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  systemMetrics: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  systemScoreBox: {
-    alignItems: 'flex-end',
-  },
-  systemScoreVal: {
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  systemStatusText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-  },
-  predictRow: {
+  organBtnActive: { borderWidth: 2 },
+  systemDetail: {
+    backgroundColor: '#1A1240',
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(123,97,255,0.2)',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    marginVertical: 10,
+    gap: 16,
   },
-  predictBox: {
+  systemDetailHeader: { flex: 1, flexDirection: 'column', gap: 8 },
+  systemDetailIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  systemDetailMeta: { flex: 1 },
+  systemDetailName: { fontSize: 16, fontWeight: '900', color: COLORS.darkText },
+  systemDetailDesc: { fontSize: 12, fontWeight: '500', color: 'rgba(228,231,255,0.55)', marginTop: 2 },
+  riskBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, alignSelf: 'flex-start' },
+  riskText: { fontSize: 11, fontWeight: '800' },
+  sysMiniScore: { fontSize: 20, fontWeight: '900' },
+  sectionTitle: { fontSize: 20, fontWeight: '800', color: COLORS.darkText, letterSpacing: -0.3, marginTop: 4, marginBottom: 10 },
+  sysRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    gap: 10,
   },
-  predictLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-  },
-  predictVal: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    marginTop: 2,
-  },
-  predictNotice: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: COLORS.textPrimary,
-    lineHeight: 19,
-    fontStyle: 'italic',
-    marginTop: 8,
-  },
-  suggestionsGrid: {
-    gap: 4,
-    marginTop: 6,
-  },
-  sugHeader: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: COLORS.textSecondary,
-  },
-  sugItemRed: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.dangerDark,
-  },
-  sugItemGreen: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.secondaryDark,
-  },
+  sysRowIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  sysRowMeta: { flex: 1 },
+  sysRowName: { fontSize: 13, fontWeight: '800', color: COLORS.darkText },
+  sysRowDesc: { fontSize: 11, color: 'rgba(228,231,255,0.5)', marginTop: 1 },
+  sysRowScore: { fontSize: 20, fontWeight: '900', marginRight: 8 },
+  sysRowTrack: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden' },
+  sysRowFill: { height: '100%', borderRadius: 99 },
 });
