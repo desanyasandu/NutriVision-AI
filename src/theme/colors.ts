@@ -32,8 +32,8 @@ export const COLORS = {
 
   // Typography Palette
   textPrimary: '#0F172A',          // Slate 900 for Main Headers
-  textSecondary: '#475569',        // Slate 600 for Body & Subtitles
-  textMuted: '#94A3B8',            // Slate 400 for Secondary Captions
+  textSecondary: '#334155',        // High-Contrast Slate 700 for Body & Subtitles
+  textMuted: '#64748B',            // High-Contrast Slate 600 for Captions
   white: '#FFFFFF',
   black: '#000000',
 

@@ -342,27 +342,29 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   progressTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   progressSub: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '600',
   },
   addTaskBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: 12,
   },
   addTaskBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: '800',
     color: COLORS.white,
   },
   barBg: {
@@ -382,8 +384,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 12,
     backgroundColor: COLORS.cardBg,
     borderWidth: 1,
@@ -394,13 +396,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   categoryChipText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: COLORS.textSecondary,
   },
   categoryChipTextActive: {
     color: COLORS.white,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   tabsRow: {
     flexDirection: 'row',
@@ -413,7 +415,7 @@ const styles = StyleSheet.create({
   tabBtn: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 10,
   },
   tabBtnActive: {
@@ -425,13 +427,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tabBtnText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: COLORS.textMuted,
   },
   tabBtnTextActive: {
     color: COLORS.primary,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   cardListContainer: {
     paddingHorizontal: 16,

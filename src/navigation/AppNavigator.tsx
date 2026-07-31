@@ -255,13 +255,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 13,
     color: COLORS.textMuted,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   tabLabelActive: {
     color: COLORS.primary,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   activeDot: {
     width: 5,
