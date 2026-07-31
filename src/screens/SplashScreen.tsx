@@ -181,7 +181,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart }) => {
             <Ionicons name="shield-checkmark-outline" size={14} color={COLORS.textSecondary} />
             <Text style={styles.privacyText}>Your health data is 100% private & secure.</Text>
           </View>
-          <Text style={styles.footerNote}>Created by Team The Dark Code • NIBM  ♡</Text>
+          <Text style={styles.footerNote}>Created by Team The Dark Code • NIBM</Text>
         </View>
       </ScrollView>
     </View>

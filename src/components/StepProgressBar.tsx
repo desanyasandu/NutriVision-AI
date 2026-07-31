@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../theme/colors';
 
 interface StepProgressBarProps {
@@ -31,14 +32,18 @@ export const StepProgressBar: React.FC<StepProgressBarProps> = ({ currentStep })
                     isActive && styles.circleActive,
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.circleText,
-                      (isDone || isActive) && styles.circleTextActive,
-                    ]}
-                  >
-                    {isDone ? '✓' : s.num}
-                  </Text>
+                  {isDone ? (
+                    <Ionicons name="checkmark" size={13} color={COLORS.white} />
+                  ) : (
+                    <Text
+                      style={[
+                        styles.circleText,
+                        isActive && styles.circleTextActive,
+                      ]}
+                    >
+                      {s.num}
+                    </Text>
+                  )}
                 </View>
                 <Text style={[styles.stepLabel, (isActive || isDone) && styles.stepLabelActive]}>
                   {s.label}

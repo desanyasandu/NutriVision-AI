@@ -162,7 +162,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           activeOpacity={0.8}
         >
           <Text style={[styles.tabBtnText, activeTab === 'todo' && styles.tabBtnTextActive]}>
-            📋 Planned ({todoCards.length})
+            Planned ({todoCards.length})
           </Text>
         </TouchableOpacity>
 
@@ -172,7 +172,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           activeOpacity={0.8}
         >
           <Text style={[styles.tabBtnText, activeTab === 'in_progress' && styles.tabBtnTextActive]}>
-            ⚡ Active ({inProgressCards.length})
+            Active ({inProgressCards.length})
           </Text>
         </TouchableOpacity>
 
@@ -182,7 +182,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           activeOpacity={0.8}
         >
           <Text style={[styles.tabBtnText, activeTab === 'completed' && styles.tabBtnTextActive]}>
-            ✅ Done ({completedCards.length})
+            Completed ({completedCards.length})
           </Text>
         </TouchableOpacity>
       </View>

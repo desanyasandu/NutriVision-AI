@@ -22,7 +22,7 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
     <View style={styles.card}>
       <View style={styles.topRow}>
         <View style={styles.textContainer}>
-          <Text style={styles.greeting}>👋 Welcome back, {userName}</Text>
+          <Text style={styles.greeting}>Welcome back, {userName}</Text>
           <Text style={styles.title}>Daily Health Score</Text>
           <Text style={styles.statusText}>Optimal metabolic status detected today.</Text>
         </View>

@@ -74,7 +74,7 @@ export interface KanbanCardItem {
 }
 
 export const MEDICAL_DISCLAIMER =
-  "⚕️ Medical Disclaimer: NutriVision AI offers dietary risk estimates based on dietary guidelines for educational purposes only. It is not a clinical diagnosis or medical treatment advice. Please consult a registered dietitian or licensed physician for personal health decisions.";
+  "Medical Disclaimer: NutriVision AI offers dietary risk estimates based on dietary guidelines for educational purposes only. It is not a clinical diagnosis or medical treatment advice. Please consult a registered dietitian or licensed physician for personal health decisions.";
 
 export const INITIAL_USER_PROFILE: UserHealthProfile = {
   name: 'Desan',
@@ -213,7 +213,7 @@ export const MOCK_INITIAL_CHAT: AgentChatMessage[] = [
   {
     id: 'msg_1',
     sender: 'agent',
-    text: "Hello Desan! 👋 I'm NutriVision AI, your clinical dietary assistant. Based on your active profile (Pre-diabetes risk & Migraine history), I've evaluated today's nutrition logs.",
+    text: "Hello Desan! I'm NutriVision AI, your clinical dietary assistant. Based on your active profile (Pre-diabetes risk & Migraine history), I've evaluated today's nutrition logs.",
     timestamp: '10:00 AM',
   },
   {
@@ -225,7 +225,7 @@ export const MOCK_INITIAL_CHAT: AgentChatMessage[] = [
   {
     id: 'msg_3',
     sender: 'agent',
-    text: "I recommend a Grilled Salmon Bowl with Quinoa, Steamed Broccoli, and Olive Oil dressing. 🥗\n\n✓ Zero refined sugars (Protects against Pre-diabetes spikes)\n✓ Rich in Magnesium & Omega-3 (Helps prevent Migraine triggers)\n✓ High protein & low glycemic load.",
+    text: "I recommend a Grilled Salmon Bowl with Quinoa, Steamed Broccoli, and Olive Oil dressing.\n\n✓ Zero refined sugars (Protects against Pre-diabetes spikes)\n✓ Rich in Magnesium & Omega-3 (Helps prevent Migraine triggers)\n✓ High protein & low glycemic load.",
     timestamp: '10:02 AM',
     recommendations: ['Grilled Salmon with Quinoa', 'Avocado Chicken Salad', 'Steamed Veggie Stir-Fry'],
     suggestedAction: 'View Full Meal Plan',

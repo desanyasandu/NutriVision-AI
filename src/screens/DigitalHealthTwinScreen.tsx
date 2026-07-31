@@ -112,8 +112,9 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
             </View>
             <View style={styles.chipsWrap}>
               {DIGITAL_TWIN_PREDICTION.recommendationsToReduce.map((item, idx) => (
-                <View key={idx} style={styles.redChip}>
-                  <Text style={styles.redChipText}>✕ {item}</Text>
+                <View key={idx} style={[styles.redChip, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+                  <Ionicons name="close" size={12} color={COLORS.danger} />
+                  <Text style={styles.redChipText}>{item}</Text>
                 </View>
               ))}
             </View>
@@ -127,8 +128,9 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
             </View>
             <View style={styles.chipsWrap}>
               {DIGITAL_TWIN_PREDICTION.recommendationsToAdd.map((item, idx) => (
-                <View key={idx} style={styles.greenChip}>
-                  <Text style={styles.greenChipText}>✓ {item}</Text>
+                <View key={idx} style={[styles.greenChip, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+                  <Ionicons name="checkmark" size={12} color={COLORS.successDark} />
+                  <Text style={styles.greenChipText}>{item}</Text>
                 </View>
               ))}
             </View>
