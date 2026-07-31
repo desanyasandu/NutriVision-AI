@@ -8,6 +8,7 @@ import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SuccessCheck } from '../components/SuccessCheck';
+import { SpinningCounter } from '../components/SpinningCounter';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { ProgressRing } from '../components/ProgressRing';
 import { COLORS, SHADOWS } from '../theme/colors';
@@ -98,8 +99,7 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
             id={`existing-${selected}`}
             trackColor="rgba(255,255,255,0.1)"
           >
-            <Text style={styles.riskVal}>{data.risk}</Text>
-            <Text style={styles.riskValLabel}>%</Text>
+            <SpinningCounter value={data.risk} fontSize={36} fontWeight="900" color={COLORS.darkText} suffix="%" />
           </ProgressRing>
 
           <View style={styles.riskMeta}>

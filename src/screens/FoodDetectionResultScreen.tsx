@@ -8,6 +8,7 @@ import { GlassCard } from '../components/GlassCard';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SecondaryButton } from '../components/SecondaryButton';
 import { SuccessCheck } from '../components/SuccessCheck';
+import { SpinningCounter } from '../components/SpinningCounter';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -69,7 +70,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
             </View>
             <View style={[styles.scoreBadge, { backgroundColor: 'rgba(255,255,255,0.95)' }]}>
               <Text style={styles.scoreBadgeLabel}>SCORE</Text>
-              <Text style={[styles.scoreBadgeVal, { color: scoreColor }]}>{scan.healthScore}</Text>
+              <SpinningCounter value={scan.healthScore} fontSize={20} fontWeight="900" color={scoreColor} />
             </View>
           </View>
 

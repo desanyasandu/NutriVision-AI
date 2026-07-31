@@ -10,6 +10,7 @@ import { ProgressRing } from '../components/ProgressRing';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { WaterButton } from '../components/WaterButton';
 import { SuccessCheck } from '../components/SuccessCheck';
+import { SpinningCounter } from '../components/SpinningCounter';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
 
@@ -51,7 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 <SuccessCheck size={18} color="#00C48C" strokeWidth={3} />
                 <Text style={styles.heroBadgeText}>Optimal Status</Text>
               </View>
-              <Text style={styles.heroScore}>{userProfile.healthScore}</Text>
+              <SpinningCounter value={userProfile.healthScore} fontSize={40} fontWeight="900" color={COLORS.white} />
               <Text style={styles.heroScoreLabel}>Daily Health Score</Text>
               <Text style={styles.heroDesc}>
                 Metabolic index, meal balance, and vulnerability modeling — all optimal.
@@ -71,8 +72,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               id="home-health"
               trackColor="rgba(255,255,255,0.1)"
             >
-              <Text style={styles.ringVal}>{userProfile.healthScore}</Text>
-              <Text style={styles.ringLabel}>/100</Text>
+              <SpinningCounter value={userProfile.healthScore} fontSize={26} fontWeight="900" color={COLORS.white} suffix="/100" />
             </ProgressRing>
           </View>
         </View>
