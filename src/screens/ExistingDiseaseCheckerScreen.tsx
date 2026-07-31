@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
 import { MOCK_EXISTING_DISEASE_CHECKS } from '../data/mockData';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { SecondaryButton } from '../components/SecondaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface ExistingDiseaseCheckerScreenProps {
   onBack: () => void;
@@ -16,347 +21,249 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
   onBack,
   onAskAgent,
 }) => {
-  const { currentScan, selectedDiseaseFilter, setSelectedDiseaseFilter } = useApp();
-  const foodName = currentScan?.name || 'Cheese Burger';
-
-  const diseaseOptions = ['Migraine', 'Pre-diabetes', 'Hypertension', 'Fatty Liver', 'Obesity'];
-  const [customInput, setCustomInput] = useState('');
-
-  const currentCheck =
-    MOCK_EXISTING_DISEASE_CHECKS.find((c) => c.condition.toLowerCase() === selectedDiseaseFilter.toLowerCase()) || {
-      condition: selectedDiseaseFilter,
-      isCompatible: false,
-      warnings: [`High calorie and refined sodium content may aggravate ${selectedDiseaseFilter}.`],
-      triggerIngredients: ['Sodium', 'Saturated Fats'],
-    };
+  const { userProfile, currentScan } = useApp();
+  const [selectedCondition, setSelectedCondition] = useState<string>('Migraine');
 
   return (
-    <View style={styles.container}>
-      <Header title="Disease Compatibility" subtitle="Condition Safeguard" showBack onBack={onBack} />
-
+    <LayeredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Selected Food Item Preview */}
-        <View style={[styles.foodBanner, SHADOWS.sm]}>
-          <View style={styles.foodIconBox}>
-            <Ionicons name="fast-food" size={22} color={COLORS.primary} />
+        {/* Animated App Bar */}
+        <AnimatedAppBar
+          title="Condition Checker"
+          subtitle="Pre-existing Medical Vulnerability Cross-Check"
+          showBack
+          onBack={onBack}
+          rightActionIcon="sparkles"
+          onRightAction={onAskAgent}
+        />
+
+        {/* User Conditions Summary Card */}
+        <GlassCard
+          icon="person"
+          iconColor={COLORS.primary}
+          title={`${userProfile.name}'s Medical Profile`}
+          subtitle="Active diagnosed conditions"
+        >
+          <View style={styles.conditionsPillsRow}>
+            {userProfile.existingConditions.map((cond) => {
+              const isSelected = selectedCondition === cond;
+              return (
+                <AnimatedPressable
+                  key={cond}
+                  style={[styles.condPill, isSelected && styles.condPillActive]}
+                  onPress={() => setSelectedCondition(cond)}
+                >
+                  <Ionicons
+                    name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={14}
+                    color={isSelected ? COLORS.white : COLORS.primary}
+                  />
+                  <Text style={[styles.condPillText, isSelected && styles.condPillTextActive]}>{cond}</Text>
+                </AnimatedPressable>
+              );
+            })}
           </View>
-          <View style={styles.foodBannerText}>
-            <Text style={styles.foodLabel}>Checking Food Item:</Text>
-            <Text style={styles.foodTitle}>{foodName}</Text>
-          </View>
-        </View>
+        </GlassCard>
 
-        {/* Condition Filter Selector */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Select Disease or Medical Condition:</Text>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
-          {diseaseOptions.map((item, idx) => {
-            const isSelected = selectedDiseaseFilter === item;
-            return (
-              <AnimatedPressable
-                key={idx}
-                style={[styles.diseaseChip, isSelected && styles.diseaseChipSelected]}
-                onPress={() => setSelectedDiseaseFilter(item)}
-              >
-                <Text style={[styles.diseaseChipText, isSelected && styles.diseaseChipTextSelected]}>
-                  {item}
-                </Text>
-              </AnimatedPressable>
-            );
-          })}
-        </ScrollView>
-
-        {/* Custom condition search box */}
-        <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} color={COLORS.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Type custom condition (e.g. Acid Reflux)..."
-            placeholderTextColor={COLORS.textMuted}
-            value={customInput}
-            onChangeText={(text) => {
-              setCustomInput(text);
-              if (text.trim().length > 2) {
-                setSelectedDiseaseFilter(text);
-              }
-            }}
-          />
-        </View>
-
-        {/* Compatibility Result Card */}
-        <View style={[styles.resultCard, SHADOWS.sm]}>
-          <View style={styles.resultHeader}>
-            <View
-              style={[
-                styles.iconCircle,
-                { backgroundColor: currentCheck.isCompatible ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)' },
-              ]}
-            >
-              <Ionicons
-                name={currentCheck.isCompatible ? 'checkmark-circle' : 'warning'}
-                size={28}
-                color={currentCheck.isCompatible ? COLORS.successDark : COLORS.danger}
-              />
-            </View>
-
-            <View style={styles.resultTitleGroup}>
-              <Text style={styles.resultStatusText}>
-                {currentCheck.isCompatible ? 'Compatible Food' : 'Warning: High Risk Match'}
-              </Text>
-              <Text style={styles.conditionSub}>Target Condition: {selectedDiseaseFilter}</Text>
-            </View>
-          </View>
-
-          {/* Trigger Warnings List */}
-          <View style={styles.warningBox}>
-            <Text style={styles.warningBoxTitle}>Compatibility Insights:</Text>
-            {currentCheck.warnings.map((warn, i) => (
-              <Text key={i} style={styles.warningItemText}>
-                • {warn}
-              </Text>
-            ))}
-          </View>
-
-          {/* Trigger Ingredients Pills */}
-          {currentCheck.triggerIngredients.length > 0 && (
-            <View style={styles.triggersSection}>
-              <Text style={styles.triggersLabel}>Potential Trigger Ingredients Identified:</Text>
-              <View style={styles.triggerPillsRow}>
-                {currentCheck.triggerIngredients.map((ing, i) => (
-                  <View key={i} style={styles.triggerPill}>
-                    <Ionicons name="alert-circle" size={12} color={COLORS.danger} />
-                    <Text style={styles.triggerPillText}>{ing}</Text>
-                  </View>
-                ))}
+        {/* Detailed Condition Compatibility Matrix */}
+        <Text style={styles.sectionTitle}>Compatibility Matrix</Text>
+        {MOCK_EXISTING_DISEASE_CHECKS.map((item) => (
+          <GlassCard
+            key={item.condition}
+            variant={item.isCompatible ? 'glass' : 'solid'}
+            style={
+              !item.isCompatible
+                ? { ...styles.matrixCard, borderColor: 'rgba(239, 68, 68, 0.3)', backgroundColor: 'rgba(255, 241, 242, 0.85)' }
+                : styles.matrixCard
+            }
+          >
+            <View style={styles.matrixHeader}>
+              <View style={styles.matrixTitleRow}>
+                <Text style={styles.conditionName}>{item.condition}</Text>
+                <View
+                  style={[
+                    styles.statusBadge,
+                    { backgroundColor: item.isCompatible ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)' },
+                  ]}
+                >
+                  <Ionicons
+                    name={item.isCompatible ? 'checkmark-circle' : 'close-circle'}
+                    size={14}
+                    color={item.isCompatible ? COLORS.secondary : COLORS.danger}
+                  />
+                  <Text
+                    style={[
+                      styles.statusBadgeText,
+                      { color: item.isCompatible ? COLORS.secondaryDark : COLORS.dangerDark },
+                    ]}
+                  >
+                    {item.isCompatible ? 'COMPATIBLE' : 'TRIGGER WARNING'}
+                  </Text>
+                </View>
               </View>
             </View>
-          )}
 
-          <View style={styles.disclaimerNote}>
-            <Text style={styles.disclaimerText}>
-              This is an AI health check simulation based on medical dietary research. Always follow your physician's prescription.
-            </Text>
-          </View>
+            {item.warnings.map((warn, i) => (
+              <Text key={i} style={styles.warningText}>
+                ⚠️ {warn}
+              </Text>
+            ))}
+
+            {item.triggerIngredients.length > 0 && (
+              <View style={styles.triggersRow}>
+                <Text style={styles.triggersLabel}>Trigger Ingredients:</Text>
+                <View style={styles.triggersGrid}>
+                  {item.triggerIngredients.map((ing, idx) => (
+                    <View key={idx} style={styles.triggerChip}>
+                      <Text style={styles.triggerChipText}>{ing}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          </GlassCard>
+        ))}
+
+        {/* Doctor Consultation Banner */}
+        <GlassCard
+          variant="gradient"
+          icon="medkit-outline"
+          iconColor={COLORS.accent}
+          title="Clinical Recommendation"
+          subtitle="Direct advice from licensed dietary protocols"
+        >
+          <Text style={styles.clinicalAdviceText}>
+            "Because Cheese Burger has high sodium and nitrate traces, it is flagged for Migraine and Pre-diabetes vulnerability. Swap sauce for extra greens to maintain stability."
+          </Text>
+        </GlassCard>
+
+        {/* Action Buttons */}
+        <View style={styles.actionGroup}>
+          <PrimaryButton title="Consult AI Clinical Assistant" icon="chatbubbles-outline" onPress={onAskAgent} />
+          <SecondaryButton title="Return to Dashboard" icon="home-outline" onPress={onBack} />
         </View>
 
-        {/* Ask AI Coach Button */}
-        <AnimatedPressable style={[styles.agentConsultBtn, SHADOWS.md]} onPress={onAskAgent}>
-          <Ionicons name="sparkles" size={20} color={COLORS.white} />
-          <Text style={styles.agentConsultText}>Ask AI Agent for Safe Substitutes</Text>
-        </AnimatedPressable>
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
-    paddingBottom: 40,
-  },
-  foodBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  foodIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: 'rgba(33, 118, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  foodBannerText: {
-    flex: 1,
-  },
-  foodLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: '700',
-  },
-  foodTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.3,
-  },
-  sectionHeader: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.2,
-  },
-  chipScroll: {
-    paddingLeft: 20,
-    marginBottom: 14,
-  },
-  diseaseChip: {
-    backgroundColor: COLORS.cardBg,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    paddingBottom: 30,
   },
-  diseaseChipSelected: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  diseaseChipText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    fontWeight: '700',
-  },
-  diseaseChipTextSelected: {
-    color: COLORS.white,
-    fontWeight: '900',
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginBottom: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  searchInput: {
-    flex: 1,
-    color: COLORS.textPrimary,
-    fontSize: 14,
-  },
-  resultCard: {
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  resultHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginBottom: 16,
-  },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resultTitleGroup: {
-    flex: 1,
-  },
-  resultStatusText: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.3,
-  },
-  conditionSub: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    fontWeight: '600',
-  },
-  warningBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-    marginBottom: 14,
-  },
-  warningBoxTitle: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: COLORS.danger,
-    marginBottom: 6,
-  },
-  warningItemText: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-    lineHeight: 20,
-    fontWeight: '500',
-  },
-  triggersSection: {
-    marginBottom: 14,
-  },
-  triggersLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    marginBottom: 8,
-    fontWeight: '800',
-  },
-  triggerPillsRow: {
+  conditionsPillsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    marginTop: 6,
   },
-  triggerPill: {
+  condPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: 14,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
   },
-  triggerPillText: {
+  condPillActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  condPillText: {
     fontSize: 12,
-    color: COLORS.danger,
     fontWeight: '800',
+    color: COLORS.primary,
   },
-  disclaimerNote: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-    paddingTop: 10,
+  condPillTextActive: {
+    color: COLORS.white,
   },
-  disclaimerText: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontStyle: 'italic',
-    lineHeight: 16,
+  sectionTitle: {
+    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+    marginTop: 18,
+    marginBottom: 10,
   },
-  agentConsultBtn: {
+  matrixCard: {
+    marginVertical: 6,
+  },
+  matrixHeader: {
+    marginBottom: 6,
+  },
+  matrixTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.secondary,
-    marginHorizontal: 20,
-    marginTop: 20,
-    paddingVertical: 16,
-    borderRadius: 18,
+    justifyContent: 'space-between',
   },
-  agentConsultText: {
-    fontSize: 15,
+  conditionName: {
+    fontSize: 18,
     fontWeight: '800',
-    color: COLORS.white,
+    color: COLORS.textPrimary,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 99,
+    gap: 4,
+  },
+  statusBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 0.3,
+  },
+  warningText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.dangerDark,
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  triggersRow: {
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+  },
+  triggersLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+    marginBottom: 4,
+  },
+  triggersGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  triggerChip: {
+    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  triggerChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.danger,
+  },
+  clinicalAdviceText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.textPrimary,
+    lineHeight: 19,
+    fontStyle: 'italic',
+  },
+  actionGroup: {
+    marginTop: 16,
+    gap: 4,
   },
 });

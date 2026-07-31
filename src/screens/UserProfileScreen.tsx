@@ -1,230 +1,330 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, Image, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
+import { SecondaryButton } from '../components/SecondaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface UserProfileScreenProps {
   onBack: () => void;
 }
 
 export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack }) => {
-  const { userProfile, setUserProfile } = useApp();
-
-  const [name, setName] = useState(userProfile.name);
-  const [age, setAge] = useState(String(userProfile.age));
-  const [weight, setWeight] = useState(String(userProfile.weightKg));
-  const [height, setHeight] = useState(String(userProfile.heightCm));
-  const [targetCalories, setTargetCalories] = useState(String(userProfile.dailyCalorieTarget));
-
-  const saveProfile = () => {
-    setUserProfile((prev) => ({
-      ...prev,
-      name,
-      age: parseInt(age, 10) || prev.age,
-      weightKg: parseFloat(weight) || prev.weightKg,
-      heightCm: parseFloat(height) || prev.heightCm,
-      dailyCalorieTarget: parseInt(targetCalories, 10) || prev.dailyCalorieTarget,
-    }));
-    onBack();
-  };
+  const { userProfile } = useApp();
+  const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [privacy, setPrivacy] = useState(true);
 
   return (
-    <View style={styles.container}>
-      <Header title="Health Profile" subtitle="User Demographic & Medical Setup" showBack onBack={onBack} />
-
+    <LayeredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.avatarCard}>
-          <View style={[styles.avatarCircle, SHADOWS.glow]}>
-            <Ionicons name="person" size={40} color={COLORS.primary} />
-          </View>
-          <Text style={styles.avatarName}>{name}</Text>
-          <Text style={styles.avatarSub}>NutriVision Member • Team Dark Code</Text>
-        </View>
+        {/* Animated App Bar */}
+        <AnimatedAppBar
+          title="Account Profile"
+          subtitle="Membership & Preferences"
+          showBack
+          onBack={onBack}
+        />
 
-        <View style={[styles.sectionCard, SHADOWS.sm]}>
-          <Text style={styles.sectionTitle}>Personal Metrics</Text>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Full Name</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} />
-          </View>
-
-          <View style={styles.rowInputs}>
-            <View style={[styles.inputGroup, styles.halfInput]}>
-              <Text style={styles.label}>Age (Years)</Text>
-              <TextInput style={styles.input} value={age} onChangeText={setAge} keyboardType="numeric" />
-            </View>
-
-            <View style={[styles.inputGroup, styles.halfInput]}>
-              <Text style={styles.label}>Weight (kg)</Text>
-              <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" />
+        {/* Glass Profile Header with Large Avatar */}
+        <GlassCard variant="glass" style={styles.profileHeaderCard}>
+          <View style={styles.avatarWrapper}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' }}
+              style={styles.largeAvatar}
+            />
+            <View style={styles.proBadge}>
+              <Ionicons name="sparkles" size={12} color={COLORS.white} />
+              <Text style={styles.proBadgeText}>PRO</Text>
             </View>
           </View>
 
-          <View style={styles.rowInputs}>
-            <View style={[styles.inputGroup, styles.halfInput]}>
-              <Text style={styles.label}>Height (cm)</Text>
-              <TextInput style={styles.input} value={height} onChangeText={setHeight} keyboardType="numeric" />
-            </View>
+          <Text style={styles.userName}>{userProfile.name}</Text>
+          <Text style={styles.userBio}>
+            {userProfile.age} yrs • {userProfile.weightKg} kg • {userProfile.heightCm} cm
+          </Text>
 
-            <View style={[styles.inputGroup, styles.halfInput]}>
-              <Text style={styles.label}>Calorie Goal (kcal)</Text>
-              <TextInput
-                style={styles.input}
-                value={targetCalories}
-                onChangeText={setTargetCalories}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Existing Medical Conditions Setup */}
-        <View style={[styles.sectionCard, SHADOWS.sm]}>
-          <Text style={styles.sectionTitle}>Registered Pre-existing Medical Conditions</Text>
-          <Text style={styles.sectionSub}>Used by Agentic AI for proactive disease warnings</Text>
-
-          <View style={styles.conditionsPills}>
-            {userProfile.existingConditions.map((cond, idx) => (
-              <View key={idx} style={styles.condPill}>
-                <Ionicons name="medical" size={14} color={COLORS.warningDark} />
-                <Text style={styles.condText}>{cond}</Text>
+          <View style={styles.conditionsPillsRow}>
+            {userProfile.existingConditions.map((cond, i) => (
+              <View key={i} style={styles.condTag}>
+                <Text style={styles.condTagText}>{cond}</Text>
               </View>
             ))}
           </View>
-        </View>
+        </GlassCard>
 
-        <AnimatedPressable style={[styles.saveBtn, SHADOWS.md]} onPress={saveProfile}>
-          <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
-          <Text style={styles.saveBtnText}>Save Profile Updates</Text>
-        </AnimatedPressable>
+        {/* Gold/Gradient Premium Membership Card */}
+        <GlassCard variant="gradient" style={styles.membershipCard}>
+          <View style={styles.memberRow}>
+            <View style={styles.memberTextCol}>
+              <View style={styles.goldBadge}>
+                <Ionicons name="shield-checkmark" size={12} color="#D97706" />
+                <Text style={styles.goldBadgeText}>CLINICAL PRO TIER</Text>
+              </View>
+              <Text style={styles.memberTitle}>NutriVision AI Member</Text>
+              <Text style={styles.memberSub}>Unlimited Neural Food Scans & 3D Health Twin Sync</Text>
+            </View>
+
+            <View style={styles.crownBox}>
+              <Ionicons name="ribbon-outline" size={32} color="#D97706" />
+            </View>
+          </View>
+        </GlassCard>
+
+        {/* Settings Group: Preferences */}
+        <Text style={styles.sectionTitle}>Preferences & System</Text>
+        <GlassCard style={styles.settingsCard}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.settingIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+                <Ionicons name="moon-outline" size={18} color={COLORS.primary} />
+              </View>
+              <View>
+                <Text style={styles.settingTitle}>Dark Mode</Text>
+                <Text style={styles.settingSub}>Switch theme appearance</Text>
+              </View>
+            </View>
+            <Switch value={darkMode} onValueChange={setDarkMode} trackColor={{ false: '#CBD5E1', true: COLORS.primary }} />
+          </View>
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.settingIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
+                <Ionicons name="notifications-outline" size={18} color={COLORS.secondary} />
+              </View>
+              <View>
+                <Text style={styles.settingTitle}>Health Alerts</Text>
+                <Text style={styles.settingSub}>Real-time sodium & trigger warnings</Text>
+              </View>
+            </View>
+            <Switch value={notifications} onValueChange={setNotifications} trackColor={{ false: '#CBD5E1', true: COLORS.secondary }} />
+          </View>
+
+          <View style={styles.settingRow}>
+            <View style={styles.settingLeft}>
+              <View style={[styles.settingIconBox, { backgroundColor: 'rgba(124, 58, 237, 0.1)' }]}>
+                <Ionicons name="lock-closed-outline" size={18} color={COLORS.accent} />
+              </View>
+              <View>
+                <Text style={styles.settingTitle}>HIPAA Clinical Privacy</Text>
+                <Text style={styles.settingSub}>Encrypted health data storage</Text>
+              </View>
+            </View>
+            <Switch value={privacy} onValueChange={setPrivacy} trackColor={{ false: '#CBD5E1', true: COLORS.accent }} />
+          </View>
+        </GlassCard>
+
+        {/* Connected Devices */}
+        <Text style={styles.sectionTitle}>Connected Devices</Text>
+        <GlassCard icon="watch-outline" iconColor={COLORS.primary} title="Apple Watch Series 9" subtitle="Synced 2 mins ago • Heart Rate & SpO2">
+          <View style={styles.deviceStatusRow}>
+            <View style={styles.onlineDot} />
+            <Text style={styles.onlineText}>Connected & Streaming</Text>
+          </View>
+        </GlassCard>
+
+        {/* Logout Action Button */}
+        <SecondaryButton
+          title="Log Out of Account"
+          icon="log-out-outline"
+          iconColor={COLORS.danger}
+          textStyle={{ color: COLORS.danger }}
+          onPress={onBack}
+          style={styles.logoutBtn}
+        />
+
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
-  avatarCard: {
+  profileHeaderCard: {
+    marginVertical: 10,
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 8,
+    paddingVertical: 24,
   },
-  avatarCircle: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: 'rgba(33, 118, 255, 0.1)',
-    borderWidth: 3,
-    borderColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  avatarName: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-  },
-  avatarSub: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  sectionCard: {
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    marginBottom: 4,
-    letterSpacing: -0.2,
-  },
-  sectionSub: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    marginBottom: 14,
-    fontWeight: '500',
-  },
-  inputGroup: {
+  avatarWrapper: {
+    position: 'relative',
     marginBottom: 12,
   },
-  label: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-    fontWeight: '700',
+  largeAvatar: {
+    width: 84,
+    height: 84,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: COLORS.primaryLight,
   },
-  input: {
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    color: COLORS.textPrimary,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  rowInputs: {
+  proBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    gap: 3,
+  },
+  proBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: COLORS.white,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+  },
+  userBio: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  conditionsPillsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 10,
+  },
+  condTag: {
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  condTagText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+  membershipCard: {
+    marginVertical: 8,
+    padding: 18,
+    borderColor: 'rgba(217, 119, 6, 0.25)',
+  },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  memberTextCol: {
+    flex: 1,
+    marginRight: 12,
+  },
+  goldBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginBottom: 6,
+  },
+  goldBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#D97706',
+  },
+  memberTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+  },
+  memberSub: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  crownBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionTitle: {
+    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+    marginTop: 18,
+    marginBottom: 10,
+  },
+  settingsCard: {
+    marginVertical: 4,
+    paddingVertical: 6,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(241, 245, 249, 0.9)',
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 12,
   },
-  halfInput: {
-    flex: 1,
+  settingIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  conditionsPills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+  settingTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
   },
-  condPill: {
+  settingSub: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    marginTop: 1,
+  },
+  deviceStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.25)',
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(241, 245, 249, 0.9)',
   },
-  condText: {
-    fontSize: 12,
-    color: COLORS.warningDark,
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.secondary,
+  },
+  onlineText: {
+    fontSize: 11,
     fontWeight: '800',
+    color: COLORS.secondaryDark,
   },
-  saveBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.primary,
-    marginHorizontal: 20,
+  logoutBtn: {
     marginTop: 20,
-    paddingVertical: 16,
-    borderRadius: 18,
-  },
-  saveBtnText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.white,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+    backgroundColor: 'rgba(254, 242, 242, 0.8)',
   },
 });

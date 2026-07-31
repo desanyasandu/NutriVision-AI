@@ -1,319 +1,147 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Text, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Svg, { Circle } from 'react-native-svg';
-import { StepProgressBar } from '../components/StepProgressBar';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { GlassCard } from '../components/GlassCard';
+import { SkeletonLoader } from '../components/SkeletonLoader';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface AnalyzingScreenProps {
   onComplete: () => void;
 }
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const STAGES = [
+  'Initializing Neural Segmentation...',
+  'Extracting Macronutrients (Protein, Fat, Sodium)...',
+  'Cross-referencing Pre-Diabetes Risk Guidelines...',
+  'Evaluating Vascular Migraine Triggers...',
+  'Finalizing Personal Health Score Impact...',
+];
 
 export const AnalyzingScreen: React.FC<AnalyzingScreenProps> = ({ onComplete }) => {
-  const [progress, setProgress] = useState(15);
-  const [stepText, setStepText] = useState('Detecting food items & bounding frame...');
-
-  // Animation values for scanner HUD
-  const scanLineAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(0.9)).current;
-  const stepFadeAnim = useRef(new Animated.Value(1)).current;
-
-  // SVG circle dimensions
-  const size = 180;
-  const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  // Animated progress value
-  const progressAnim = useRef(new Animated.Value(15)).current;
+  const [stageIndex, setStageIndex] = useState(0);
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 1. Continuous Laser Beam Scan Animation Loop
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scanLineAnim, {
-          toValue: 1,
-          duration: 1400,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scanLineAnim, {
-          toValue: 0,
-          duration: 1400,
-          easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // 2. Pulse Ring Animation Loop
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.25,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0.9,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
-
-  useEffect(() => {
-    // Animate SVG circle stroke
     Animated.timing(progressAnim, {
-      toValue: progress,
-      duration: 600,
+      toValue: 100,
+      duration: 3200,
+      easing: Easing.linear,
       useNativeDriver: false,
-    }).start();
-  }, [progress]);
+    }).start(() => {
+      onComplete();
+    });
 
-  const animateStepTextChange = (newProgress: number, newText: string) => {
-    Animated.sequence([
-      Animated.timing(stepFadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(stepFadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    const interval = setInterval(() => {
+      setStageIndex((prev) => (prev < STAGES.length - 1 ? prev + 1 : prev));
+    }, 640);
 
-    setProgress(newProgress);
-    setStepText(newText);
-  };
+    return () => clearInterval(interval);
+  }, [onComplete, progressAnim]);
 
-  useEffect(() => {
-    const timer1 = setTimeout(() => {
-      animateStepTextChange(45, 'Extracting ingredients list (Multi-Modal Vision)...');
-    }, 800);
-
-    const timer2 = setTimeout(() => {
-      animateStepTextChange(75, 'Evaluating nutrition facts & chronic disease risks...');
-    }, 1600);
-
-    const timer3 = setTimeout(() => {
-      animateStepTextChange(100, 'Analysis Complete!');
-      setTimeout(() => {
-        onComplete();
-      }, 400);
-    }, 2400);
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
-    };
-  }, []);
-
-  const strokeDashoffset = progressAnim.interpolate({
+  const widthInterpolate = progressAnim.interpolate({
     inputRange: [0, 100],
-    outputRange: [circumference, 0],
-  });
-
-  const translateYScan = scanLineAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-65, 65],
+    outputRange: ['0%', '100%'],
   });
 
   return (
-    <View style={styles.container}>
-      <StepProgressBar currentStep={2} />
-
-      <View style={styles.centerBox}>
-        {/* HUD Pulse Ring Container */}
-        <View style={styles.hudWrapper}>
-          <Animated.View
-            style={[
-              styles.pulseRing,
-              {
-                transform: [{ scale: pulseAnim }],
-                opacity: pulseAnim.interpolate({
-                  inputRange: [0.9, 1.25],
-                  outputRange: [0.6, 0.15],
-                }),
-              },
-            ]}
-          />
-
-          {/* SVG Circular Progress Ring */}
-          <Svg width={size} height={size} style={styles.svgRing}>
-            {/* Background Track Circle */}
-            <Circle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              stroke="rgba(33, 118, 255, 0.12)"
-              strokeWidth={strokeWidth}
-              fill="none"
-            />
-            {/* Animated Progress Circle */}
-            <AnimatedCircle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              stroke={COLORS.primary}
-              strokeWidth={strokeWidth}
-              strokeDasharray={`${circumference} ${circumference}`}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              fill="none"
-              rotation="-90"
-              origin={`${size / 2}, ${size / 2}`}
-            />
-          </Svg>
-
-          {/* Central Camera / Hardware Chip Surface with Laser Scanner */}
-          <View style={styles.chipCore}>
-            <Ionicons name="hardware-chip" size={48} color={COLORS.primary} />
-            <Text style={styles.percentText}>{progress}%</Text>
-
-            {/* Scanning Laser Beam Effect Line */}
-            <Animated.View
-              style={[
-                styles.scannerBeam,
-                {
-                  transform: [{ translateY: translateYScan }],
-                },
-              ]}
-            />
+    <LayeredBackground style={styles.centerContainer}>
+      <View style={styles.contentBox}>
+        {/* Glowing AI Radar Orb Visualizer */}
+        <View style={styles.orbContainer}>
+          <View style={[styles.orbOuter, SHADOWS.glow]}>
+            <View style={styles.orbInner}>
+              <Ionicons name="hardware-chip-outline" size={44} color={COLORS.white} />
+            </View>
           </View>
         </View>
 
-        <Text style={styles.title}>Analyzing Food Image...</Text>
-        <Text style={styles.subText}>Nutrition & Risk Factors Computational Engine</Text>
+        <Text style={styles.titleText}>AI Deep Analysis</Text>
+        <Text style={styles.stageText}>{STAGES[stageIndex]}</Text>
 
-        <Animated.View style={[styles.stepBox, { opacity: stepFadeAnim }]}>
-          <Ionicons name="sparkles" size={18} color={COLORS.primary} />
-          <Text style={styles.stepText}>{stepText}</Text>
-        </Animated.View>
-      </View>
+        {/* Shimmer Progress Track */}
+        <View style={styles.progressTrack}>
+          <Animated.View style={[styles.progressBar, { width: widthInterpolate }]} />
+        </View>
 
-      <View style={styles.tipCard}>
-        <Ionicons name="shield-checkmark" size={20} color={COLORS.secondary} />
-        <Text style={styles.tipText}>
-          Clinical Note: You can manually refine or add detected ingredients on the next screen.
-        </Text>
+        {/* Skeleton Placeholders as AI processes nutrients */}
+        <View style={styles.skeletonSection}>
+          <GlassCard variant="glass" style={styles.skeletonCard}>
+            <SkeletonLoader height={18} width="60%" borderRadius={8} />
+            <SkeletonLoader height={14} width="85%" borderRadius={6} style={{ marginTop: 8 }} />
+            <SkeletonLoader height={14} width="40%" borderRadius={6} style={{ marginTop: 4 }} />
+          </GlassCard>
+        </View>
       </View>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    justifyContent: 'space-between',
-    paddingBottom: 50,
-  },
-  centerBox: {
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    marginTop: 20,
-  },
-  hudWrapper: {
-    width: 210,
-    height: 210,
-    alignItems: 'center',
+  centerContainer: {
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  contentBox: {
+    width: '100%',
+    maxWidth: 420,
+    alignItems: 'center',
+  },
+  orbContainer: {
     marginBottom: 24,
   },
-  pulseRing: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+  orbOuter: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     backgroundColor: COLORS.primary,
-  },
-  svgRing: {
-    position: 'absolute',
-  },
-  chipCore: {
-    width: 144,
-    height: 144,
-    borderRadius: 72,
-    backgroundColor: COLORS.cardBg,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: 'rgba(33, 118, 255, 0.25)',
-    ...SHADOWS.md,
+    borderWidth: 4,
+    borderColor: 'rgba(255, 255, 255, 0.9)',
   },
-  scannerBeam: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: COLORS.secondary,
-    shadowColor: COLORS.secondary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 6,
-    elevation: 5,
+  orbInner: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: COLORS.primaryDark,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  percentText: {
-    fontSize: 20,
+  titleText: {
+    fontSize: DESIGN_TOKENS.fontSize.hugeTitle, // 32
     fontWeight: '900',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.8,
+    marginBottom: 8,
+  },
+  stageText: {
+    fontSize: 14,
+    fontWeight: '600',
     color: COLORS.primary,
-    marginTop: 4,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.4,
-  },
-  subText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 4,
     textAlign: 'center',
-    fontWeight: '500',
+    height: 40,
   },
-  stepBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderRadius: 18,
-    marginTop: 24,
-    borderWidth: 1.5,
-    borderColor: 'rgba(33, 118, 255, 0.25)',
-    ...SHADOWS.sm,
+  progressTrack: {
+    width: '100%',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(226, 232, 240, 0.9)',
+    overflow: 'hidden',
+    marginVertical: 20,
   },
-  stepText: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-    fontWeight: '700',
+  progressBar: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
   },
-  tipCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: COLORS.cardBg,
-    padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    marginHorizontal: 24,
-    ...SHADOWS.sm,
+  skeletonSection: {
+    width: '100%',
+    marginTop: 10,
   },
-  tipText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    flex: 1,
-    lineHeight: 17,
+  skeletonCard: {
+    padding: 18,
   },
 });

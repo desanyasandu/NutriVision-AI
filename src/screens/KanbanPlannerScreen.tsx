@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Text } from 'react-native';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
 import { KanbanBoard } from '../components/KanbanBoard';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface KanbanPlannerScreenProps {
   onBack?: () => void;
@@ -20,31 +23,32 @@ export const KanbanPlannerScreen: React.FC<KanbanPlannerScreenProps> = ({ onBack
   const todoCount = kanbanCards.filter((c) => c.status === 'todo').length;
 
   return (
-    <View style={styles.container}>
-      <Header
-        title="Meal Planner Board"
-        subtitle="Daily Dietary & Nutrition Pipeline"
-        showBack={Boolean(onBack)}
-        onBack={onBack}
-      />
-
+    <LayeredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Top Summary Bar */}
+        {/* Animated App Bar */}
+        <AnimatedAppBar
+          title="Meal Planner Kanban"
+          subtitle="Daily Dietary & Task Pipeline"
+          showBack={Boolean(onBack)}
+          onBack={onBack}
+        />
+
+        {/* Top Summary Glass Bar */}
         <View style={styles.statsRow}>
-          <View style={[styles.statCard, SHADOWS.sm]}>
+          <GlassCard variant="glass" style={styles.statCard}>
             <Text style={styles.statNumber}>{activeCount}</Text>
             <Text style={styles.statLabel}>Active Goals</Text>
-          </View>
+          </GlassCard>
 
-          <View style={[styles.statCard, SHADOWS.sm]}>
+          <GlassCard variant="glass" style={styles.statCard}>
             <Text style={styles.statNumber}>{todoCount}</Text>
             <Text style={styles.statLabel}>Planned Tasks</Text>
-          </View>
+          </GlassCard>
 
-          <View style={[styles.statCard, SHADOWS.sm]}>
+          <GlassCard variant="glass" style={styles.statCard}>
             <Text style={styles.statNumber}>{totalCaloriesPlanned} kcal</Text>
             <Text style={styles.statLabel}>Remaining Plan</Text>
-          </View>
+          </GlassCard>
         </View>
 
         {/* Full Interactive Kanban Board */}
@@ -54,32 +58,26 @@ export const KanbanPlannerScreen: React.FC<KanbanPlannerScreenProps> = ({ onBack
           onAddCard={addKanbanCard}
           onDeleteCard={deleteKanbanCard}
         />
+
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
   statsRow: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginTop: 14,
+    marginVertical: 10,
     gap: 10,
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.cardBg,
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    padding: 12,
     alignItems: 'center',
   },
   statNumber: {
@@ -89,7 +87,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   statLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.textMuted,
     marginTop: 2,
     fontWeight: '700',

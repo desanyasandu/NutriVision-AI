@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  TextInput,
-} from 'react-native';
+import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
-import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
-import { StepProgressBar } from '../components/StepProgressBar';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { SecondaryButton } from '../components/SecondaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface FoodDetectionResultScreenProps {
   onBack: () => void;
@@ -29,7 +25,9 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
   onAskAgent,
 }) => {
   const { currentScan } = useApp();
-  const food = currentScan || {
+  const [showNutrientDetails, setShowNutrientDetails] = useState(false);
+
+  const scan = currentScan || {
     id: 'food_1',
     name: 'Cheese Burger',
     category: 'Fast Food',
@@ -43,425 +41,393 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
     sugarGrams: 12,
     sodiumMg: 1150,
     ingredients: ['Bun', 'Cheese', 'Beef Patty', 'Onion', 'Sauce', 'Pickles'],
-    diseaseWarnings: ['High Saturated Fat', 'High Sodium (Hypertension factor)'],
+    diseaseWarnings: ['High Saturated Fat', 'High Sodium (Hypertension factor)', 'Refined Carbs'],
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80',
-    scannedAt: 'Just Now',
-  };
-
-  const [ingredients, setIngredients] = useState<string[]>(food.ingredients);
-  const [newIngredient, setNewIngredient] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-
-  const addIngredient = () => {
-    if (newIngredient.trim()) {
-      setIngredients([...ingredients, newIngredient.trim()]);
-      setNewIngredient('');
-    }
-  };
-
-  const removeIngredient = (index: number) => {
-    setIngredients(ingredients.filter((_, i) => i !== index));
+    scannedAt: 'Today, 12:30 PM',
   };
 
   return (
-    <View style={styles.container}>
-      <Header title="Food Result" subtitle="AI Vision Analysis" showBack onBack={onBack} />
-      <StepProgressBar currentStep={3} />
-
+    <LayeredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Food Image & Detection Card */}
-        <View style={[styles.imageCard, SHADOWS.md]}>
-          <Image source={{ uri: food.imageUrl }} style={styles.foodImage} />
+        {/* Animated App Bar */}
+        <AnimatedAppBar
+          title="Analysis Result"
+          subtitle="AI Food Recognition & Risk Log"
+          showBack
+          onBack={onBack}
+          rightActionIcon="sparkles"
+          onRightAction={onAskAgent}
+        />
 
-          <View style={styles.imageOverlay}>
-            <View style={styles.badgeRow}>
-              <View style={styles.confidenceBadge}>
-                <Ionicons name="checkmark-circle" size={14} color={COLORS.primary} />
-                <Text style={styles.confidenceText}>
-                  AI Confidence: ~{food.confidence}% ({food.confidenceInterval || '±3.8%'})
-                </Text>
-              </View>
+        {/* Large Food Image Hero Card */}
+        <View style={[styles.heroCard, SHADOWS.md]}>
+          <Image source={{ uri: scan.imageUrl }} style={styles.heroImg} />
+          <View style={styles.heroOverlay} />
 
-              <View style={styles.scoreBadge}>
-                <Text style={styles.scoreBadgeText}>Health Score: {food.healthScore}/100</Text>
-              </View>
-            </View>
+          {/* Floating Health Score Badge */}
+          <View style={styles.scoreFloatBadge}>
+            <Text style={styles.scoreFloatLabel}>NUTRITION SCORE</Text>
+            <Text style={[styles.scoreFloatVal, { color: scan.healthScore > 70 ? COLORS.secondary : COLORS.warning }]}>
+              {scan.healthScore}/100
+            </Text>
+          </View>
+
+          {/* Confidence Badge */}
+          <View style={styles.confidenceFloatBadge}>
+            <Ionicons name="sparkles" size={12} color={COLORS.white} />
+            <Text style={styles.confidenceFloatText}>{scan.confidence}% Confidence ({scan.confidenceInterval})</Text>
+          </View>
+
+          <View style={styles.heroTitleBox}>
+            <Text style={styles.foodName}>{scan.name}</Text>
+            <Text style={styles.foodCategory}>{scan.category} • Logged {scan.scannedAt}</Text>
           </View>
         </View>
 
-        {/* Title & Category */}
-        <View style={styles.infoSection}>
-          <Text style={styles.foodName}>{food.name}</Text>
-          <Text style={styles.categoryText}>
-            {food.category} • Detected via Multi-Modal Computer Vision
+        {/* Animated Macro Nutrient Progress Bars */}
+        <GlassCard variant="glass" title="Macronutrients Breakdown" subtitle="Recorded Intake vs Recommended Daily Ratios">
+          <View style={styles.macroRow}>
+            {/* Calories */}
+            <View style={styles.macroCol}>
+              <View style={styles.macroHeader}>
+                <Text style={styles.macroName}>Calories</Text>
+                <Text style={styles.macroVal}>{scan.calories} kcal</Text>
+              </View>
+              <View style={styles.macroTrack}>
+                <View style={[styles.macroBar, { width: `${Math.min(100, (scan.calories / 2000) * 100)}%`, backgroundColor: COLORS.primary }]} />
+              </View>
+            </View>
+
+            {/* Protein */}
+            <View style={styles.macroCol}>
+              <View style={styles.macroHeader}>
+                <Text style={styles.macroName}>Protein</Text>
+                <Text style={styles.macroVal}>{scan.proteinGrams}g</Text>
+              </View>
+              <View style={styles.macroTrack}>
+                <View style={[styles.macroBar, { width: `${Math.min(100, (scan.proteinGrams / 80) * 100)}%`, backgroundColor: COLORS.secondary }]} />
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.macroRow}>
+            {/* Fat */}
+            <View style={styles.macroCol}>
+              <View style={styles.macroHeader}>
+                <Text style={styles.macroName}>Fat</Text>
+                <Text style={styles.macroVal}>{scan.fatGrams}g</Text>
+              </View>
+              <View style={styles.macroTrack}>
+                <View style={[styles.macroBar, { width: `${Math.min(100, (scan.fatGrams / 65) * 100)}%`, backgroundColor: COLORS.warning }]} />
+              </View>
+            </View>
+
+            {/* Carbs */}
+            <View style={styles.macroCol}>
+              <View style={styles.macroHeader}>
+                <Text style={styles.macroName}>Carbs</Text>
+                <Text style={styles.macroVal}>{scan.carbsGrams}g</Text>
+              </View>
+              <View style={styles.macroTrack}>
+                <View style={[styles.macroBar, { width: `${Math.min(100, (scan.carbsGrams / 250) * 100)}%`, backgroundColor: COLORS.accent }]} />
+              </View>
+            </View>
+          </View>
+        </GlassCard>
+
+        {/* AI Advice Card */}
+        <GlassCard
+          variant="gradient"
+          icon="sparkles"
+          iconColor={COLORS.accent}
+          title="Clinical AI Advice"
+          subtitle="Tailored to your active pre-diabetes & migraine profile"
+        >
+          <Text style={styles.aiAdviceText}>
+            "This item contains high sodium ({scan.sodiumMg}mg) and refined carbs. While high in protein, consider drinking extra water to offset vascular pressure spikes."
           </Text>
-        </View>
 
-        {/* Medical Disclaimer Banner */}
-        <MedicalDisclaimerBox compact />
-
-        {/* Ingredients Section */}
-        <View style={styles.sectionBox}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.titleWithIcon}>
-              <Ionicons name="list" size={18} color={COLORS.primary} />
-              <Text style={styles.sectionTitle}>Identified Ingredients</Text>
-            </View>
-
-            <AnimatedPressable style={styles.editBtn} onPress={() => setIsEditing(!isEditing)}>
-              <Ionicons
-                name={isEditing ? 'checkmark' : 'create-outline'}
-                size={16}
-                color={COLORS.primary}
-              />
-              <Text style={styles.editBtnText}>{isEditing ? 'Done' : 'Edit List'}</Text>
-            </AnimatedPressable>
-          </View>
-
-          {ingredients.length === 0 ? (
-            <Text style={styles.emptyIngredientsText}>No ingredients listed. Tap "Edit List" to add ingredients.</Text>
-          ) : (
-            <View style={styles.ingredientsChipsRow}>
-              {ingredients.map((item, idx) => (
-                <View key={idx} style={styles.ingredientChip}>
-                  <Text style={styles.ingredientText}>{item}</Text>
-                  {isEditing && (
-                    <AnimatedPressable onPress={() => removeIngredient(idx)} style={styles.removeBtn}>
-                      <Ionicons name="close-circle" size={18} color={COLORS.danger} />
-                    </AnimatedPressable>
-                  )}
-                </View>
+          {scan.diseaseWarnings.length > 0 && (
+            <View style={styles.warningsBox}>
+              <Text style={styles.warningTitle}>Detected Disease Warnings:</Text>
+              {scan.diseaseWarnings.map((warn, i) => (
+                <Text key={i} style={styles.warningItem}>⚠️ {warn}</Text>
               ))}
             </View>
           )}
+        </GlassCard>
 
-          {isEditing && (
-            <View style={styles.addInputRow}>
-              <TextInput
-                style={styles.input}
-                placeholder="Add ingredient..."
-                placeholderTextColor={COLORS.textMuted}
-                value={newIngredient}
-                onChangeText={setNewIngredient}
-                onSubmitEditing={addIngredient}
-                returnKeyType="done"
-              />
-              <AnimatedPressable style={styles.addBtn} onPress={addIngredient}>
-                <Ionicons name="add" size={20} color={COLORS.white} />
-              </AnimatedPressable>
+        {/* Healthy Alternatives Recommendations */}
+        <Text style={styles.sectionTitle}>Healthy Alternatives</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.altScroll}>
+          <GlassCard variant="accent" style={styles.altCard}>
+            <Ionicons name="leaf-outline" size={24} color={COLORS.secondary} />
+            <Text style={styles.altTitle}>Grilled Turkey Wrap</Text>
+            <Text style={styles.altSub}>-320 kcal • Low Sodium</Text>
+            <View style={styles.altBadge}>
+              <Text style={styles.altBadgeText}>Score: 91</Text>
+            </View>
+          </GlassCard>
+
+          <GlassCard variant="accent" style={styles.altCard}>
+            <Ionicons name="fish-outline" size={24} color={COLORS.primary} />
+            <Text style={styles.altTitle}>Salmon Avocado Bowl</Text>
+            <Text style={styles.altSub}>Omega-3 Rich • Zero Sugar</Text>
+            <View style={styles.altBadge}>
+              <Text style={styles.altBadgeText}>Score: 95</Text>
+            </View>
+          </GlassCard>
+        </ScrollView>
+
+        {/* Expandable Nutrient Details */}
+        <GlassCard
+          icon="list"
+          iconColor={COLORS.primary}
+          title="Micro-Nutrients & Ingredients"
+          subtitle="Tap to expand full ingredient breakdown"
+          onPress={() => setShowNutrientDetails(!showNutrientDetails)}
+        >
+          {showNutrientDetails && (
+            <View style={styles.detailsExpandBox}>
+              <Text style={styles.expandLabel}>Ingredients:</Text>
+              <Text style={styles.expandVal}>{scan.ingredients.join(', ')}</Text>
+
+              <Text style={[styles.expandLabel, { marginTop: 8 }]}>Sodium Level:</Text>
+              <Text style={styles.expandVal}>{scan.sodiumMg} mg (57% Daily Limit)</Text>
+
+              <Text style={[styles.expandLabel, { marginTop: 8 }]}>Added Sugar:</Text>
+              <Text style={styles.expandVal}>{scan.sugarGrams} g</Text>
             </View>
           )}
-        </View>
-
-        {/* Quick Nutrition Highlights */}
-        <View style={styles.macroGrid}>
-          <View style={styles.macroRow}>
-            <View style={styles.macroCard}>
-              <Ionicons name="flame" size={18} color={COLORS.warning} />
-              <Text style={styles.macroVal}>{food.calories} kcal</Text>
-              <Text style={styles.macroLabel}>Calories</Text>
-            </View>
-
-            <View style={styles.macroCard}>
-              <Ionicons name="fitness" size={18} color={COLORS.primary} />
-              <Text style={styles.macroVal}>{food.proteinGrams}g</Text>
-              <Text style={styles.macroLabel}>Protein</Text>
-            </View>
+          <View style={styles.expandToggleRow}>
+            <Text style={styles.toggleText}>{showNutrientDetails ? 'Hide Details' : 'Show All Details'}</Text>
+            <Ionicons name={showNutrientDetails ? 'chevron-up' : 'chevron-down'} size={16} color={COLORS.primary} />
           </View>
+        </GlassCard>
 
-          <View style={styles.macroRow}>
-            <View style={styles.macroCard}>
-              <Ionicons name="water" size={18} color={COLORS.danger} />
-              <Text style={styles.macroVal}>{food.fatGrams}g</Text>
-              <Text style={styles.macroLabel}>Total Fat</Text>
-            </View>
-
-            <View style={styles.macroCard}>
-              <Ionicons name="cube" size={18} color={COLORS.primaryLight} />
-              <Text style={styles.macroVal}>{food.carbsGrams}g</Text>
-              <Text style={styles.macroLabel}>Carbs</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Action Buttons Stack */}
-        <View style={styles.actionButtonsStack}>
-          <AnimatedPressable
-            style={[styles.primaryActionBtn, SHADOWS.md]}
-            onPress={onViewNutrition}
-          >
-            <Ionicons name="nutrition" size={20} color={COLORS.white} />
-            <Text style={styles.primaryActionText}>View Detailed Nutrition Facts</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable
-            style={styles.secondaryActionBtn}
+        {/* Bottom Primary Action Buttons */}
+        <View style={styles.actionGroup}>
+          <PrimaryButton
+            title="Check Disease Compatibility"
+            icon="medical-outline"
             onPress={onCheckDisease}
-          >
-            <Ionicons name="shield-checkmark" size={20} color={COLORS.primary} />
-            <Text style={styles.secondaryActionText}>Check Existing Condition Safeguards</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable
-            style={[styles.agentActionBtn, SHADOWS.sm]}
-            onPress={onAskAgent}
-          >
-            <Ionicons name="sparkles" size={20} color={COLORS.white} />
-            <Text style={styles.agentActionText}>Ask AI Companion for Meal Substitutes</Text>
-          </AnimatedPressable>
+          />
+          <SecondaryButton
+            title="Full Nutrition Timeline"
+            icon="pie-chart-outline"
+            onPress={onViewNutrition}
+          />
         </View>
+
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
-  imageCard: {
-    height: 200,
-    marginHorizontal: 20,
-    marginTop: 12,
-    borderRadius: 20,
+  heroCard: {
+    height: 240,
+    borderRadius: DESIGN_TOKENS.borderRadius.card, // 24
     overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: COLORS.cardBorder,
+    position: 'relative',
+    marginVertical: 12,
   },
-  foodImage: {
+  heroImg: {
     width: '100%',
     height: '100%',
   },
-  imageOverlay: {
+  heroOverlay: {
     ...StyleSheet.absoluteFill,
-    justifyContent: 'flex-start',
-    padding: 12,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
   },
-  badgeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  confidenceBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+  scoreFloatBadge: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
     backgroundColor: 'rgba(255, 255, 255, 0.94)',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderRadius: 16,
+    alignItems: 'center',
   },
-  confidenceText: {
-    fontSize: 11,
-    color: COLORS.textPrimary,
-    fontWeight: '800',
-  },
-  scoreBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: COLORS.jetBlack,
-  },
-  scoreBadgeText: {
-    fontSize: 12,
+  scoreFloatLabel: {
+    fontSize: 9,
     fontWeight: '900',
+    color: COLORS.textMuted,
+    letterSpacing: 0.5,
+  },
+  scoreFloatVal: {
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  confidenceFloatBadge: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    gap: 4,
+  },
+  confidenceFloatText: {
+    fontSize: 11,
+    fontWeight: '800',
     color: COLORS.white,
   },
-  infoSection: {
-    paddingHorizontal: 20,
-    marginTop: 14,
+  heroTitleBox: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
   },
   foodName: {
     fontSize: 26,
     fontWeight: '900',
-    color: COLORS.textPrimary,
+    color: COLORS.white,
     letterSpacing: -0.5,
   },
-  categoryText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    fontWeight: '600',
-  },
-  sectionBox: {
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 14,
-    padding: 18,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    ...SHADOWS.sm,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  titleWithIcon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.2,
-  },
-  editBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-  },
-  editBtnText: {
+  foodCategory: {
     fontSize: 13,
-    color: COLORS.primary,
-    fontWeight: '800',
-  },
-  ingredientsChipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  ingredientChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.background,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  ingredientText: {
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    fontWeight: '700',
-  },
-  removeBtn: {
-    padding: 2,
-  },
-  addInputRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    color: COLORS.textPrimary,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    minHeight: 44,
-  },
-  addBtn: {
-    width: 44,
-    height: 44,
-    backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  macroGrid: {
-    paddingHorizontal: 20,
-    marginVertical: 14,
-    gap: 10,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginTop: 2,
   },
   macroRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 16,
+    marginVertical: 6,
   },
-  macroCard: {
+  macroCol: {
     flex: 1,
-    backgroundColor: COLORS.cardBg,
-    padding: 14,
-    borderRadius: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    ...SHADOWS.sm,
+  },
+  macroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  macroName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
   },
   macroVal: {
-    fontSize: 17,
-    fontWeight: '900',
+    fontSize: 13,
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    marginTop: 4,
   },
-  macroLabel: {
+  macroTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(241, 245, 249, 0.9)',
+    overflow: 'hidden',
+  },
+  macroBar: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  aiAdviceText: {
+    fontSize: 14,
+    lineHeight: 21,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  warningsBox: {
+    marginTop: 10,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+    gap: 4,
+  },
+  warningTitle: {
     fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.dangerDark,
+  },
+  warningItem: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.danger,
+  },
+  sectionTitle: {
+    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+    marginTop: 16,
+    marginBottom: 10,
+  },
+  altScroll: {
+    flexDirection: 'row',
+    marginVertical: 4,
+  },
+  altCard: {
+    width: 170,
+    marginRight: 12,
+  },
+  altTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    marginTop: 6,
+  },
+  altSub: {
+    fontSize: 11,
+    fontWeight: '600',
     color: COLORS.textSecondary,
     marginTop: 2,
-    fontWeight: '600',
   },
-  actionButtonsStack: {
-    paddingHorizontal: 20,
-    gap: 10,
+  altBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 8,
   },
-  primaryActionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.primary,
-    paddingVertical: 14,
-    borderRadius: 16,
-    minHeight: 48,
+  altBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: COLORS.secondaryDark,
   },
-  primaryActionText: {
-    fontSize: 16,
+  detailsExpandBox: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(241, 245, 249, 0.9)',
+  },
+  expandLabel: {
+    fontSize: 12,
     fontWeight: '800',
-    color: COLORS.white,
+    color: COLORS.textSecondary,
   },
-  secondaryActionBtn: {
+  expandVal: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    marginTop: 2,
+  },
+  expandToggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.cardBg,
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-    minHeight: 48,
+    gap: 4,
+    marginTop: 10,
   },
-  secondaryActionText: {
-    fontSize: 15,
+  toggleText: {
+    fontSize: 12,
     fontWeight: '800',
     color: COLORS.primary,
   },
-  agentActionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.secondary,
-    paddingVertical: 14,
-    borderRadius: 16,
-    minHeight: 48,
-  },
-  agentActionText: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.white,
-  },
-  emptyIngredientsText: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontStyle: 'italic',
-    paddingVertical: 8,
+  actionGroup: {
+    marginTop: 14,
+    gap: 4,
   },
 });

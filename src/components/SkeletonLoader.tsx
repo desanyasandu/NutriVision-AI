@@ -1,48 +1,49 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, DimensionValue } from 'react-native';
-import { COLORS } from '../theme/colors';
+import { View, StyleSheet, Animated, ViewStyle } from 'react-native';
 
 interface SkeletonLoaderProps {
-  width?: DimensionValue;
-  height?: DimensionValue;
+  width?: number | string;
+  height?: number;
   borderRadius?: number;
-  style?: any;
+  style?: ViewStyle;
 }
 
 export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   width = '100%',
   height = 20,
-  borderRadius = 10,
+  borderRadius = 12,
   style,
 }) => {
-  const opacityAnim = useRef(new Animated.Value(0.3)).current;
+  const opacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
-    const pulse = Animated.sequence([
-      Animated.timing(opacityAnim, {
-        toValue: 0.85,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 0.3,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]);
-
-    Animated.loop(pulse).start();
-  }, [opacityAnim]);
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.8,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [opacity]);
 
   return (
     <Animated.View
       style={[
         styles.skeleton,
         {
-          width,
+          width: width as any,
           height,
           borderRadius,
-          opacity: opacityAnim,
+          opacity,
         },
         style,
       ]}
@@ -52,6 +53,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: COLORS.trackBg,
+    backgroundColor: 'rgba(203, 213, 225, 0.6)',
+    marginVertical: 4,
   },
 });

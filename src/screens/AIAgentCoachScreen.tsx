@@ -1,372 +1,255 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Text, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
-import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { AIMessageBubble } from '../components/AIMessageBubble';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface AIAgentCoachScreenProps {
   onBack: () => void;
   onNavigateToTwin: () => void;
 }
 
-export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({ onBack, onNavigateToTwin }) => {
+const SUGGESTED_PROMPTS = [
+  'What should I eat for dinner?',
+  'Is cheese burger good for migraine?',
+  'How to lower sodium intake today?',
+  'Recommend low sugar snacks',
+];
+
+export const AIAgentCoachScreen: React.FC<AIAgentCoachScreenProps> = ({
+  onBack,
+  onNavigateToTwin,
+}) => {
   const { chatMessages, addChatMessage } = useApp();
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const scrollViewRef = useRef<ScrollView>(null);
 
-  useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, [chatMessages, isTyping]);
+  const handleSend = (textToSend?: string) => {
+    const msg = textToSend || inputText;
+    if (!msg.trim()) return;
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      addChatMessage(inputText.trim(), 'user');
-      setInputText('');
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-      }, 1000);
-    }
+    addChatMessage(msg, 'user');
+    setInputText('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+    }, 1000);
   };
 
-  const quickPrompts = [
-    'What should I eat for dinner?',
-    'How to lower sodium after Cheese Burger?',
-    'Suggest Migraine-safe meal',
-  ];
-
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Header
-        title="AI Health Companion"
-        subtitle="Conversational Dietary Assistant"
-        showBack
-        onBack={onBack}
-        rightAction={
-          <AnimatedPressable onPress={onNavigateToTwin} style={styles.headerBtn}>
-            <Ionicons name="body" size={20} color={COLORS.primary} />
-          </AnimatedPressable>
-        }
-      />
-
-      {/* Context Ribbon */}
-      <View style={styles.agentContextRibbon}>
-        <View style={styles.agentAvatar}>
-          <Ionicons name="hardware-chip" size={14} color={COLORS.primary} />
-        </View>
-        <Text style={styles.agentContextText}>
-          <Text style={styles.boldText}>AI Status: Active </Text> • Evaluating dietary metrics against user profile
-        </Text>
-      </View>
-
-      {/* Chat Messages Log */}
-      <ScrollView
-        ref={scrollViewRef}
-        contentContainerStyle={styles.chatList}
-        showsVerticalScrollIndicator={false}
-        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+    <LayeredBackground style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <MedicalDisclaimerBox compact />
-
-        {chatMessages.map((msg) => {
-          const isUser = msg.sender === 'user';
-          return (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageBubbleContainer,
-                isUser ? styles.userBubbleAlign : styles.agentBubbleAlign,
-              ]}
-            >
-              {!isUser && (
-                <View style={styles.agentBadge}>
-                  <Ionicons name="sparkles" size={14} color={COLORS.primary} />
-                </View>
-              )}
-
-              <View
-                style={[
-                  styles.messageBubble,
-                  isUser ? styles.userBubble : styles.agentBubble,
-                  SHADOWS.sm,
-                ]}
-              >
-                <Text style={[styles.messageText, isUser && styles.userMessageText]}>
-                  {msg.text}
-                </Text>
-
-                {msg.recommendations && msg.recommendations.length > 0 && (
-                  <View style={styles.recommendationsContainer}>
-                    <Text style={styles.recsTitle}>Suggested Meal Alternatives:</Text>
-                    {msg.recommendations.map((rec, i) => (
-                      <View key={i} style={styles.recItem}>
-                        <Ionicons name="restaurant" size={13} color={COLORS.primary} />
-                        <Text style={styles.recItemText}>{rec}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <Text style={[styles.timestamp, isUser && styles.userTimestamp]}>{msg.timestamp}</Text>
-              </View>
-            </View>
-          );
-        })}
-
-        {isTyping && (
-          <View style={[styles.messageBubbleContainer, styles.agentBubbleAlign]}>
-            <View style={styles.agentBadge}>
-              <Ionicons name="sparkles" size={14} color={COLORS.primary} />
-            </View>
-            <View style={[styles.messageBubble, styles.agentBubble, SHADOWS.sm]}>
-              <Text style={styles.typingText}>NutriVision AI is evaluating response...</Text>
-            </View>
-          </View>
-        )}
-      </ScrollView>
-
-      {/* Quick Suggestions Chips */}
-      <View style={styles.quickPromptsRow}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {quickPrompts.map((prompt, idx) => (
-            <AnimatedPressable
-              key={idx}
-              style={styles.promptChip}
-              onPress={() => {
-                addChatMessage(prompt, 'user');
-                setIsTyping(true);
-                setTimeout(() => setIsTyping(false), 1000);
-              }}
-            >
-              <Ionicons name="flash" size={12} color={COLORS.primary} />
-              <Text style={styles.promptChipText}>{prompt}</Text>
-            </AnimatedPressable>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Input Box */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Ask NutriVision AI about your food or health..."
-          placeholderTextColor={COLORS.textMuted}
-          value={inputText}
-          onChangeText={setInputText}
-          onSubmitEditing={handleSend}
+        {/* Animated App Bar with ChatGPT style Title & Twin shortcut */}
+        <AnimatedAppBar
+          title="NutriVision AI"
+          subtitle="ChatGPT Clinical Dietary Assistant"
+          showBack
+          onBack={onBack}
+          rightActionIcon="body-outline"
+          onRightAction={onNavigateToTwin}
         />
 
-        <AnimatedPressable style={styles.sendButton} onPress={handleSend}>
-          <Ionicons name="send" size={18} color={COLORS.white} />
-        </AnimatedPressable>
-      </View>
-    </KeyboardAvoidingView>
+        {/* Pinned Clinical Recommendation Banner */}
+        <View style={styles.pinnedBanner}>
+          <View style={styles.pinnedBadge}>
+            <Ionicons name="pin" size={12} color={COLORS.white} />
+            <Text style={styles.pinnedBadgeText}>PINNED CONTEXT</Text>
+          </View>
+          <Text style={styles.pinnedText} numberOfLines={1}>
+            Pre-diabetes (Gluc: 62%) • Migraine Vascular Alert • Sodium Limit 2000mg
+          </Text>
+        </View>
+
+        {/* Messages List Container */}
+        <ScrollView contentContainerStyle={styles.messagesContainer} showsVerticalScrollIndicator={false}>
+          {chatMessages.map((msg) => (
+            <AIMessageBubble
+              key={msg.id}
+              sender={msg.sender}
+              text={msg.text}
+              timestamp={msg.timestamp}
+              recommendations={msg.recommendations}
+              suggestedAction={msg.suggestedAction}
+              onSelectRecommendation={(rec) => handleSend(`Tell me more about ${rec}`)}
+              onActionPress={onNavigateToTwin}
+            />
+          ))}
+
+          {/* Typing Indicator */}
+          {isTyping && (
+            <View style={styles.typingContainer}>
+              <View style={styles.typingBubble}>
+                <Ionicons name="sparkles" size={14} color={COLORS.accent} />
+                <Text style={styles.typingText}>NutriVision AI is thinking...</Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Suggested Quick Prompt Chips */}
+        <View style={styles.promptsWrapper}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.promptsScroll}>
+            {SUGGESTED_PROMPTS.map((prompt, idx) => (
+              <AnimatedPressable
+                key={idx}
+                style={styles.promptChip}
+                onPress={() => handleSend(prompt)}
+              >
+                <Ionicons name="sparkles-outline" size={12} color={COLORS.accent} />
+                <Text style={styles.promptChipText}>{prompt}</Text>
+              </AnimatedPressable>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Modern ChatGPT Composer Input Bar */}
+        <View style={styles.composerWrapper}>
+          <View style={[styles.composerContainer, SHADOWS.sm]}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Ask AI about food, macros, or disease risks..."
+              placeholderTextColor={COLORS.textMuted}
+              value={inputText}
+              onChangeText={setInputText}
+              onSubmitEditing={() => handleSend()}
+            />
+
+            <AnimatedPressable
+              style={[styles.sendBtn, inputText.trim() ? styles.sendBtnActive : styles.sendBtnInactive]}
+              onPress={() => handleSend()}
+              disabled={!inputText.trim()}
+            >
+              <Ionicons name="arrow-up" size={18} color={COLORS.white} />
+            </AnimatedPressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: COLORS.cardBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  agentContextRibbon: {
+  pinnedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     backgroundColor: 'rgba(124, 58, 237, 0.08)',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(124, 58, 237, 0.15)',
-  },
-  agentAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: COLORS.cardBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  agentContextText: {
-    fontSize: 12,
-    color: COLORS.textPrimary,
-    flex: 1,
-    fontWeight: '500',
-  },
-  boldText: {
-    fontWeight: '900',
-    color: COLORS.accent,
-  },
-  chatList: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    gap: 14,
-  },
-  messageBubbleContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
     gap: 8,
-    maxWidth: '88%',
   },
-  userBubbleAlign: {
-    alignSelf: 'flex-end',
-  },
-  agentBubbleAlign: {
-    alignSelf: 'flex-start',
-  },
-  agentBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.cardBg,
+  pinnedBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    marginTop: 2,
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    gap: 3,
   },
-  messageBubble: {
-    borderRadius: 20,
-    padding: 16,
-  },
-  userBubble: {
-    backgroundColor: COLORS.primary,
-    borderBottomRightRadius: 4,
-  },
-  agentBubble: {
-    backgroundColor: COLORS.cardBg,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  messageText: {
-    fontSize: 15,
-    color: COLORS.textPrimary,
-    lineHeight: 22,
-  },
-  userMessageText: {
+  pinnedBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
     color: COLORS.white,
+  },
+  pinnedText: {
+    fontSize: 12,
     fontWeight: '600',
+    color: COLORS.accent,
+    flex: 1,
+  },
+  messagesContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  typingContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    marginVertical: 6,
+  },
+  typingBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.9)',
   },
   typingText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontStyle: 'italic',
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.accent,
   },
-  recommendationsContainer: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
-    gap: 8,
-  },
-  recsTitle: {
-    fontSize: 13,
-    fontWeight: '900',
-    color: COLORS.primary,
-    marginBottom: 4,
-  },
-  recItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
+  promptsWrapper: {
+    paddingVertical: 6,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
   },
-  recItemText: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-    fontWeight: '700',
-  },
-  timestamp: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    marginTop: 6,
-    textAlign: 'right',
-    fontWeight: '500',
-  },
-  userTimestamp: {
-    color: 'rgba(255, 255, 255, 0.85)',
-  },
-  quickPromptsRow: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: COLORS.background,
+  promptsScroll: {
+    flexDirection: 'row',
   },
   promptChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.cardBg,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: 16,
     marginRight: 8,
+    gap: 6,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    minHeight: 46,
+    borderColor: 'rgba(226, 232, 240, 0.9)',
   },
   promptChipText: {
-    fontSize: 13,
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.textPrimary,
-    fontWeight: '800',
   },
-  inputContainer: {
+  composerWrapper: {
+    paddingHorizontal: 12,
+    paddingBottom: 16,
+    paddingTop: 4,
+  },
+  composerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: COLORS.cardBg,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
+    borderRadius: DESIGN_TOKENS.borderRadius.input, // 18
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderWidth: 1.5,
+    borderColor: 'rgba(226, 232, 240, 0.9)',
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.background,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    color: COLORS.textPrimary,
-    fontSize: 15,
-    maxHeight: 100,
-    minHeight: 46,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  sendButton: {
-    width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  sendBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sendBtnActive: {
+    backgroundColor: COLORS.accent,
+  },
+  sendBtnInactive: {
+    backgroundColor: 'rgba(148, 163, 184, 0.4)',
   },
 });

@@ -1,405 +1,393 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Circle, Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
-import { Header } from '../components/Header';
 import { DIGITAL_TWIN_PREDICTION } from '../data/mockData';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
+import { ProgressRing } from '../components/ProgressRing';
+import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface DigitalHealthTwinScreenProps {
   onBack: () => void;
   onAskAgent: () => void;
 }
 
+const BODY_SYSTEMS = [
+  {
+    name: 'Cardiovascular System',
+    organ: 'Heart',
+    status: 'Optimal',
+    score: 94,
+    icon: 'heart' as const,
+    color: COLORS.danger,
+    bg: 'rgba(239, 68, 68, 0.1)',
+    metrics: 'BP: 118/76 • Resting HR: 68 BPM',
+  },
+  {
+    name: 'Nervous & Vascular System',
+    organ: 'Brain',
+    status: 'Vulnerable (Migraine)',
+    score: 72,
+    icon: 'hardware-chip' as const,
+    color: COLORS.accent,
+    bg: 'rgba(124, 58, 237, 0.1)',
+    metrics: 'Magnesium Level: 85% • Vascular Stress: Low',
+  },
+  {
+    name: 'Respiratory System',
+    organ: 'Lungs',
+    status: 'Excellent',
+    score: 96,
+    icon: 'fitness' as const,
+    color: COLORS.primary,
+    bg: 'rgba(59, 130, 246, 0.1)',
+    metrics: 'SpO2: 99% • VO2 Max: 44 ml/kg',
+  },
+  {
+    name: 'Renal & Filtration System',
+    organ: 'Kidneys',
+    status: 'Balanced',
+    score: 88,
+    icon: 'water' as const,
+    color: '#0EA5E9',
+    bg: 'rgba(14, 165, 233, 0.1)',
+    metrics: 'Hydration Target: 72% • Sodium Balance: Moderate',
+  },
+  {
+    name: 'Immune & Metabolic System',
+    organ: 'Immune',
+    status: 'Pre-Diabetes Shield',
+    score: 80,
+    icon: 'shield-checkmark' as const,
+    color: COLORS.secondary,
+    bg: 'rgba(16, 185, 129, 0.1)',
+    metrics: 'Glycemic Stability: 82% • Inflammation Index: Low',
+  },
+];
+
 export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = ({
   onBack,
   onAskAgent,
 }) => {
   const { userProfile } = useApp();
-  const [timeframe, setTimeframe] = useState<'6M' | '12M'>('6M');
-
-  const is12M = timeframe === '12M';
-  const weightGain = is12M ? '+7kg After 12 Months' : '+4kg After 6 Months';
-  const predictedWeight = is12M ? DIGITAL_TWIN_PREDICTION.predictedWeight6Months + 3 : DIGITAL_TWIN_PREDICTION.predictedWeight6Months;
-  const riskIncrease = is12M ? DIGITAL_TWIN_PREDICTION.riskIncreasePercentage + 8 : DIGITAL_TWIN_PREDICTION.riskIncreasePercentage;
-  const progressWidth = is12M ? '82%' : '65%';
 
   return (
-    <View style={styles.container}>
-      <Header
-        title="Digital Health Twin"
-        subtitle="Predictive Future Health Simulation"
-        showBack
-        onBack={onBack}
-      />
-
+    <LayeredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Timeframe Selector Pills */}
-        <View style={styles.timeframeRow}>
-          <AnimatedPressable
-            style={[styles.timeChip, timeframe === '6M' && styles.timeChipActive]}
-            onPress={() => setTimeframe('6M')}
-          >
-            <Ionicons name="time" size={14} color={timeframe === '6M' ? COLORS.white : COLORS.textSecondary} />
-            <Text style={[styles.timeChipText, timeframe === '6M' && styles.timeChipTextActive]}>6-Month Projection</Text>
-          </AnimatedPressable>
+        {/* Animated App Bar */}
+        <AnimatedAppBar
+          title="Digital Health Twin"
+          subtitle="3D Clinical Organ & Predictive Simulation"
+          showBack
+          onBack={onBack}
+          rightActionIcon="sparkles"
+          onRightAction={onAskAgent}
+        />
 
-          <AnimatedPressable
-            style={[styles.timeChip, timeframe === '12M' && styles.timeChipActive]}
-            onPress={() => setTimeframe('12M')}
-          >
-            <Ionicons name="analytics" size={14} color={timeframe === '12M' ? COLORS.white : COLORS.textSecondary} />
-            <Text style={[styles.timeChipText, timeframe === '12M' && styles.timeChipTextActive]}>12-Month Projection</Text>
-          </AnimatedPressable>
-        </View>
+        {/* 3D Style Avatar Placeholder & Vitality Score Card */}
+        <GlassCard variant="glass" style={styles.avatarCard}>
+          <View style={styles.avatarRow}>
+            {/* Stylized 3D Body Outline Visualizer */}
+            <View style={styles.avatarVisualBox}>
+              <Svg width={110} height={160} viewBox="0 0 100 160">
+                <Defs>
+                  <LinearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <Stop offset="0%" stopColor="#3B82F6" />
+                    <Stop offset="100%" stopColor="#7C3AED" />
+                  </LinearGradient>
+                </Defs>
+                {/* Head */}
+                <Circle cx={50} cy={22} r={14} fill="url(#bodyGrad)" opacity={0.9} />
+                {/* Torso */}
+                <Rect x={36} y={42} width={28} height={50} rx={10} fill="url(#bodyGrad)" opacity={0.8} />
+                {/* Arms */}
+                <Rect x={20} y={44} width={12} height={42} rx={6} fill="url(#bodyGrad)" opacity={0.6} />
+                <Rect x={68} y={44} width={12} height={42} rx={6} fill="url(#bodyGrad)" opacity={0.6} />
+                {/* Legs */}
+                <Rect x={38} y={96} width={10} height={54} rx={5} fill="url(#bodyGrad)" opacity={0.75} />
+                <Rect x={52} y={96} width={10} height={54} rx={5} fill="url(#bodyGrad)" opacity={0.75} />
+                {/* Heart Glow Dot */}
+                <Circle cx={46} cy={54} r={5} fill="#EF4444" />
+              </Svg>
+            </View>
 
-        {/* Banner header */}
-        <View style={[styles.banner, SHADOWS.sm]}>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="body" size={32} color={COLORS.primary} />
+            <View style={styles.vitalityCol}>
+              <View style={styles.badgeRow}>
+                <Ionicons name="sparkles" size={12} color={COLORS.accent} />
+                <Text style={styles.badgeText}>3D AI Twin Active</Text>
+              </View>
+              <Text style={styles.vitalityTitle}>{userProfile.name}'s Twin</Text>
+              <Text style={styles.vitalityScore}>
+                {userProfile.healthScore}<Text style={styles.vitalityScoreMax}>/100</Text>
+              </Text>
+              <Text style={styles.vitalitySub}>Overall Organ Vitality Score</Text>
+
+              <View style={styles.twinPill}>
+                <Text style={styles.twinPillText}>Vulnerability: Pre-diabetes & Migraine</Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.bannerText}>
-            <Text style={styles.bannerTitle}>Your Future Health Twin</Text>
-            <Text style={styles.bannerSub}>{timeframe === '6M' ? '6-Month' : '12-Month'} Predictive Trajectory based on dietary habits</Text>
-          </View>
-        </View>
+        </GlassCard>
 
-        {/* Weight & Risk Comparison Grid */}
-        <View style={styles.comparisonGrid}>
-          <View style={[styles.compCard, SHADOWS.sm]}>
-            <Text style={styles.compLabel}>Current Weight</Text>
-            <Text style={styles.compVal}>{DIGITAL_TWIN_PREDICTION.currentWeight} kg</Text>
-            <Text style={styles.compSub}>Today</Text>
-          </View>
+        {/* Body Systems (Heart, Brain, Lungs, Kidneys, Immune) */}
+        <Text style={styles.sectionTitle}>Interactive Body Systems</Text>
+        {BODY_SYSTEMS.map((system) => (
+          <GlassCard key={system.organ} style={styles.systemCard}>
+            <View style={styles.systemHeader}>
+              <View style={[styles.systemIconBox, { backgroundColor: system.bg }]}>
+                <Ionicons name={system.icon} size={20} color={system.color} />
+              </View>
 
-          <View style={[styles.compCardWarning, SHADOWS.sm]}>
-            <Text style={styles.compLabelWarning}>Predicted Weight</Text>
-            <Text style={styles.compValWarning}>
-              {predictedWeight} kg
-            </Text>
-            <Text style={styles.compSubWarning}>{weightGain}</Text>
-          </View>
-        </View>
+              <View style={styles.systemTitleCol}>
+                <Text style={styles.systemName}>{system.name}</Text>
+                <Text style={styles.systemMetrics}>{system.metrics}</Text>
+              </View>
 
-        {/* Risk Increase Callout */}
-        <View style={[styles.riskCard, SHADOWS.sm]}>
-          <View style={styles.riskHeader}>
-            <Ionicons name="warning" size={24} color={COLORS.danger} />
-            <View style={styles.riskTitleGroup}>
-              <Text style={styles.riskTitle}>Predicted Disease Risk Increase</Text>
-              <Text style={styles.riskSub}>
-                +{riskIncrease}% Increase in{' '}
-                <Text style={styles.highlightText}>{DIGITAL_TWIN_PREDICTION.riskIncreaseDisease}</Text>
+              <View style={styles.systemScoreBox}>
+                <Text style={[styles.systemScoreVal, { color: system.color }]}>{system.score}%</Text>
+                <Text style={styles.systemStatusText}>{system.status}</Text>
+              </View>
+            </View>
+          </GlassCard>
+        ))}
+
+        {/* 6-Month Predictive Health Risk Timeline */}
+        <GlassCard
+          variant="gradient"
+          icon="analytics-outline"
+          iconColor={COLORS.accent}
+          title="6-Month Predictive Projection"
+          subtitle="AI simulation based on current diet trajectory"
+        >
+          <View style={styles.predictRow}>
+            <View style={styles.predictBox}>
+              <Text style={styles.predictLabel}>Current Weight</Text>
+              <Text style={styles.predictVal}>{DIGITAL_TWIN_PREDICTION.currentWeight} kg</Text>
+            </View>
+            <Ionicons name="arrow-forward" size={18} color={COLORS.textMuted} />
+            <View style={styles.predictBox}>
+              <Text style={styles.predictLabel}>Projected (6 Mos)</Text>
+              <Text style={[styles.predictVal, { color: COLORS.warning }]}>
+                {DIGITAL_TWIN_PREDICTION.predictedWeight6Months} kg
               </Text>
             </View>
           </View>
 
-          <View style={styles.riskBarBg}>
-            <View style={[styles.riskBarFill, { width: progressWidth as any }]} />
+          <Text style={styles.predictNotice}>
+            "Without adjusting sodium and refined sugars, pre-diabetes vulnerability increases by +
+            {DIGITAL_TWIN_PREDICTION.riskIncreasePercentage}% over 6 months."
+          </Text>
+        </GlassCard>
+
+        {/* AI Preventive Suggestions */}
+        <Text style={styles.sectionTitle}>AI Twin Suggestions</Text>
+        <GlassCard icon="bulb" iconColor={COLORS.warning} title="Recommended Preventive Protocol">
+          <View style={styles.suggestionsGrid}>
+            <Text style={styles.sugHeader}>Items to Reduce:</Text>
+            {DIGITAL_TWIN_PREDICTION.recommendationsToReduce.map((item, idx) => (
+              <Text key={idx} style={styles.sugItemRed}>❌ {item}</Text>
+            ))}
+
+            <Text style={[styles.sugHeader, { marginTop: 10 }]}>Items to Add:</Text>
+            {DIGITAL_TWIN_PREDICTION.recommendationsToAdd.map((item, idx) => (
+              <Text key={idx} style={styles.sugItemGreen}>✅ {item}</Text>
+            ))}
           </View>
-        </View>
+        </GlassCard>
 
-        {/* Proactive Recommendations Section */}
-        <View style={[styles.recsSection, SHADOWS.sm]}>
-          <Text style={styles.recsHeaderTitle}>Proactive Intervention Recommendations</Text>
+        {/* Action Button */}
+        <PrimaryButton
+          title="Consult AI Assistant on Twin Protocol"
+          icon="sparkles"
+          onPress={onAskAgent}
+          style={{ marginTop: 16 }}
+        />
 
-          {/* Reduce List */}
-          <View style={styles.recGroup}>
-            <View style={styles.groupTitleRow}>
-              <Ionicons name="close-circle" size={18} color={COLORS.danger} />
-              <Text style={styles.groupTitleRed}>Foods to Reduce / Avoid:</Text>
-            </View>
-            <View style={styles.chipsWrap}>
-              {DIGITAL_TWIN_PREDICTION.recommendationsToReduce.map((item, idx) => (
-                <View key={idx} style={[styles.redChip, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
-                  <Ionicons name="close" size={12} color={COLORS.danger} />
-                  <Text style={styles.redChipText}>{item}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Increase List */}
-          <View style={styles.recGroup}>
-            <View style={styles.groupTitleRow}>
-              <Ionicons name="checkmark-circle" size={18} color={COLORS.successDark} />
-              <Text style={styles.groupTitleGreen}>Foods to Increase:</Text>
-            </View>
-            <View style={styles.chipsWrap}>
-              {DIGITAL_TWIN_PREDICTION.recommendationsToAdd.map((item, idx) => (
-                <View key={idx} style={[styles.greenChip, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
-                  <Ionicons name="checkmark" size={12} color={COLORS.successDark} />
-                  <Text style={styles.greenChipText}>{item}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
-
-        <AnimatedPressable style={[styles.agentActionBtn, SHADOWS.md]} onPress={onAskAgent}>
-          <Ionicons name="sparkles" size={20} color={COLORS.white} />
-          <Text style={styles.agentActionText}>Ask AI Agent to Generate Alternate Meal Plan</Text>
-        </AnimatedPressable>
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   scrollContent: {
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
-  timeframeRow: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 14,
-    gap: 10,
-  },
-  timeChip: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: COLORS.cardBg,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  timeChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  timeChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  timeChipTextActive: {
-    color: COLORS.white,
-    fontWeight: '800',
-  },
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 14,
+  avatarCard: {
+    marginVertical: 10,
     padding: 18,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
   },
-  avatarCircle: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarVisualBox: {
+    width: 110,
+    height: 160,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
   },
-  bannerText: {
+  vitalityCol: {
     flex: 1,
   },
-  bannerTitle: {
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    gap: 4,
+    marginBottom: 6,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.accent,
+    textTransform: 'uppercase',
+  },
+  vitalityTitle: {
     fontSize: 18,
     fontWeight: '900',
     color: COLORS.textPrimary,
-    letterSpacing: -0.3,
   },
-  bannerSub: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    lineHeight: 16,
-    fontWeight: '500',
-  },
-  comparisonGrid: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 16,
-    gap: 12,
-  },
-  compCard: {
-    flex: 1,
-    backgroundColor: COLORS.cardBg,
-    padding: 16,
-    borderRadius: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  compLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: '600',
-  },
-  compVal: {
-    fontSize: 24,
+  vitalityScore: {
+    fontSize: 32,
     fontWeight: '900',
-    color: COLORS.textPrimary,
-    marginVertical: 4,
-  },
-  compSub: {
-    fontSize: 11,
     color: COLORS.primary,
-    fontWeight: '700',
+    letterSpacing: -0.8,
+    marginTop: 2,
   },
-  compCardWarning: {
-    flex: 1,
-    backgroundColor: 'rgba(239, 68, 68, 0.08)',
-    padding: 16,
-    borderRadius: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.25)',
+  vitalityScoreMax: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMuted,
   },
-  compLabelWarning: {
+  vitalitySub: {
     fontSize: 12,
-    color: COLORS.danger,
-    fontWeight: '700',
+    fontWeight: '600',
+    color: COLORS.textSecondary,
   },
-  compValWarning: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: COLORS.danger,
+  twinPill: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  twinPillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.secondaryDark,
+  },
+  sectionTitle: {
+    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+    marginTop: 18,
+    marginBottom: 10,
+  },
+  systemCard: {
     marginVertical: 4,
   },
-  compSubWarning: {
-    fontSize: 11,
-    color: COLORS.danger,
-    fontWeight: '800',
-  },
-  riskCard: {
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  riskHeader: {
+  systemHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 12,
   },
-  riskTitleGroup: {
-    flex: 1,
-  },
-  riskTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-  },
-  riskSub: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  highlightText: {
-    color: COLORS.danger,
-    fontWeight: '800',
-  },
-  riskBarBg: {
-    height: 8,
-    backgroundColor: COLORS.trackBg,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  riskBarFill: {
-    height: '100%',
-    backgroundColor: COLORS.danger,
-    borderRadius: 4,
-  },
-  recsSection: {
-    backgroundColor: COLORS.cardBg,
-    marginHorizontal: 20,
-    marginTop: 16,
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    gap: 16,
-  },
-  recsHeaderTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.textPrimary,
-    letterSpacing: -0.3,
-  },
-  recGroup: {
-    gap: 8,
-  },
-  groupTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  groupTitleRed: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.danger,
-  },
-  groupTitleGreen: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: COLORS.successDark,
-  },
-  chipsWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  redChip: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-  },
-  redChipText: {
-    fontSize: 11,
-    color: COLORS.danger,
-    fontWeight: '700',
-  },
-  greenChip: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.2)',
-  },
-  greenChipText: {
-    fontSize: 11,
-    color: COLORS.successDark,
-    fontWeight: '800',
-  },
-  agentActionBtn: {
-    flexDirection: 'row',
+  systemIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    backgroundColor: COLORS.secondary,
-    marginHorizontal: 20,
-    marginTop: 20,
-    paddingVertical: 16,
-    borderRadius: 18,
+    marginRight: 12,
   },
-  agentActionText: {
+  systemTitleCol: {
+    flex: 1,
+  },
+  systemName: {
     fontSize: 15,
     fontWeight: '800',
-    color: COLORS.white,
+    color: COLORS.textPrimary,
+  },
+  systemMetrics: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  systemScoreBox: {
+    alignItems: 'flex-end',
+  },
+  systemScoreVal: {
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  systemStatusText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+  },
+  predictRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  predictBox: {
+    alignItems: 'center',
+  },
+  predictLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+  },
+  predictVal: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+    marginTop: 2,
+  },
+  predictNotice: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.textPrimary,
+    lineHeight: 19,
+    fontStyle: 'italic',
+    marginTop: 8,
+  },
+  suggestionsGrid: {
+    gap: 4,
+    marginTop: 6,
+  },
+  sugHeader: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+  },
+  sugItemRed: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.dangerDark,
+  },
+  sugItemGreen: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.secondaryDark,
   },
 });

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Text, ScrollView, Image, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
-import { MOCK_RECENT_FOODS } from '../data/mockData';
-import { Header } from '../components/Header';
-import { StepProgressBar } from '../components/StepProgressBar';
+import { LayeredBackground } from '../components/LayeredBackground';
+import { AnimatedAppBar } from '../components/AnimatedAppBar';
+import { GlassCard } from '../components/GlassCard';
+import { PrimaryButton } from '../components/PrimaryButton';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { DESIGN_TOKENS } from '../theme/tokens';
 
 interface FoodScanScreenProps {
   onBack: () => void;
@@ -19,281 +21,371 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
   onScanComplete,
   onVoiceScan,
 }) => {
-  const { setCurrentScan } = useApp();
-  const [flash, setFlash] = useState(false);
-  const [selectedPreset, setSelectedPreset] = useState<'burger' | 'salad'>('burger');
+  const { foodHistory } = useApp();
+  const [selectedScan, setSelectedScan] = useState<string | null>(null);
 
-  const foodImages = {
-    burger: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
-    salad: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
-  };
+  // Animated Scan Beam Target
+  const scanLineAnim = useRef(new Animated.Value(0)).current;
 
-  const handleSelectPreset = (preset: 'burger' | 'salad') => {
-    setSelectedPreset(preset);
-    if (preset === 'burger') {
-      setCurrentScan(MOCK_RECENT_FOODS[0]);
-    } else {
-      setCurrentScan(MOCK_RECENT_FOODS[1]);
-    }
-  };
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanLineAnim, {
+          toValue: 1,
+          duration: 2200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanLineAnim, {
+          toValue: 0,
+          duration: 2200,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [scanLineAnim]);
+
+  const translateY = scanLineAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [20, 220],
+  });
 
   return (
-    <View style={styles.container}>
-      <Header
-        title="Food Vision Scanner"
-        subtitle="AI Object & Ingredient Detection"
-        showBack
-        onBack={onBack}
-        rightAction={
-          <AnimatedPressable onPress={() => setFlash(!flash)} style={styles.flashBtn}>
-            <Ionicons
-              name={flash ? 'flash' : 'flash-outline'}
-              size={22}
-              color={flash ? COLORS.secondary : COLORS.textPrimary}
-            />
-          </AnimatedPressable>
-        }
-      />
+    <LayeredBackground>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Floating App Bar */}
+        <AnimatedAppBar
+          title="Food Scanner AI"
+          subtitle="Instant Macro & Disease Analysis"
+          showBack
+          onBack={onBack}
+          rightActionIcon="mic"
+          onRightAction={onVoiceScan}
+        />
 
-      <StepProgressBar currentStep={1} />
+        {/* Large Camera Card with Live Preview & Blue Glowing Corners */}
+        <View style={[styles.cameraCard, SHADOWS.lg]}>
+          {/* Live Viewfinder Image Background Simulation */}
+          <Image
+            source={{
+              uri: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
+            }}
+            style={styles.viewfinderBg}
+          />
+          <View style={styles.viewfinderOverlay} />
 
-      {/* Camera Viewfinder */}
-      <View style={styles.viewfinderContainer}>
-        <Image source={{ uri: foodImages[selectedPreset] }} style={styles.cameraPreview} />
+          {/* Blue Glowing Corners */}
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
 
-        {/* Viewfinder Target Box Overlay */}
-        <View style={styles.targetOverlay}>
-          <View style={styles.targetFrame}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
+          {/* Animated Laser Scanning Line */}
+          <Animated.View style={[styles.scanLine, { transform: [{ translateY }] }]} />
 
-            <View style={styles.scanInstructionBadge}>
-              <Ionicons name="scan" size={16} color={COLORS.primary} />
-              <Text style={styles.scanInstructionText}>Position food inside frame</Text>
+          {/* AI Focus Target Box */}
+          <View style={styles.focusBox}>
+            <View style={styles.focusBadge}>
+              <Ionicons name="sparkles" size={12} color={COLORS.white} />
+              <Text style={styles.focusBadgeText}>AI Auto-Focus: Cheese Burger (97%)</Text>
             </View>
           </View>
-        </View>
-      </View>
 
-      {/* Sample Scan Preset Selector */}
-      <View style={styles.demoPresetContainer}>
-        <Text style={styles.demoLabel}>Sample Meal Presets (For Demo Testing):</Text>
-        <View style={styles.presetButtons}>
-          <AnimatedPressable
-            style={[styles.presetBtn, selectedPreset === 'burger' && styles.presetBtnActive]}
-            onPress={() => handleSelectPreset('burger')}
-          >
-            <Text style={[styles.presetText, selectedPreset === 'burger' && styles.presetTextActive]}>
-              Cheese Burger
-            </Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable
-            style={[styles.presetBtn, selectedPreset === 'salad' && styles.presetBtnActive]}
-            onPress={() => handleSelectPreset('salad')}
-          >
-            <Text style={[styles.presetText, selectedPreset === 'salad' && styles.presetTextActive]}>
-              Grilled Chicken Salad
-            </Text>
+          {/* Floating Capture FAB */}
+          <AnimatedPressable style={styles.captureFabWrapper} onPress={onScanComplete}>
+            <View style={[styles.captureFab, SHADOWS.glow]}>
+              <Ionicons name="camera" size={28} color={COLORS.white} />
+            </View>
           </AnimatedPressable>
         </View>
-      </View>
 
-      {/* Bottom Camera Action Bar */}
-      <View style={styles.bottomBar}>
-        <AnimatedPressable style={styles.sideBtn} onPress={onVoiceScan}>
-          <Ionicons name="mic" size={24} color={COLORS.textPrimary} />
-          <Text style={styles.sideBtnText}>Voice Scan</Text>
-        </AnimatedPressable>
+        {/* AI Confidence & Real-Time Status Animation */}
+        <GlassCard variant="glass" style={styles.confidenceCard}>
+          <View style={styles.confidenceRow}>
+            <View style={styles.aiBadgeBox}>
+              <Ionicons name="hardware-chip" size={18} color={COLORS.primary} />
+            </View>
+            <View style={styles.confidenceTextCol}>
+              <Text style={styles.confidenceTitle}>Neural Vision v2.4 Active</Text>
+              <Text style={styles.confidenceSub}>High accuracy multi-ingredient segmentation enabled</Text>
+            </View>
+            <View style={styles.percentBadge}>
+              <Text style={styles.percentText}>99.4%</Text>
+            </View>
+          </View>
+        </GlassCard>
 
-        <AnimatedPressable
-          style={[styles.shutterBtn, SHADOWS.glow]}
+        {/* Primary Capture Action Button */}
+        <PrimaryButton
+          title="Capture & Analyze Food"
+          icon="scan-outline"
           onPress={onScanComplete}
+          style={styles.mainBtn}
+        />
+
+        {/* Recent Scans Carousel */}
+        <Text style={styles.sectionTitle}>Recent Food Scans</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scansCarousel}>
+          {foodHistory.map((item) => (
+            <AnimatedPressable
+              key={item.id}
+              style={[styles.carouselCard, SHADOWS.sm]}
+              onPress={onScanComplete}
+            >
+              <Image source={{ uri: item.imageUrl }} style={styles.carouselImg} />
+              <View style={styles.carouselInfo}>
+                <Text style={styles.carouselName} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={styles.carouselCal}>{item.calories} kcal</Text>
+                <View style={styles.carouselBadge}>
+                  <Text style={styles.carouselBadgeText}>Score: {item.healthScore}</Text>
+                </View>
+              </View>
+            </AnimatedPressable>
+          ))}
+        </ScrollView>
+
+        {/* AI Scanning Tips Section */}
+        <GlassCard
+          icon="bulb-outline"
+          iconColor={COLORS.warning}
+          iconBg="rgba(245, 158, 11, 0.12)"
+          title="Optimal Scanning Tips"
+          subtitle="Ensure maximum clinical accuracy"
         >
-          <View style={styles.shutterInner} />
-        </AnimatedPressable>
+          <View style={styles.tipsList}>
+            <Text style={styles.tipItem}>• Keep camera 20cm above the food plate in clear light.</Text>
+            <Text style={styles.tipItem}>• Ensure sauces, buns, and toppings are fully visible.</Text>
+            <Text style={styles.tipItem}>• Use Voice Assistant if scanning multi-course meals.</Text>
+          </View>
+        </GlassCard>
 
-        <AnimatedPressable style={styles.sideBtn} onPress={onScanComplete}>
-          <Ionicons name="images" size={24} color={COLORS.textPrimary} />
-          <Text style={styles.sideBtnText}>Gallery</Text>
-        </AnimatedPressable>
-      </View>
-
-      <Text style={styles.hintText}>Tip: You can edit or refine ingredients after analysis</Text>
-    </View>
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </LayeredBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 30,
   },
-  flashBtn: {
-    minHeight: 44,
-    minWidth: 44,
+  cameraCard: {
+    height: 280,
+    borderRadius: DESIGN_TOKENS.borderRadius.card, // 24
+    overflow: 'hidden',
+    position: 'relative',
+    marginVertical: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(59, 130, 246, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  viewfinderContainer: {
-    flex: 1,
-    marginHorizontal: 20,
-    marginVertical: 12,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-    borderColor: COLORS.cardBorder,
-    backgroundColor: '#0F172A',
-    ...SHADOWS.md,
-  },
-  cameraPreview: {
+  viewfinderBg: {
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
-    opacity: 0.9,
   },
-  targetOverlay: {
+  viewfinderOverlay: {
     ...StyleSheet.absoluteFill,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  targetFrame: {
-    width: 220,
-    height: 220,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.35)',
   },
   corner: {
     position: 'absolute',
-    width: 34,
-    height: 34,
-    borderColor: COLORS.primary,
+    width: 28,
+    height: 28,
+    borderColor: '#3B82F6',
+    borderWidth: 4,
   },
   topLeft: {
-    top: 0,
-    left: 0,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderTopLeftRadius: 14,
+    top: 16,
+    left: 16,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: 10,
   },
   topRight: {
-    top: 0,
-    right: 0,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-    borderTopRightRadius: 14,
+    top: 16,
+    right: 16,
+    borderLeftWidth: 0,
+    borderBottomWidth: 0,
+    borderTopRightRadius: 10,
   },
   bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-    borderBottomLeftRadius: 14,
+    bottom: 16,
+    left: 16,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+    borderBottomLeftRadius: 10,
   },
   bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-    borderBottomRightRadius: 14,
+    bottom: 16,
+    right: 16,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderBottomRightRadius: 10,
   },
-  scanInstructionBadge: {
+  scanLine: {
+    position: 'absolute',
+    left: 24,
+    right: 24,
+    height: 3,
+    backgroundColor: '#3B82F6',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    borderRadius: 2,
+    zIndex: 5,
+  },
+  focusBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 6,
+  },
+  focusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 99,
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.96)',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
     borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-    ...SHADOWS.sm,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  scanInstructionText: {
+  focusBadgeText: {
     fontSize: 12,
-    color: COLORS.textPrimary,
     fontWeight: '800',
+    color: COLORS.white,
   },
-  demoPresetContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 14,
+  captureFabWrapper: {
+    position: 'absolute',
+    bottom: 16,
+    zIndex: 10,
   },
-  demoLabel: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-    fontWeight: '600',
-  },
-  presetButtons: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  presetBtn: {
-    flex: 1,
-    backgroundColor: COLORS.cardBg,
-    paddingVertical: 12,
-    borderRadius: 14,
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: COLORS.cardBorder,
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  presetBtnActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
-  },
-  presetText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontWeight: '600',
-  },
-  presetTextActive: {
-    color: COLORS.primary,
-    fontWeight: '800',
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 30,
-    paddingBottom: 10,
-  },
-  sideBtn: {
-    alignItems: 'center',
-    gap: 4,
-    minHeight: 44,
-    minWidth: 44,
-    justifyContent: 'center',
-  },
-  sideBtnText: {
-    fontSize: 11,
-    color: COLORS.textPrimary,
-    fontWeight: '700',
-  },
-  shutterBtn: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    borderWidth: 4,
-    borderColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  shutterInner: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+  captureFab: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: COLORS.white,
   },
-  hintText: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    marginBottom: 16,
+  confidenceCard: {
+    marginVertical: 6,
+  },
+  confidenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  aiBadgeBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  confidenceTextCol: {
+    flex: 1,
+  },
+  confidenceTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  confidenceSub: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
     fontWeight: '500',
+    marginTop: 1,
+  },
+  percentBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+  },
+  percentText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.secondaryDark,
+  },
+  mainBtn: {
+    marginVertical: 10,
+  },
+  sectionTitle: {
+    fontSize: DESIGN_TOKENS.fontSize.sectionTitle, // 22
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
+    marginTop: 16,
+    marginBottom: 10,
+  },
+  scansCarousel: {
+    flexDirection: 'row',
+    marginVertical: 6,
+    paddingBottom: 8,
+  },
+  carouselCard: {
+    width: 140,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(226, 232, 240, 0.9)',
+  },
+  carouselImg: {
+    width: '100%',
+    height: 90,
+  },
+  carouselInfo: {
+    padding: 10,
+  },
+  carouselName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  carouselCal: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  carouselBadge: {
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 6,
+  },
+  carouselBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.primary,
+  },
+  tipsList: {
+    gap: 6,
+    marginTop: 4,
+  },
+  tipItem: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+    lineHeight: 19,
   },
 });
