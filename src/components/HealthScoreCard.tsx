@@ -67,12 +67,12 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.cardBg,
-    borderRadius: 24,
+    borderRadius: 20,
     padding: 20,
     marginHorizontal: 20,
     marginVertical: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(33, 118, 255, 0.15)',
+    borderColor: 'rgba(59, 130, 246, 0.12)',
     ...SHADOWS.md,
   },
   topRow: {

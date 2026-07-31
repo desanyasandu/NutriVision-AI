@@ -13,7 +13,8 @@ export const DESIGN_TOKENS = {
     xs: 6,
     sm: 10,
     md: 14,
-    lg: 18,
+    card: 20,       // Flagship 20px card border radius requirement
+    lg: 20,
     xl: 24,
     xxl: 32,
     pill: 999,

@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     paddingVertical: 14,
     paddingHorizontal: 8,
-    borderRadius: 18,
+    borderRadius: 20,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,

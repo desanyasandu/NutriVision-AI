@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.cardBg,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 12,
     marginHorizontal: 20,
     marginBottom: 12,

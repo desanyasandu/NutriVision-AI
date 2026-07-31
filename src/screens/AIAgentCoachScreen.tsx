@@ -198,11 +198,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
+    backgroundColor: 'rgba(124, 58, 237, 0.08)',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(33, 118, 255, 0.15)',
+    borderBottomColor: 'rgba(124, 58, 237, 0.15)',
   },
   agentAvatar: {
     width: 24,
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: '900',
-    color: COLORS.primary,
+    color: COLORS.accent,
   },
   chatList: {
     paddingHorizontal: 16,

@@ -134,96 +134,98 @@ export const AppNavigator: React.FC = () => {
       <View style={styles.screenContainer}>{renderScreen()}</View>
 
       {showBottomTab && (
-        <View style={[styles.bottomTabContainer, SHADOWS.lg]}>
-          <AnimatedPressable
-            style={styles.tabItem}
-            onPress={() => navigateTo('Home')}
-          >
-            <Ionicons
-              name={currentScreen === 'Home' ? 'home' : 'home-outline'}
-              size={22}
-              color={currentScreen === 'Home' ? COLORS.primary : COLORS.textMuted}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                currentScreen === 'Home' && styles.tabLabelActive,
-              ]}
+        <View style={styles.floatingDockWrapper}>
+          <View style={[styles.bottomTabContainer, SHADOWS.lg]}>
+            <AnimatedPressable
+              style={styles.tabItem}
+              onPress={() => navigateTo('Home')}
             >
-              Home
-            </Text>
-            {currentScreen === 'Home' && <View style={styles.activeDot} />}
-          </AnimatedPressable>
+              <Ionicons
+                name={currentScreen === 'Home' ? 'home' : 'home-outline'}
+                size={22}
+                color={currentScreen === 'Home' ? COLORS.primary : COLORS.textMuted}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'Home' && styles.tabLabelActive,
+                ]}
+              >
+                Home
+              </Text>
+              {currentScreen === 'Home' && <View style={styles.activeDot} />}
+            </AnimatedPressable>
 
-          <AnimatedPressable
-            style={styles.tabItem}
-            onPress={() => navigateTo('KanbanPlanner')}
-          >
-            <Ionicons
-              name={currentScreen === 'KanbanPlanner' ? 'grid' : 'grid-outline'}
-              size={22}
-              color={currentScreen === 'KanbanPlanner' ? COLORS.primary : COLORS.textMuted}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                currentScreen === 'KanbanPlanner' && styles.tabLabelActive,
-              ]}
+            <AnimatedPressable
+              style={styles.tabItem}
+              onPress={() => navigateTo('KanbanPlanner')}
             >
-              Planner
-            </Text>
-            {currentScreen === 'KanbanPlanner' && <View style={styles.activeDot} />}
-          </AnimatedPressable>
+              <Ionicons
+                name={currentScreen === 'KanbanPlanner' ? 'grid' : 'grid-outline'}
+                size={22}
+                color={currentScreen === 'KanbanPlanner' ? COLORS.primary : COLORS.textMuted}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'KanbanPlanner' && styles.tabLabelActive,
+                ]}
+              >
+                Planner
+              </Text>
+              {currentScreen === 'KanbanPlanner' && <View style={styles.activeDot} />}
+            </AnimatedPressable>
 
-          <AnimatedPressable
-            style={styles.tabItem}
-            onPress={() => navigateTo('FoodScan')}
-          >
-            <View style={[styles.scanTabCircle, SHADOWS.glow]}>
-              <Ionicons name="camera" size={22} color={COLORS.white} />
-            </View>
-            <Text style={styles.tabLabel}>Scan</Text>
-          </AnimatedPressable>
-
-          <AnimatedPressable
-            style={styles.tabItem}
-            onPress={() => navigateTo('AIAgentCoach')}
-          >
-            <Ionicons
-              name={currentScreen === 'AIAgentCoach' ? 'sparkles' : 'sparkles-outline'}
-              size={22}
-              color={currentScreen === 'AIAgentCoach' ? COLORS.primary : COLORS.textMuted}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                currentScreen === 'AIAgentCoach' && styles.tabLabelActive,
-              ]}
+            <AnimatedPressable
+              style={styles.tabItem}
+              onPress={() => navigateTo('FoodScan')}
             >
-              AI Agent
-            </Text>
-            {currentScreen === 'AIAgentCoach' && <View style={styles.activeDot} />}
-          </AnimatedPressable>
+              <View style={[styles.scanTabCircle, SHADOWS.glow]}>
+                <Ionicons name="camera" size={22} color={COLORS.white} />
+              </View>
+              <Text style={styles.tabLabel}>Scan</Text>
+            </AnimatedPressable>
 
-          <AnimatedPressable
-            style={styles.tabItem}
-            onPress={() => navigateTo('HealthDashboard')}
-          >
-            <Ionicons
-              name={currentScreen === 'HealthDashboard' ? 'stats-chart' : 'stats-chart-outline'}
-              size={22}
-              color={currentScreen === 'HealthDashboard' ? COLORS.primary : COLORS.textMuted}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                currentScreen === 'HealthDashboard' && styles.tabLabelActive,
-              ]}
+            <AnimatedPressable
+              style={styles.tabItem}
+              onPress={() => navigateTo('AIAgentCoach')}
             >
-              Dashboard
-            </Text>
-            {currentScreen === 'HealthDashboard' && <View style={styles.activeDot} />}
-          </AnimatedPressable>
+              <Ionicons
+                name={currentScreen === 'AIAgentCoach' ? 'sparkles' : 'sparkles-outline'}
+                size={22}
+                color={currentScreen === 'AIAgentCoach' ? COLORS.accent : COLORS.textMuted}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'AIAgentCoach' && { color: COLORS.accent, fontWeight: '900' },
+                ]}
+              >
+                AI Agent
+              </Text>
+              {currentScreen === 'AIAgentCoach' && <View style={[styles.activeDot, { backgroundColor: COLORS.accent }]} />}
+            </AnimatedPressable>
+
+            <AnimatedPressable
+              style={styles.tabItem}
+              onPress={() => navigateTo('HealthDashboard')}
+            >
+              <Ionicons
+                name={currentScreen === 'HealthDashboard' ? 'stats-chart' : 'stats-chart-outline'}
+                size={22}
+                color={currentScreen === 'HealthDashboard' ? COLORS.primary : COLORS.textMuted}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'HealthDashboard' && styles.tabLabelActive,
+                ]}
+              >
+                Dashboard
+              </Text>
+              {currentScreen === 'HealthDashboard' && <View style={styles.activeDot} />}
+            </AnimatedPressable>
+          </View>
         </View>
       )}
     </SafeAreaView>
@@ -239,14 +241,22 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
   },
+  floatingDockWrapper: {
+    position: 'relative',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    backgroundColor: COLORS.background,
+  },
   bottomTabContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: COLORS.cardBg,
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.cardBorder,
+    paddingHorizontal: 6,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: 'rgba(226, 232, 240, 0.9)',
   },
   tabItem: {
     alignItems: 'center',
@@ -255,7 +265,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textMuted,
     fontWeight: '700',
   },
@@ -277,7 +287,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -20,
+    marginTop: -22,
     borderWidth: 3,
     borderColor: COLORS.cardBg,
   },

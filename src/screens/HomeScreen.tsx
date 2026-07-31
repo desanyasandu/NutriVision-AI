@@ -79,7 +79,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <View style={styles.actionGrid}>
             <View style={styles.actionRow}>
               <AnimatedPressable
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.06)' }]}
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(59, 130, 246, 0.06)' }]}
                 onPress={() => onNavigate('FoodScan')}
               >
                 <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
@@ -90,7 +90,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               </AnimatedPressable>
 
               <AnimatedPressable
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.07)' }]}
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(16, 185, 129, 0.06)' }]}
                 onPress={() => onNavigate('VoiceAssistant')}
               >
                 <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
@@ -103,10 +103,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
 
             <View style={styles.actionRow}>
               <AnimatedPressable
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.07)' }]}
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(59, 130, 246, 0.06)' }]}
                 onPress={() => onNavigate('HealthDashboard')}
               >
-                <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.primaryDark }]}>
                   <Ionicons name="stats-chart" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>Health Report</Text>
@@ -114,10 +114,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               </AnimatedPressable>
 
               <AnimatedPressable
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(139, 92, 246, 0.07)' }]}
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(124, 58, 237, 0.06)' }]}
                 onPress={() => onNavigate('AIAgentCoach')}
               >
-                <View style={[styles.actionIconBox, { backgroundColor: COLORS.aiSparkle }]}>
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
                   <Ionicons name="sparkles" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>AI Coach</Text>
