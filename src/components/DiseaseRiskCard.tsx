@@ -2,33 +2,35 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DiseaseRisk } from '../data/mockData';
-import { COLORS } from '../theme/colors';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface DiseaseRiskCardProps {
   risk: DiseaseRisk;
 }
 
 export const DiseaseRiskCard: React.FC<DiseaseRiskCardProps> = ({ risk }) => {
-  let badgeBg = 'rgba(16, 185, 129, 0.15)';
-  let badgeColor = COLORS.primary;
+  let badgeBg = 'rgba(16, 185, 129, 0.12)';
+  let badgeColor = COLORS.successDark;
 
   if (risk.level === 'High' || risk.level === 'Severe') {
-    badgeBg = 'rgba(239, 68, 68, 0.15)';
+    badgeBg = 'rgba(239, 68, 68, 0.12)';
     badgeColor = COLORS.danger;
   } else if (risk.level === 'Moderate') {
-    badgeBg = 'rgba(245, 158, 11, 0.15)';
-    badgeColor = COLORS.warning;
+    badgeBg = 'rgba(245, 158, 11, 0.12)';
+    badgeColor = COLORS.warningDark;
   }
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <Ionicons
-            name={risk.level === 'High' ? 'warning' : 'pulse'}
-            size={18}
-            color={badgeColor}
-          />
+          <View style={[styles.iconBox, { backgroundColor: badgeBg }]}>
+            <Ionicons
+              name={risk.level === 'High' || risk.level === 'Severe' ? 'warning' : 'pulse'}
+              size={18}
+              color={badgeColor}
+            />
+          </View>
           <Text style={styles.diseaseTitle}>{risk.disease}</Text>
         </View>
 
@@ -67,7 +69,7 @@ export const DiseaseRiskCard: React.FC<DiseaseRiskCardProps> = ({ risk }) => {
       )}
 
       <View style={styles.tipBox}>
-        <Ionicons name="bulb-outline" size={14} color={COLORS.primaryLight} />
+        <Ionicons name="sparkles" size={15} color={COLORS.primary} />
         <Text style={styles.tipText}>
           <Text style={styles.tipBold}>AI Recommendation: </Text>
           {risk.mitigationTip}
@@ -80,12 +82,13 @@ export const DiseaseRiskCard: React.FC<DiseaseRiskCardProps> = ({ risk }) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.cardBg,
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 20,
+    padding: 18,
     marginHorizontal: 20,
     marginBottom: 14,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   header: {
     flexDirection: 'row',
@@ -96,21 +99,31 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    flex: 1,
+  },
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   diseaseTitle: {
-    fontSize: 17,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   percentRow: {
     flexDirection: 'row',
@@ -121,17 +134,18 @@ const styles = StyleSheet.create({
   riskLabel: {
     fontSize: 12,
     color: COLORS.textSecondary,
+    fontWeight: '500',
   },
   percentValue: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   barBg: {
     height: 8,
     backgroundColor: COLORS.trackBg,
     borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   barFill: {
     height: '100%',
@@ -141,7 +155,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     lineHeight: 18,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   foodsContainer: {
     marginBottom: 12,
@@ -150,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textMuted,
     marginBottom: 6,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   chipsRow: {
     flexDirection: 'row',
@@ -158,34 +172,36 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chip: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: COLORS.background,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: COLORS.cardBorder,
   },
   chipText: {
     fontSize: 11,
     color: COLORS.textPrimary,
+    fontWeight: '600',
   },
   tipBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 6,
+    gap: 8,
     backgroundColor: 'rgba(33, 118, 255, 0.08)',
-    padding: 10,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(33, 118, 255, 0.2)',
   },
   tipText: {
-    fontSize: 11,
+    fontSize: 12,
     color: COLORS.textPrimary,
     flex: 1,
-    lineHeight: 16,
+    lineHeight: 17,
   },
   tipBold: {
-    fontWeight: '700',
+    fontWeight: '800',
+    color: COLORS.primary,
   },
 });

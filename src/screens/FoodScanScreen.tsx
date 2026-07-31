@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { MOCK_RECENT_FOODS } from '../data/mockData';
 import { Header } from '../components/Header';
 import { StepProgressBar } from '../components/StepProgressBar';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface FoodScanScreenProps {
   onBack: () => void;
@@ -44,18 +45,13 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
         showBack
         onBack={onBack}
         rightAction={
-          <TouchableOpacity
-            onPress={() => setFlash(!flash)}
-            style={styles.flashBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Toggle Camera Flash"
-          >
+          <AnimatedPressable onPress={() => setFlash(!flash)} style={styles.flashBtn}>
             <Ionicons
               name={flash ? 'flash' : 'flash-outline'}
               size={22}
-              color={flash ? COLORS.secondary : COLORS.jetBlack}
+              color={flash ? COLORS.secondary : COLORS.textPrimary}
             />
-          </TouchableOpacity>
+          </AnimatedPressable>
         }
       />
 
@@ -74,7 +70,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
             <View style={[styles.corner, styles.bottomRight]} />
 
             <View style={styles.scanInstructionBadge}>
-              <Ionicons name="scan-outline" size={16} color={COLORS.primary} />
+              <Ionicons name="scan" size={16} color={COLORS.primary} />
               <Text style={styles.scanInstructionText}>Position food inside frame</Text>
             </View>
           </View>
@@ -85,61 +81,44 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({
       <View style={styles.demoPresetContainer}>
         <Text style={styles.demoLabel}>Sample Meal Presets (For Demo Testing):</Text>
         <View style={styles.presetButtons}>
-          <TouchableOpacity
+          <AnimatedPressable
             style={[styles.presetBtn, selectedPreset === 'burger' && styles.presetBtnActive]}
             onPress={() => handleSelectPreset('burger')}
-            accessibilityRole="button"
-            accessibilityLabel="Select Cheese Burger Preset"
           >
             <Text style={[styles.presetText, selectedPreset === 'burger' && styles.presetTextActive]}>
               Cheese Burger
             </Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={[styles.presetBtn, selectedPreset === 'salad' && styles.presetBtnActive]}
             onPress={() => handleSelectPreset('salad')}
-            accessibilityRole="button"
-            accessibilityLabel="Select Chicken Salad Preset"
           >
             <Text style={[styles.presetText, selectedPreset === 'salad' && styles.presetTextActive]}>
               Grilled Chicken Salad
             </Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </View>
 
       {/* Bottom Camera Action Bar */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.sideBtn}
-          onPress={onVoiceScan}
-          accessibilityRole="button"
-          accessibilityLabel="Switch to Voice Scan & Assistant"
-        >
-          <Ionicons name="mic-outline" size={24} color={COLORS.jetBlack} />
+        <AnimatedPressable style={styles.sideBtn} onPress={onVoiceScan}>
+          <Ionicons name="mic" size={24} color={COLORS.textPrimary} />
           <Text style={styles.sideBtnText}>Voice Scan</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
 
-        <TouchableOpacity
-          style={styles.shutterBtn}
+        <AnimatedPressable
+          style={[styles.shutterBtn, SHADOWS.glow]}
           onPress={onScanComplete}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel="Capture Food Photo"
         >
           <View style={styles.shutterInner} />
-        </TouchableOpacity>
+        </AnimatedPressable>
 
-        <TouchableOpacity
-          style={styles.sideBtn}
-          onPress={onScanComplete}
-          accessibilityRole="button"
-          accessibilityLabel="Choose photo from Gallery"
-        >
-          <Ionicons name="images-outline" size={24} color={COLORS.jetBlack} />
+        <AnimatedPressable style={styles.sideBtn} onPress={onScanComplete}>
+          <Ionicons name="images" size={24} color={COLORS.textPrimary} />
           <Text style={styles.sideBtnText}>Gallery</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       <Text style={styles.hintText}>Tip: You can edit or refine ingredients after analysis</Text>
@@ -162,16 +141,17 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 20,
     marginVertical: 12,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.cardBorder,
-    backgroundColor: '#000',
+    backgroundColor: '#0F172A',
+    ...SHADOWS.md,
   },
   cameraPreview: {
     width: '100%',
     height: '100%',
-    opacity: 0.85,
+    opacity: 0.9,
   },
   targetOverlay: {
     ...StyleSheet.absoluteFill,
@@ -187,8 +167,8 @@ const styles = StyleSheet.create({
   },
   corner: {
     position: 'absolute',
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     borderColor: COLORS.primary,
   },
   topLeft: {
@@ -196,44 +176,45 @@ const styles = StyleSheet.create({
     left: 0,
     borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderTopLeftRadius: 12,
+    borderTopLeftRadius: 14,
   },
   topRight: {
     top: 0,
     right: 0,
     borderTopWidth: 4,
     borderRightWidth: 4,
-    borderTopRightRadius: 12,
+    borderTopRightRadius: 14,
   },
   bottomLeft: {
     bottom: 0,
     left: 0,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
-    borderBottomLeftRadius: 12,
+    borderBottomLeftRadius: 14,
   },
   bottomRight: {
     bottom: 0,
     right: 0,
     borderBottomWidth: 4,
     borderRightWidth: 4,
-    borderBottomRightRadius: 12,
+    borderBottomRightRadius: 14,
   },
   scanInstructionBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   scanInstructionText: {
     fontSize: 12,
-    color: COLORS.jetBlack,
-    fontWeight: '700',
+    color: COLORS.textPrimary,
+    fontWeight: '800',
   },
   demoPresetContainer: {
     paddingHorizontal: 20,
@@ -251,11 +232,11 @@ const styles = StyleSheet.create({
   },
   presetBtn: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBg,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 14,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.cardBorder,
     minHeight: 44,
     justifyContent: 'center',
@@ -289,13 +270,13 @@ const styles = StyleSheet.create({
   },
   sideBtnText: {
     fontSize: 11,
-    color: COLORS.jetBlack,
-    fontWeight: '600',
+    color: COLORS.textPrimary,
+    fontWeight: '700',
   },
   shutterBtn: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 74,
+    height: 74,
+    borderRadius: 37,
     borderWidth: 4,
     borderColor: COLORS.primary,
     alignItems: 'center',
@@ -303,9 +284,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   shutterInner: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: COLORS.primary,
   },
   hintText: {
@@ -313,5 +294,6 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     textAlign: 'center',
     marginBottom: 16,
+    fontWeight: '500',
   },
 });

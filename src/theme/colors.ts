@@ -1,63 +1,89 @@
 export const COLORS = {
-  // Light Mode Base Colors
-  background: '#F4F6F9',           // Clean, crisp light grey background
-  cardBg: '#FFFFFF',               // Pure white card surface
-  cardBorder: '#E2E8F0',           // Light subtle border
-  jetBlack: '#31393C',             // Jet Black for titles & dark text
-  trackBg: '#E2E8F0',              // High-contrast background track for progress bars & charts
-  trackBgLight: 'rgba(0, 0, 0, 0.06)', // Subtle track overlay
+  // Base Canvas & Surface Backgrounds (Ultra Clean & Modern)
+  background: '#F8FAFC',           // Apple/Linear Crisp Slate Background
+  cardBg: '#FFFFFF',               // Pure White Surface
+  cardBorder: 'rgba(226, 232, 240, 0.8)', // Subtle border divider
+  cardBorderFocus: '#2176FF',      // Active focus border
+  jetBlack: '#0F172A',             // Dark Slate 900 for Titles & Heavy Contrast
+  trackBg: '#E2E8F0',              // High-Contrast Progress Bar Track
+  trackBgLight: 'rgba(0, 0, 0, 0.05)', // Overlay track
 
-  // Primary Blues (Palette: 2176FF & 33A1FD)
-  primary: '#2176FF',              // Crayola Blue (Vibrant Brand Primary)
-  primaryLight: '#33A1FD',         // Blue Bell (Sky Blue Accent)
-  primaryDark: '#1254C2',
-  
-  // Warm Accent Colors (Palette: FDCA40 & F79824)
-  secondary: '#F79824',            // Carrot Orange (Secondary Brand Accent)
-  secondaryLight: '#FDCA40',       // Golden Pollen (Warm Yellow Accent)
-  secondaryDark: '#D97706',        // Dark Amber for high-contrast text on white
-  accent: '#33A1FD',               // Sky Blue accent
-  
+  // Primary Brand Colors (Palette: Crayola Electric Blue & Sky Accent)
+  primary: '#2176FF',              // Crayola Blue (Vibrant Primary)
+  primaryLight: '#33A1FD',         // Sky Blue Accent
+  primaryDark: '#1152BE',          // Deep Indigo Blue
+  primarySubtle: 'rgba(33, 118, 255, 0.08)', // Light Blue Tint
+
+  // Warm Secondary Accent Colors (Palette: Carrot Orange & Golden Pollen)
+  secondary: '#F79824',            // Vibrant Carrot Orange
+  secondaryLight: '#FDCA40',       // Warm Golden Yellow
+  secondaryDark: '#D97706',        // Dark Amber for clear text contrast
+  accent: '#33A1FD',               // Vibrant Sky Blue
+  aiSparkle: '#8B5CF6',            // Electric Violet for AI Features
+
   // Status & Utility Colors
-  warning: '#F59E0B',              // Amber warning
-  warningDark: '#D97706',          // Accessible amber text on white
-  danger: '#EF4444',               // Alert Red
-  dangerAlert: '#DC2626',          // Dark Red
+  warning: '#F59E0B',              // Warm Amber Warning
+  warningDark: '#D97706',          // Accessible Amber Text
+  danger: '#EF4444',               // Alert Coral Red
+  dangerDark: '#DC2626',           // Deep Crimson Alert
   info: '#2176FF',                 // Crayola Blue Info
   success: '#10B981',              // Emerald Green Success
-  
-  // Light Mode Typography
-  textPrimary: '#31393C',          // Jet Black for Headers & Body Text
-  textSecondary: '#64748B',        // Muted Slate Grey for Subtitles
-  textMuted: '#94A3B8',            // Light Grey for Captions
+  successDark: '#059669',          // Deep Emerald Text
+
+  // Typography Palette
+  textPrimary: '#0F172A',          // Slate 900 for Main Headers
+  textSecondary: '#475569',        // Slate 600 for Body & Subtitles
+  textMuted: '#94A3B8',            // Slate 400 for Secondary Captions
   white: '#FFFFFF',
   black: '#000000',
-  
-  // Overlays
+
+  // Glassmorphism & Translucency
+  glassBg: 'rgba(255, 255, 255, 0.85)',
+  glassBorder: 'rgba(255, 255, 255, 0.6)',
   glassOverlay: 'rgba(33, 118, 255, 0.08)',
 };
 
 export const SHADOWS = {
-  small: {
-    shadowColor: '#31393C',
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  sm: {
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.04,
     shadowRadius: 6,
     elevation: 2,
   },
-  medium: {
-    shadowColor: '#2176FF',
+  md: {
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 4,
+  },
+  lg: {
+    shadowColor: '#2176FF',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 6,
   },
   glow: {
     shadowColor: '#2176FF',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  glass: {
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
     shadowRadius: 16,
-    elevation: 6,
+    elevation: 3,
   },
 };
-

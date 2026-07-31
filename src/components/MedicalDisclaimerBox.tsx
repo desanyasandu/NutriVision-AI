@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from './AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface MedicalDisclaimerBoxProps {
   compact?: boolean;
@@ -13,7 +14,9 @@ export const MedicalDisclaimerBox: React.FC<MedicalDisclaimerBoxProps> = ({ comp
   return (
     <View style={[styles.container, compact && styles.containerCompact]}>
       <View style={styles.headerRow}>
-        <Ionicons name="shield-checkmark" size={18} color={COLORS.primary} />
+        <View style={styles.iconBox}>
+          <Ionicons name="shield-checkmark" size={16} color={COLORS.primary} />
+        </View>
         <Text style={styles.title}>Clinical Advisory & Limitation Notice</Text>
       </View>
 
@@ -22,15 +25,13 @@ export const MedicalDisclaimerBox: React.FC<MedicalDisclaimerBoxProps> = ({ comp
       </Text>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity
+        <AnimatedPressable
           style={styles.helplineBtn}
           onPress={() => setShowEmergencyModal(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Contact Doctor or Emergency Helpline"
         >
-          <Ionicons name="call-outline" size={14} color={COLORS.secondary} />
+          <Ionicons name="call-outline" size={14} color={COLORS.secondaryDark} />
           <Text style={styles.helplineText}>Physician & Helpline Info</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </View>
 
       {/* Emergency & Doctor Contact Modal */}
@@ -38,7 +39,9 @@ export const MedicalDisclaimerBox: React.FC<MedicalDisclaimerBoxProps> = ({ comp
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Ionicons name="medical" size={24} color={COLORS.danger} />
+              <View style={styles.dangerIconBox}>
+                <Ionicons name="medical" size={22} color={COLORS.danger} />
+              </View>
               <Text style={styles.modalTitle}>Medical & Emergency Contacts</Text>
             </View>
 
@@ -56,12 +59,12 @@ export const MedicalDisclaimerBox: React.FC<MedicalDisclaimerBoxProps> = ({ comp
               <Text style={styles.contactValue}>+94 11 269 1111</Text>
             </View>
 
-            <TouchableOpacity
+            <AnimatedPressable
               style={styles.modalCloseBtn}
               onPress={() => setShowEmergencyModal(false)}
             >
-              <Text style={styles.modalCloseText}>Close</Text>
-            </TouchableOpacity>
+              <Text style={styles.modalCloseText}>Close Advisory</Text>
+            </AnimatedPressable>
           </View>
         </View>
       </Modal>
@@ -71,16 +74,17 @@ export const MedicalDisclaimerBox: React.FC<MedicalDisclaimerBoxProps> = ({ comp
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 18,
+    padding: 16,
     marginHorizontal: 20,
     marginTop: 14,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   containerCompact: {
-    padding: 10,
+    padding: 12,
     marginHorizontal: 0,
     marginTop: 8,
   },
@@ -88,20 +92,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 6,
+    marginBottom: 8,
+  },
+  iconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   text: {
     fontSize: 11,
     color: COLORS.textSecondary,
-    lineHeight: 16,
+    lineHeight: 17,
   },
   actionRow: {
-    marginTop: 10,
+    marginTop: 12,
     alignItems: 'flex-start',
   },
   helplineBtn: {
@@ -114,51 +127,62 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'rgba(247, 152, 36, 0.3)',
-    minHeight: 44,
+    minHeight: 40,
   },
   helplineText: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.secondary,
+    color: COLORS.secondaryDark,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   modalCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 24,
+    padding: 22,
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.glow,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
+    gap: 12,
+    marginBottom: 14,
+  },
+  dangerIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
   },
   modalBody: {
     fontSize: 13,
     color: COLORS.textSecondary,
-    lineHeight: 18,
+    lineHeight: 19,
     marginBottom: 16,
   },
   contactItem: {
-    backgroundColor: '#F1F5F9',
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: COLORS.background,
+    padding: 14,
+    borderRadius: 14,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
   },
   contactLabel: {
     fontSize: 11,
@@ -169,12 +193,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: COLORS.primary,
-    marginTop: 2,
+    marginTop: 3,
   },
   modalCloseBtn: {
     backgroundColor: COLORS.jetBlack,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: 'center',
     marginTop: 10,
     minHeight: 44,
@@ -182,7 +206,7 @@ const styles = StyleSheet.create({
   },
   modalCloseText: {
     color: COLORS.white,
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 14,
   },
 });

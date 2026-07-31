@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Circle } from 'react-native-svg';
 import { StepProgressBar } from '../components/StepProgressBar';
-import { COLORS } from '../theme/colors';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface AnalyzingScreenProps {
   onComplete: () => void;
@@ -241,17 +241,13 @@ const styles = StyleSheet.create({
     width: 144,
     height: 144,
     borderRadius: 72,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBg,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     borderWidth: 1.5,
     borderColor: 'rgba(33, 118, 255, 0.25)',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 4,
+    ...SHADOWS.md,
   },
   scannerBeam: {
     position: 'absolute',
@@ -273,14 +269,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.jetBlack,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
   },
   subText: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 4,
     textAlign: 'center',
+    fontWeight: '500',
   },
   stepBox: {
     flexDirection: 'row',
@@ -289,40 +287,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(33, 118, 255, 0.08)',
     paddingHorizontal: 18,
     paddingVertical: 14,
-    borderRadius: 16,
+    borderRadius: 18,
     marginTop: 24,
     borderWidth: 1.5,
     borderColor: 'rgba(33, 118, 255, 0.25)',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    ...SHADOWS.sm,
   },
   stepText: {
     fontSize: 13,
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
     fontWeight: '700',
   },
   tipCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBg,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
     marginHorizontal: 24,
-    shadowColor: COLORS.jetBlack,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   tipText: {
     fontSize: 12,
     color: COLORS.textSecondary,
     flex: 1,
-    lineHeight: 16,
+    lineHeight: 17,
   },
 });

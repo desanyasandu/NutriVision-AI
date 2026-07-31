@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { FoodItem } from '../data/mockData';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from './AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface FoodCardProps {
   food: FoodItem;
@@ -13,7 +14,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({ food, onPress }) => {
   const isHealthy = food.healthScore >= 70;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+    <AnimatedPressable onPress={onPress} style={styles.card}>
       <Image source={{ uri: food.imageUrl }} style={styles.image} />
 
       <View style={styles.content}>
@@ -24,37 +25,53 @@ export const FoodCard: React.FC<FoodCardProps> = ({ food, onPress }) => {
           <View
             style={[
               styles.scorePill,
-              { backgroundColor: isHealthy ? 'rgba(33, 118, 255, 0.15)' : 'rgba(247, 152, 36, 0.15)' },
+              {
+                backgroundColor: isHealthy
+                  ? 'rgba(16, 185, 129, 0.12)'
+                  : 'rgba(239, 68, 68, 0.12)',
+              },
             ]}
           >
-            <Text style={[styles.scoreText, { color: isHealthy ? COLORS.primary : COLORS.danger }]}>
+            <Text
+              style={[
+                styles.scoreText,
+                { color: isHealthy ? COLORS.successDark : COLORS.danger },
+              ]}
+            >
               {food.healthScore}/100
             </Text>
           </View>
         </View>
 
-        <Text style={styles.timeText}>{food.scannedAt}</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.timeText}>{food.scannedAt}</Text>
+          <View style={styles.confidenceChip}>
+            <Text style={styles.confidenceText}>
+              {food.confidence}% {food.confidenceInterval}
+            </Text>
+          </View>
+        </View>
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Ionicons name="flame-outline" size={12} color={COLORS.warning} />
+            <Ionicons name="flame" size={12} color={COLORS.warning} />
             <Text style={styles.statText}>{food.calories} kcal</Text>
           </View>
 
           <View style={styles.statItem}>
-            <Ionicons name="fitness-outline" size={12} color={COLORS.accent} />
-            <Text style={styles.statText}>{food.proteinGrams}g Protein</Text>
+            <Ionicons name="fitness" size={12} color={COLORS.primary} />
+            <Text style={styles.statText}>{food.proteinGrams}g P</Text>
           </View>
 
           <View style={styles.statItem}>
-            <Ionicons name="cube-outline" size={12} color={COLORS.secondaryLight} />
-            <Text style={styles.statText}>{food.carbsGrams}g Carbs</Text>
+            <Ionicons name="nutrition" size={12} color={COLORS.secondary} />
+            <Text style={styles.statText}>{food.carbsGrams}g C</Text>
           </View>
         </View>
 
         {food.diseaseWarnings.length > 0 && (
           <View style={styles.warningTag}>
-            <Ionicons name="warning-outline" size={12} color={COLORS.warning} />
+            <Ionicons name="warning" size={12} color={COLORS.warningDark} />
             <Text style={styles.warningText} numberOfLines={1}>
               {food.diseaseWarnings[0]}
             </Text>
@@ -65,7 +82,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({ food, onPress }) => {
       <View style={styles.arrowIcon}>
         <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
       </View>
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 };
 
@@ -74,49 +91,69 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.cardBg,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 12,
     marginHorizontal: 20,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   image: {
-    width: 70,
-    height: 70,
-    borderRadius: 12,
-    backgroundColor: '#2A3654',
+    width: 76,
+    height: 76,
+    borderRadius: 14,
+    backgroundColor: COLORS.trackBg,
   },
   content: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 14,
     marginRight: 8,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 6,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '800',
     color: COLORS.textPrimary,
     flex: 1,
+    letterSpacing: -0.2,
   },
   scorePill: {
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   scoreText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 2,
+    marginBottom: 6,
   },
   timeText: {
     fontSize: 11,
     color: COLORS.textMuted,
-    marginTop: 2,
-    marginBottom: 6,
+    fontWeight: '500',
+  },
+  confidenceChip: {
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  confidenceText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.primary,
   },
   statsRow: {
     flexDirection: 'row',
@@ -130,20 +167,22 @@ const styles = StyleSheet.create({
   statText: {
     fontSize: 11,
     color: COLORS.textSecondary,
+    fontWeight: '600',
   },
   warningTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    gap: 6,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
     marginTop: 6,
   },
   warningText: {
-    fontSize: 10,
-    color: COLORS.warning,
+    fontSize: 11,
+    color: COLORS.warningDark,
+    fontWeight: '700',
     flex: 1,
   },
   arrowIcon: {

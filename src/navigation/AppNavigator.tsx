@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, SafeAreaView } from 'react-native';
+import { View, StyleSheet, Text, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SplashScreen } from '../screens/SplashScreen';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -14,7 +14,9 @@ import { AIAgentCoachScreen } from '../screens/AIAgentCoachScreen';
 import { HealthDashboardScreen } from '../screens/HealthDashboardScreen';
 import { DigitalHealthTwinScreen } from '../screens/DigitalHealthTwinScreen';
 import { UserProfileScreen } from '../screens/UserProfileScreen';
-import { COLORS } from '../theme/colors';
+import { KanbanPlannerScreen } from '../screens/KanbanPlannerScreen';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 type ScreenName =
   | 'Splash'
@@ -29,7 +31,8 @@ type ScreenName =
   | 'AIAgentCoach'
   | 'HealthDashboard'
   | 'DigitalHealthTwin'
-  | 'UserProfile';
+  | 'UserProfile'
+  | 'KanbanPlanner';
 
 export const AppNavigator: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenName>('Splash');
@@ -115,6 +118,8 @@ export const AppNavigator: React.FC = () => {
         );
       case 'UserProfile':
         return <UserProfileScreen onBack={() => navigateTo('Home')} />;
+      case 'KanbanPlanner':
+        return <KanbanPlannerScreen onBack={() => navigateTo('Home')} />;
       default:
         return <HomeScreen onNavigate={(s) => navigateTo(s as ScreenName)} />;
     }
@@ -129,11 +134,10 @@ export const AppNavigator: React.FC = () => {
       <View style={styles.screenContainer}>{renderScreen()}</View>
 
       {showBottomTab && (
-        <View style={styles.bottomTabContainer}>
-          <TouchableOpacity
+        <View style={[styles.bottomTabContainer, SHADOWS.lg]}>
+          <AnimatedPressable
             style={styles.tabItem}
             onPress={() => navigateTo('Home')}
-            activeOpacity={0.7}
           >
             <Ionicons
               name={currentScreen === 'Home' ? 'home' : 'home-outline'}
@@ -149,23 +153,41 @@ export const AppNavigator: React.FC = () => {
               Home
             </Text>
             {currentScreen === 'Home' && <View style={styles.activeDot} />}
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
+            style={styles.tabItem}
+            onPress={() => navigateTo('KanbanPlanner')}
+          >
+            <Ionicons
+              name={currentScreen === 'KanbanPlanner' ? 'grid' : 'grid-outline'}
+              size={22}
+              color={currentScreen === 'KanbanPlanner' ? COLORS.primary : COLORS.textMuted}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                currentScreen === 'KanbanPlanner' && styles.tabLabelActive,
+              ]}
+            >
+              Kanban
+            </Text>
+            {currentScreen === 'KanbanPlanner' && <View style={styles.activeDot} />}
+          </AnimatedPressable>
+
+          <AnimatedPressable
             style={styles.tabItem}
             onPress={() => navigateTo('FoodScan')}
-            activeOpacity={0.7}
           >
-            <View style={styles.scanTabCircle}>
+            <View style={[styles.scanTabCircle, SHADOWS.glow]}>
               <Ionicons name="camera" size={22} color={COLORS.white} />
             </View>
             <Text style={styles.tabLabel}>Scan</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.tabItem}
             onPress={() => navigateTo('AIAgentCoach')}
-            activeOpacity={0.7}
           >
             <Ionicons
               name={currentScreen === 'AIAgentCoach' ? 'sparkles' : 'sparkles-outline'}
@@ -181,12 +203,11 @@ export const AppNavigator: React.FC = () => {
               AI Agent
             </Text>
             {currentScreen === 'AIAgentCoach' && <View style={styles.activeDot} />}
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.tabItem}
             onPress={() => navigateTo('HealthDashboard')}
-            activeOpacity={0.7}
           >
             <Ionicons
               name={currentScreen === 'HealthDashboard' ? 'stats-chart' : 'stats-chart-outline'}
@@ -202,7 +223,7 @@ export const AppNavigator: React.FC = () => {
               Dashboard
             </Text>
             {currentScreen === 'HealthDashboard' && <View style={styles.activeDot} />}
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       )}
     </SafeAreaView>
@@ -223,14 +244,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: COLORS.cardBg,
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: COLORS.cardBorder,
-    shadowColor: COLORS.jetBlack,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 10,
   },
   tabItem: {
     alignItems: 'center',
@@ -248,26 +264,21 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: COLORS.primary,
     marginTop: 2,
   },
   scanTabCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -16,
+    marginTop: -20,
     borderWidth: 3,
     borderColor: COLORS.cardBg,
-    elevation: 6,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
   },
 });

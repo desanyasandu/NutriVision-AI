@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { MOCK_EXISTING_DISEASE_CHECKS } from '../data/mockData';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface ExistingDiseaseCheckerScreenProps {
   onBack: () => void;
@@ -35,15 +36,17 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Selected Food Item Preview */}
-        <View style={styles.foodBanner}>
-          <Ionicons name="fast-food-outline" size={24} color={COLORS.primary} />
+        <View style={[styles.foodBanner, SHADOWS.sm]}>
+          <View style={styles.foodIconBox}>
+            <Ionicons name="fast-food" size={22} color={COLORS.primary} />
+          </View>
           <View style={styles.foodBannerText}>
             <Text style={styles.foodLabel}>Checking Food Item:</Text>
             <Text style={styles.foodTitle}>{foodName}</Text>
           </View>
         </View>
 
-        {/* Condition Filter Selector (Slide 7 Screen 8) */}
+        {/* Condition Filter Selector */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Select Disease or Medical Condition:</Text>
         </View>
@@ -52,7 +55,7 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
           {diseaseOptions.map((item, idx) => {
             const isSelected = selectedDiseaseFilter === item;
             return (
-              <TouchableOpacity
+              <AnimatedPressable
                 key={idx}
                 style={[styles.diseaseChip, isSelected && styles.diseaseChipSelected]}
                 onPress={() => setSelectedDiseaseFilter(item)}
@@ -60,7 +63,7 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
                 <Text style={[styles.diseaseChipText, isSelected && styles.diseaseChipTextSelected]}>
                   {item}
                 </Text>
-              </TouchableOpacity>
+              </AnimatedPressable>
             );
           })}
         </ScrollView>
@@ -83,18 +86,18 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
         </View>
 
         {/* Compatibility Result Card */}
-        <View style={styles.resultCard}>
+        <View style={[styles.resultCard, SHADOWS.sm]}>
           <View style={styles.resultHeader}>
             <View
               style={[
                 styles.iconCircle,
-                { backgroundColor: currentCheck.isCompatible ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)' },
+                { backgroundColor: currentCheck.isCompatible ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)' },
               ]}
             >
               <Ionicons
                 name={currentCheck.isCompatible ? 'checkmark-circle' : 'warning'}
                 size={28}
-                color={currentCheck.isCompatible ? COLORS.primary : COLORS.danger}
+                color={currentCheck.isCompatible ? COLORS.successDark : COLORS.danger}
               />
             </View>
 
@@ -123,7 +126,7 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
               <View style={styles.triggerPillsRow}>
                 {currentCheck.triggerIngredients.map((ing, i) => (
                   <View key={i} style={styles.triggerPill}>
-                    <Ionicons name="alert-circle-outline" size={12} color={COLORS.danger} />
+                    <Ionicons name="alert-circle" size={12} color={COLORS.danger} />
                     <Text style={styles.triggerPillText}>{ing}</Text>
                   </View>
                 ))}
@@ -139,10 +142,10 @@ export const ExistingDiseaseCheckerScreen: React.FC<ExistingDiseaseCheckerScreen
         </View>
 
         {/* Ask AI Coach Button */}
-        <TouchableOpacity style={styles.agentConsultBtn} onPress={onAskAgent} activeOpacity={0.85}>
+        <AnimatedPressable style={[styles.agentConsultBtn, SHADOWS.md]} onPress={onAskAgent}>
           <Ionicons name="sparkles" size={20} color={COLORS.white} />
           <Text style={styles.agentConsultText}>Ask AI Agent for Safe Substitutes</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </ScrollView>
     </View>
   );
@@ -163,10 +166,18 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 14,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+  },
+  foodIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   foodBannerText: {
     flex: 1,
@@ -174,11 +185,13 @@ const styles = StyleSheet.create({
   foodLabel: {
     fontSize: 11,
     color: COLORS.textMuted,
+    fontWeight: '600',
   },
   foodTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   sectionHeader: {
     paddingHorizontal: 20,
@@ -187,12 +200,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   chipScroll: {
     paddingLeft: 20,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   diseaseChip: {
     backgroundColor: COLORS.cardBg,
@@ -225,7 +239,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -237,8 +251,8 @@ const styles = StyleSheet.create({
   resultCard: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 22,
+    padding: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -262,23 +276,25 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   conditionSub: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   warningBox: {
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.2)',
     marginBottom: 14,
   },
   warningBoxTitle: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.danger,
     marginBottom: 6,
   },
@@ -288,13 +304,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   triggersSection: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   triggersLabel: {
     fontSize: 11,
     color: COLORS.textMuted,
     marginBottom: 8,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   triggerPillsRow: {
     flexDirection: 'row',
@@ -305,15 +321,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 8,
   },
   triggerPillText: {
     fontSize: 11,
     color: COLORS.danger,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   disclaimerNote: {
     borderTopWidth: 1,
@@ -335,11 +351,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 20,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
   },
   agentConsultText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.white,
   },
 });

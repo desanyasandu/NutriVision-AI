@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface UserProfileScreenProps {
   onBack: () => void;
@@ -36,14 +37,14 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack }) 
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.avatarCard}>
-          <View style={styles.avatarCircle}>
+          <View style={[styles.avatarCircle, SHADOWS.glow]}>
             <Ionicons name="person" size={40} color={COLORS.primary} />
           </View>
           <Text style={styles.avatarName}>{name}</Text>
           <Text style={styles.avatarSub}>NutriVision Member • Team Dark Code</Text>
         </View>
 
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, SHADOWS.sm]}>
           <Text style={styles.sectionTitle}>Personal Metrics</Text>
 
           <View style={styles.inputGroup}>
@@ -82,24 +83,24 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack }) 
         </View>
 
         {/* Existing Medical Conditions Setup */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, SHADOWS.sm]}>
           <Text style={styles.sectionTitle}>Registered Pre-existing Medical Conditions</Text>
           <Text style={styles.sectionSub}>Used by Agentic AI for proactive disease warnings</Text>
 
           <View style={styles.conditionsPills}>
             {userProfile.existingConditions.map((cond, idx) => (
               <View key={idx} style={styles.condPill}>
-                <Ionicons name="medical" size={14} color={COLORS.warning} />
+                <Ionicons name="medical" size={14} color={COLORS.warningDark} />
                 <Text style={styles.condText}>{cond}</Text>
               </View>
             ))}
           </View>
         </View>
 
-        <TouchableOpacity style={styles.saveBtn} onPress={saveProfile} activeOpacity={0.85}>
-          <Ionicons name="checkmark" size={20} color={COLORS.white} />
+        <AnimatedPressable style={[styles.saveBtn, SHADOWS.md]} onPress={saveProfile}>
+          <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
           <Text style={styles.saveBtnText}>Save Profile Updates</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </ScrollView>
     </View>
   );
@@ -119,11 +120,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   avatarCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderWidth: 2,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
+    borderWidth: 3,
     borderColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -131,33 +132,37 @@ const styles = StyleSheet.create({
   },
   avatarName: {
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.textPrimary,
+    letterSpacing: -0.4,
   },
   avatarSub: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   sectionCard: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 18,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
     marginBottom: 4,
+    letterSpacing: -0.2,
   },
   sectionSub: {
     fontSize: 11,
     color: COLORS.textMuted,
     marginBottom: 14,
+    fontWeight: '500',
   },
   inputGroup: {
     marginBottom: 12,
@@ -166,7 +171,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginBottom: 6,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   input: {
     backgroundColor: COLORS.background,
@@ -199,12 +204,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
+    borderColor: 'rgba(245, 158, 11, 0.25)',
   },
   condText: {
     fontSize: 12,
-    color: COLORS.warning,
-    fontWeight: '700',
+    color: COLORS.warningDark,
+    fontWeight: '800',
   },
   saveBtn: {
     flexDirection: 'row',
@@ -215,7 +220,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 20,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
   },
   saveBtnText: {
     fontSize: 16,

@@ -4,10 +4,12 @@ import {
   FoodItem,
   DiseaseRisk,
   AgentChatMessage,
+  KanbanCardItem,
   INITIAL_USER_PROFILE,
   MOCK_RECENT_FOODS,
   MOCK_DISEASE_RISKS,
   MOCK_INITIAL_CHAT,
+  MOCK_KANBAN_CARDS,
 } from '../data/mockData';
 
 interface AppContextType {
@@ -22,6 +24,10 @@ interface AppContextType {
   addFoodScan: (food: FoodItem) => void;
   selectedDiseaseFilter: string;
   setSelectedDiseaseFilter: (disease: string) => void;
+  kanbanCards: KanbanCardItem[];
+  moveKanbanCard: (cardId: string, newStatus: 'todo' | 'in_progress' | 'completed') => void;
+  addKanbanCard: (card: Omit<KanbanCardItem, 'id'>) => void;
+  deleteKanbanCard: (cardId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -33,6 +39,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [diseaseRisks, setDiseaseRisks] = useState<DiseaseRisk[]>(MOCK_DISEASE_RISKS);
   const [chatMessages, setChatMessages] = useState<AgentChatMessage[]>(MOCK_INITIAL_CHAT);
   const [selectedDiseaseFilter, setSelectedDiseaseFilter] = useState<string>('Migraine');
+  const [kanbanCards, setKanbanCards] = useState<KanbanCardItem[]>(MOCK_KANBAN_CARDS);
+
+  const moveKanbanCard = (cardId: string, newStatus: 'todo' | 'in_progress' | 'completed') => {
+    setKanbanCards((prev) =>
+      prev.map((card) => (card.id === cardId ? { ...card, status: newStatus } : card))
+    );
+  };
+
+  const addKanbanCard = (newCardData: Omit<KanbanCardItem, 'id'>) => {
+    const newCard: KanbanCardItem = {
+      ...newCardData,
+      id: `kanban_${Date.now()}`,
+    };
+    setKanbanCards((prev) => [newCard, ...prev]);
+  };
+
+  const deleteKanbanCard = (cardId: string) => {
+    setKanbanCards((prev) => prev.filter((card) => card.id !== cardId));
+  };
 
   const addChatMessage = (text: string, sender: 'user' | 'agent' = 'user') => {
     const newMessage: AgentChatMessage = {
@@ -98,6 +123,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addFoodScan,
         selectedDiseaseFilter,
         setSelectedDiseaseFilter,
+        kanbanCards,
+        moveKanbanCard,
+        addKanbanCard,
+        deleteKanbanCard,
       }}
     >
       {children}

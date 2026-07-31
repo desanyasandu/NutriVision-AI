@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { DIGITAL_TWIN_PREDICTION } from '../data/mockData';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface DigitalHealthTwinScreenProps {
   onBack: () => void;
@@ -36,27 +37,25 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Timeframe Selector Pills */}
         <View style={styles.timeframeRow}>
-          <TouchableOpacity
+          <AnimatedPressable
             style={[styles.timeChip, timeframe === '6M' && styles.timeChipActive]}
             onPress={() => setTimeframe('6M')}
-            activeOpacity={0.8}
           >
-            <Ionicons name="time-outline" size={14} color={timeframe === '6M' ? COLORS.white : COLORS.textSecondary} />
+            <Ionicons name="time" size={14} color={timeframe === '6M' ? COLORS.white : COLORS.textSecondary} />
             <Text style={[styles.timeChipText, timeframe === '6M' && styles.timeChipTextActive]}>6-Month Projection</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={[styles.timeChip, timeframe === '12M' && styles.timeChipActive]}
             onPress={() => setTimeframe('12M')}
-            activeOpacity={0.8}
           >
-            <Ionicons name="analytics-outline" size={14} color={timeframe === '12M' ? COLORS.white : COLORS.textSecondary} />
+            <Ionicons name="analytics" size={14} color={timeframe === '12M' ? COLORS.white : COLORS.textSecondary} />
             <Text style={[styles.timeChipText, timeframe === '12M' && styles.timeChipTextActive]}>12-Month Projection</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
 
         {/* Banner header */}
-        <View style={styles.banner}>
+        <View style={[styles.banner, SHADOWS.sm]}>
           <View style={styles.avatarCircle}>
             <Ionicons name="body" size={32} color={COLORS.primary} />
           </View>
@@ -68,13 +67,13 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
 
         {/* Weight & Risk Comparison Grid */}
         <View style={styles.comparisonGrid}>
-          <View style={styles.compCard}>
+          <View style={[styles.compCard, SHADOWS.sm]}>
             <Text style={styles.compLabel}>Current Weight</Text>
             <Text style={styles.compVal}>{DIGITAL_TWIN_PREDICTION.currentWeight} kg</Text>
             <Text style={styles.compSub}>Today</Text>
           </View>
 
-          <View style={styles.compCardWarning}>
+          <View style={[styles.compCardWarning, SHADOWS.sm]}>
             <Text style={styles.compLabelWarning}>Predicted Weight</Text>
             <Text style={styles.compValWarning}>
               {predictedWeight} kg
@@ -84,7 +83,7 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
         </View>
 
         {/* Risk Increase Callout */}
-        <View style={styles.riskCard}>
+        <View style={[styles.riskCard, SHADOWS.sm]}>
           <View style={styles.riskHeader}>
             <Ionicons name="warning" size={24} color={COLORS.danger} />
             <View style={styles.riskTitleGroup}>
@@ -102,7 +101,7 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
         </View>
 
         {/* Proactive Recommendations Section */}
-        <View style={styles.recsSection}>
+        <View style={[styles.recsSection, SHADOWS.sm]}>
           <Text style={styles.recsHeaderTitle}>Proactive Intervention Recommendations</Text>
 
           {/* Reduce List */}
@@ -123,7 +122,7 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
           {/* Increase List */}
           <View style={styles.recGroup}>
             <View style={styles.groupTitleRow}>
-              <Ionicons name="checkmark-circle" size={18} color={COLORS.success} />
+              <Ionicons name="checkmark-circle" size={18} color={COLORS.successDark} />
               <Text style={styles.groupTitleGreen}>Foods to Increase:</Text>
             </View>
             <View style={styles.chipsWrap}>
@@ -136,10 +135,10 @@ export const DigitalHealthTwinScreen: React.FC<DigitalHealthTwinScreenProps> = (
           </View>
         </View>
 
-        <TouchableOpacity style={styles.agentActionBtn} onPress={onAskAgent} activeOpacity={0.85}>
+        <AnimatedPressable style={[styles.agentActionBtn, SHADOWS.md]} onPress={onAskAgent}>
           <Ionicons name="sparkles" size={20} color={COLORS.white} />
           <Text style={styles.agentActionText}>Ask AI Agent to Generate Alternate Meal Plan</Text>
-        </TouchableOpacity>
+        </AnimatedPressable>
       </ScrollView>
     </View>
   );
@@ -192,14 +191,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 14,
     padding: 18,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   avatarCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -209,14 +208,16 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   bannerSub: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
     lineHeight: 16,
+    fontWeight: '500',
   },
   comparisonGrid: {
     flexDirection: 'row',
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.cardBg,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
@@ -236,6 +237,7 @@ const styles = StyleSheet.create({
   compLabel: {
     fontSize: 12,
     color: COLORS.textMuted,
+    fontWeight: '600',
   },
   compVal: {
     fontSize: 24,
@@ -245,13 +247,14 @@ const styles = StyleSheet.create({
   },
   compSub: {
     fontSize: 11,
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   compCardWarning: {
     flex: 1,
     backgroundColor: 'rgba(239, 68, 68, 0.08)',
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.25)',
@@ -259,7 +262,7 @@ const styles = StyleSheet.create({
   compLabelWarning: {
     fontSize: 12,
     color: COLORS.danger,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   compValWarning: {
     fontSize: 24,
@@ -270,14 +273,14 @@ const styles = StyleSheet.create({
   compSubWarning: {
     fontSize: 11,
     color: COLORS.danger,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   riskCard: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 18,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -299,10 +302,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   highlightText: {
     color: COLORS.danger,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   riskBarBg: {
     height: 8,
@@ -319,16 +323,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 18,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
     gap: 16,
   },
   recsHeaderTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   recGroup: {
     gap: 8,
@@ -340,13 +345,13 @@ const styles = StyleSheet.create({
   },
   groupTitleRed: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.danger,
   },
   groupTitleGreen: {
     fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.success,
+    fontWeight: '800',
+    color: COLORS.successDark,
   },
   chipsWrap: {
     flexDirection: 'row',
@@ -355,7 +360,7 @@ const styles = StyleSheet.create({
   },
   redChip: {
     backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
@@ -364,11 +369,11 @@ const styles = StyleSheet.create({
   redChipText: {
     fontSize: 11,
     color: COLORS.danger,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   greenChip: {
     backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
@@ -376,8 +381,8 @@ const styles = StyleSheet.create({
   },
   greenChipText: {
     fontSize: 11,
-    color: COLORS.success,
-    fontWeight: '700',
+    color: COLORS.successDark,
+    fontWeight: '800',
   },
   agentActionBtn: {
     flexDirection: 'row',
@@ -388,7 +393,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 20,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
   },
   agentActionText: {
     fontSize: 15,
@@ -396,4 +401,3 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
 });
-

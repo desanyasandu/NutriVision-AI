@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface VoiceAssistantScreenProps {
   onBack: () => void;
@@ -92,25 +93,22 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
           />
           <View style={[styles.pulseRing1, isListening && styles.activePulse]} />
 
-          <TouchableOpacity
-            style={[styles.micBtn, isListening && styles.micBtnActive]}
+          <AnimatedPressable
+            style={[styles.micBtn, isListening && styles.micBtnActive, SHADOWS.glow]}
             onPress={toggleListening}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Toggle Microphone Recording"
           >
             <Ionicons name={isListening ? 'mic' : 'mic-outline'} size={48} color={COLORS.white} />
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
 
         <Text style={styles.statusLabel}>
           {isListening ? 'Listening... Speak now' : 'Tap mic to speak'}
         </Text>
 
-        {/* Real-time Voice Transcript Box (Slide 7 Screen 9) */}
-        <View style={styles.transcriptCard}>
+        {/* Real-time Voice Transcript Box */}
+        <View style={[styles.transcriptCard, SHADOWS.sm]}>
           <View style={styles.transcriptHeader}>
-            <Ionicons name="sparkles" size={16} color={COLORS.primaryLight} />
+            <Ionicons name="sparkles" size={16} color={COLORS.primary} />
             <Text style={styles.transcriptHeaderTitle}>Speech Recognition Transcript:</Text>
           </View>
           <Text style={styles.transcriptText}>"{transcript}"</Text>
@@ -119,30 +117,30 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
         {/* Preset Prompt Bubbles */}
         <View style={styles.suggestionsContainer}>
           <Text style={styles.suggestionsTitle}>Try asking:</Text>
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.suggestionBubble}
             onPress={() => {
               setTranscript('What can I eat for dinner that won\'t trigger Migraine?');
             }}
           >
             <Text style={styles.suggestionText}>"What can I eat to prevent Migraines?"</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.suggestionBubble}
             onPress={() => {
               setTranscript('How many calories did I consume today?');
             }}
           >
             <Text style={styles.suggestionText}>"How many calories did I consume today?"</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </View>
 
-      <TouchableOpacity style={styles.sendBtn} onPress={submitVoiceQuery} activeOpacity={0.85}>
+      <AnimatedPressable style={[styles.sendBtn, SHADOWS.md]} onPress={submitVoiceQuery}>
         <Text style={styles.sendBtnText}>Analyze Voice Query with AI Agent</Text>
-        <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
-      </TouchableOpacity>
+        <Ionicons name="arrow-forward" size={18} color={COLORS.white} />
+      </AnimatedPressable>
     </View>
   );
 };
@@ -161,15 +159,17 @@ const styles = StyleSheet.create({
   },
   promptTitle: {
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.textPrimary,
+    letterSpacing: -0.4,
   },
   promptSub: {
     fontSize: 12,
     color: COLORS.textSecondary,
     textAlign: 'center',
-    marginTop: 6,
-    marginBottom: 24,
+    marginTop: 4,
+    marginBottom: 20,
+    fontWeight: '500',
   },
   pulseContainer: {
     width: 200,
@@ -183,21 +183,21 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.12)',
   },
   pulseRing2: {
     position: 'absolute',
     width: 170,
     height: 170,
     borderRadius: 85,
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
   },
   pulseRing3: {
     position: 'absolute',
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(16, 185, 129, 0.04)',
+    backgroundColor: 'rgba(33, 118, 255, 0.04)',
   },
   activePulse: {
     borderColor: COLORS.primary,
@@ -210,15 +210,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 10,
   },
   micBtnActive: {
     backgroundColor: COLORS.secondary,
   },
   statusLabel: {
     fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.primaryLight,
+    fontWeight: '800',
+    color: COLORS.primary,
     marginTop: 16,
     marginBottom: 20,
   },
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     width: '100%',
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
     marginBottom: 16,
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
   transcriptHeaderTitle: {
     fontSize: 11,
     color: COLORS.textMuted,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   transcriptText: {
     fontSize: 14,
@@ -256,18 +255,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textMuted,
     marginBottom: 2,
+    fontWeight: '600',
   },
   suggestionBubble: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 12,
+    backgroundColor: COLORS.cardBg,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   suggestionText: {
     fontSize: 12,
     color: COLORS.textSecondary,
+    fontWeight: '600',
   },
   sendBtn: {
     flexDirection: 'row',
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     marginHorizontal: 24,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
   },
   sendBtnText: {
     fontSize: 15,

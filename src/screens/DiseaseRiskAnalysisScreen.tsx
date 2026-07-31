@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { DiseaseRiskCard } from '../components/DiseaseRiskCard';
 import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
 import { StepProgressBar } from '../components/StepProgressBar';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface DiseaseRiskAnalysisScreenProps {
   onBack: () => void;
@@ -28,9 +29,9 @@ export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Banner Summary */}
-        <View style={styles.banner}>
+        <View style={[styles.banner, SHADOWS.sm]}>
           <View style={styles.iconBox}>
-            <Ionicons name="git-network-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="git-network" size={24} color={COLORS.primary} />
           </View>
 
           <View style={styles.bannerTextContent}>
@@ -55,27 +56,21 @@ export const DiseaseRiskAnalysisScreen: React.FC<DiseaseRiskAnalysisScreenProps>
 
         {/* Navigation Action Stack */}
         <View style={styles.btnRow}>
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.checkerBtn}
             onPress={onNavigateToChecker}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="Check Food Compatibility for Medical Conditions"
           >
             <Ionicons name="shield-checkmark" size={18} color={COLORS.primary} />
             <Text style={styles.checkerBtnText}>Check Condition Safeguards</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
-            style={styles.agentBtn}
+          <AnimatedPressable
+            style={[styles.agentBtn, SHADOWS.md]}
             onPress={onAskAgent}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="Ask AI Companion for Diet Modifications"
           >
             <Ionicons name="sparkles" size={18} color={COLORS.white} />
             <Text style={styles.agentBtnText}>Ask AI Companion to Fix Diet Plan</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </ScrollView>
     </View>
@@ -94,17 +89,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 14,
-    padding: 16,
-    borderRadius: 16,
+    padding: 18,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   iconBox: {
-    width: 46,
-    height: 46,
+    width: 48,
+    height: 48,
     borderRadius: 14,
     backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
@@ -116,23 +111,26 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   bannerSub: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
     lineHeight: 16,
+    fontWeight: '500',
   },
   sectionHeader: {
     paddingHorizontal: 20,
-    marginTop: 16,
+    marginTop: 18,
     marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   btnRow: {
     paddingHorizontal: 20,
@@ -144,16 +142,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBg,
     paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1,
+    borderRadius: 16,
+    borderWidth: 1.5,
     borderColor: COLORS.primary,
     minHeight: 48,
   },
   checkerBtnText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.primary,
   },
   agentBtn: {
@@ -163,7 +161,7 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: COLORS.secondary,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     minHeight: 48,
   },
   agentBtnText: {

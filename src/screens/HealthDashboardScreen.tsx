@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface HealthDashboardScreenProps {
   onBack: () => void;
@@ -34,15 +35,15 @@ export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({
         showBack
         onBack={onBack}
         rightAction={
-          <TouchableOpacity style={styles.twinNavBtn} onPress={onNavigateToTwin}>
-            <Ionicons name="body" size={20} color={COLORS.secondaryLight} />
-          </TouchableOpacity>
+          <AnimatedPressable style={styles.twinNavBtn} onPress={onNavigateToTwin}>
+            <Ionicons name="body" size={20} color={COLORS.primary} />
+          </AnimatedPressable>
         }
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Average Health Score Card (Slide 7 Screen 11) */}
-        <View style={styles.avgScoreCard}>
+        {/* Average Health Score Card */}
+        <View style={[styles.avgScoreCard, SHADOWS.sm]}>
           <View style={styles.avgHeader}>
             <Text style={styles.avgTitle}>Average Health Score</Text>
             <Text style={styles.dateRange}>May 12 - May 18</Text>
@@ -52,17 +53,19 @@ export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({
             <Text style={styles.scoreNumber}>72</Text>
             <Text style={styles.scoreMax}>/100</Text>
             <View style={styles.statusBadge}>
-              <Ionicons name="trending-up" size={14} color={COLORS.primary} />
+              <Ionicons name="trending-up" size={14} color={COLORS.successDark} />
               <Text style={styles.statusText}>+4% from last week</Text>
             </View>
           </View>
         </View>
 
         {/* Calories Trend Bar Chart */}
-        <View style={styles.chartCard}>
+        <View style={[styles.chartCard, SHADOWS.sm]}>
           <View style={styles.chartHeader}>
             <View style={styles.chartTitleRow}>
-              <Ionicons name="flame" size={18} color={COLORS.warning} />
+              <View style={styles.iconCircleWarning}>
+                <Ionicons name="flame" size={16} color={COLORS.warning} />
+              </View>
               <Text style={styles.chartTitle}>Calorie Intake Trend</Text>
             </View>
             <Text style={styles.targetLabel}>Target: 2500 kcal</Text>
@@ -89,10 +92,12 @@ export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({
         </View>
 
         {/* Disease Risk Trajectory Chart Box */}
-        <View style={styles.chartCard}>
+        <View style={[styles.chartCard, SHADOWS.sm]}>
           <View style={styles.chartHeader}>
             <View style={styles.chartTitleRow}>
-              <Ionicons name="pulse" size={18} color={COLORS.secondaryLight} />
+              <View style={styles.iconCirclePrimary}>
+                <Ionicons name="pulse" size={16} color={COLORS.primary} />
+              </View>
               <Text style={styles.chartTitle}>Disease Risk Trend</Text>
             </View>
             <Text style={styles.legendText}>30-Day Predictive ML</Text>
@@ -132,16 +137,16 @@ export const HealthDashboardScreen: React.FC<HealthDashboardScreenProps> = ({
         </View>
 
         {/* Digital Twin Banner Button */}
-        <TouchableOpacity style={styles.digitalTwinBtn} onPress={onNavigateToTwin} activeOpacity={0.85}>
+        <AnimatedPressable style={[styles.digitalTwinBtn, SHADOWS.md]} onPress={onNavigateToTwin}>
           <View style={styles.twinIconBox}>
-            <Ionicons name="body" size={24} color={COLORS.secondaryLight} />
+            <Ionicons name="body" size={24} color={COLORS.white} />
           </View>
           <View style={styles.twinBtnTextContainer}>
             <Text style={styles.twinBtnTitle}>View Digital Health Twin</Text>
             <Text style={styles.twinBtnSub}>6-Month predicted weight & disease trajectory</Text>
           </View>
           <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
-        </TouchableOpacity>
+        </AnimatedPressable>
       </ScrollView>
     </View>
   );
@@ -155,7 +160,7 @@ const styles = StyleSheet.create({
   twinNavBtn: {
     padding: 6,
     backgroundColor: COLORS.cardBg,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -167,7 +172,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 16,
     padding: 20,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -179,12 +184,14 @@ const styles = StyleSheet.create({
   },
   avgTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   dateRange: {
     fontSize: 11,
     color: COLORS.textMuted,
+    fontWeight: '600',
   },
   scoreRow: {
     flexDirection: 'row',
@@ -194,33 +201,35 @@ const styles = StyleSheet.create({
   scoreNumber: {
     fontSize: 44,
     fontWeight: '900',
-    color: COLORS.primaryLight,
+    color: COLORS.primary,
+    letterSpacing: -1,
   },
   scoreMax: {
     fontSize: 16,
     color: COLORS.textMuted,
     marginRight: 16,
+    fontWeight: '700',
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 6,
     borderRadius: 12,
   },
   statusText: {
     fontSize: 11,
-    color: COLORS.primary,
-    fontWeight: '700',
+    color: COLORS.successDark,
+    fontWeight: '800',
   },
   chartCard: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 16,
-    padding: 18,
-    borderRadius: 20,
+    padding: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -235,19 +244,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  iconCircleWarning: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconCirclePrimary: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(33, 118, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   chartTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   targetLabel: {
     fontSize: 11,
     color: COLORS.textMuted,
+    fontWeight: '600',
   },
   legendText: {
     fontSize: 11,
     color: COLORS.warningDark,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   barChartContainer: {
     flexDirection: 'row',
@@ -276,6 +303,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 8,
+    fontWeight: '600',
   },
   riskLinesContainer: {
     gap: 14,
@@ -289,23 +317,23 @@ const styles = StyleSheet.create({
   },
   riskItemTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textPrimary,
   },
   riskTrendTextRed: {
     fontSize: 11,
     color: COLORS.danger,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   riskTrendTextYellow: {
     fontSize: 11,
     color: COLORS.warningDark,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   riskTrendTextGreen: {
     fontSize: 11,
-    color: COLORS.success,
-    fontWeight: '700',
+    color: COLORS.successDark,
+    fontWeight: '800',
   },
   progressBg: {
     height: 8,
@@ -324,14 +352,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary,
     marginHorizontal: 20,
     marginTop: 20,
-    padding: 16,
-    borderRadius: 18,
+    padding: 18,
+    borderRadius: 22,
   },
   twinIconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -340,12 +368,14 @@ const styles = StyleSheet.create({
   },
   twinBtnTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.white,
+    letterSpacing: -0.3,
   },
   twinBtnSub: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 2,
+    fontWeight: '500',
   },
 });

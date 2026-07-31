@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface NutritionAnalysisScreenProps {
   onBack: () => void;
@@ -43,7 +44,7 @@ export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = (
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Health Score Banner */}
-        <View style={styles.scoreBanner}>
+        <View style={[styles.scoreBanner, SHADOWS.sm]}>
           <View style={styles.scoreLeft}>
             <Text style={styles.bannerTitle}>Nutritional Quality Score</Text>
             <Text style={styles.bannerSub}>Calculated via WHO & Dietary Guideline Standards</Text>
@@ -63,9 +64,15 @@ export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = (
         </View>
 
         {/* Nutrient Rows */}
-        <View style={styles.nutrientsContainer}>
+        <View style={[styles.nutrientsContainer, SHADOWS.sm]}>
           {nutrientList.map((item, idx) => (
-            <View key={idx} style={styles.nutrientRow}>
+            <View
+              key={idx}
+              style={[
+                styles.nutrientRow,
+                idx === nutrientList.length - 1 && { borderBottomWidth: 0 },
+              ]}
+            >
               <View style={styles.nutrientLeft}>
                 <View style={[styles.iconCircle, { backgroundColor: `${item.color}15` }]}>
                   <Ionicons name={item.icon as any} size={18} color={item.color} />
@@ -94,16 +101,13 @@ export const NutritionAnalysisScreen: React.FC<NutritionAnalysisScreenProps> = (
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.nextBtn}
+        <AnimatedPressable
+          style={[styles.nextBtn, SHADOWS.md]}
           onPress={onNavigateToRisk}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-          accessibilityLabel="View Full Chronic Health Risk Report"
         >
           <Text style={styles.nextBtnText}>See Full Health Risk Report</Text>
-          <Ionicons name="arrow-forward" size={20} color={COLORS.white} />
-        </TouchableOpacity>
+          <Ionicons name="arrow-forward" size={18} color={COLORS.white} />
+        </AnimatedPressable>
       </ScrollView>
     </View>
   );
@@ -124,8 +128,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 14,
-    padding: 16,
-    borderRadius: 16,
+    padding: 18,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
@@ -135,19 +139,21 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   bannerSub: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 4,
+    fontWeight: '500',
   },
   scoreBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: COLORS.danger,
     alignItems: 'center',
     justifyContent: 'center',
@@ -156,25 +162,28 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '900',
     color: COLORS.danger,
+    lineHeight: 22,
   },
   scoreLabel: {
     fontSize: 9,
     color: COLORS.textMuted,
+    fontWeight: '700',
   },
   sectionHeader: {
     paddingHorizontal: 20,
-    marginTop: 16,
+    marginTop: 18,
     marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   nutrientsContainer: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
-    borderRadius: 16,
+    borderRadius: 20,
     paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
@@ -193,16 +202,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconCircle: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   nutrientLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.jetBlack,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
   },
   nutrientRight: {
     alignItems: 'flex-end',
@@ -210,16 +219,17 @@ const styles = StyleSheet.create({
   nutrientVal: {
     fontSize: 14,
     fontWeight: '800',
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
   },
   nutrientPct: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   warningText: {
     color: COLORS.danger,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   riskCalloutCard: {
     flexDirection: 'row',
@@ -229,7 +239,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 16,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(239, 68, 68, 0.2)',
   },
@@ -256,7 +266,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 18,
     paddingVertical: 16,
-    borderRadius: 16,
+    borderRadius: 18,
     minHeight: 48,
   },
   nextBtnText: {

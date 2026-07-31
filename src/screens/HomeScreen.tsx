@@ -1,40 +1,49 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { HealthScoreCard } from '../components/HealthScoreCard';
 import { FoodCard } from '../components/FoodCard';
-import { COLORS } from '../theme/colors';
+import { KanbanCard } from '../components/KanbanCard';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface HomeScreenProps {
   onNavigate: (screen: string) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
-  const { userProfile, foodHistory, setCurrentScan } = useApp();
+  const {
+    userProfile,
+    foodHistory,
+    setCurrentScan,
+    kanbanCards,
+    moveKanbanCard,
+    deleteKanbanCard,
+  } = useApp();
 
   // Animation Refs for Entry Micro-animations
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(24)).current;
-  const cardScaleAnim = useRef(new Animated.Value(0.95)).current;
+  const cardScaleAnim = useRef(new Animated.Value(0.96)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 650,
+        duration: 600,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 650,
+        duration: 600,
         useNativeDriver: true,
       }),
       Animated.spring(cardScaleAnim, {
         toValue: 1,
         friction: 8,
-        tension: 40,
+        tension: 45,
         useNativeDriver: true,
       }),
     ]).start();
@@ -43,12 +52,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   return (
     <View style={styles.container}>
       <Header
-        title="NutriVision"
-        subtitle="AI Health & Disease Assistant"
+        title="NutriVision AI"
+        subtitle="Clinical Nutrition & Disease Intelligence"
         rightAction={
-          <TouchableOpacity style={styles.profileBtn} onPress={() => onNavigate('UserProfile')}>
-            <Ionicons name="person-circle-outline" size={28} color={COLORS.primaryLight} />
-          </TouchableOpacity>
+          <AnimatedPressable style={styles.profileBtn} onPress={() => onNavigate('UserProfile')}>
+            <Ionicons name="person-circle" size={32} color={COLORS.primary} />
+          </AnimatedPressable>
         }
       />
 
@@ -69,66 +78,61 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
 
           <View style={styles.actionGrid}>
             <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.07)' }]}
+              <AnimatedPressable
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(33, 118, 255, 0.06)' }]}
                 onPress={() => onNavigate('FoodScan')}
-                activeOpacity={0.78}
               >
                 <View style={[styles.actionIconBox, { backgroundColor: COLORS.primary }]}>
-                  <Ionicons name="camera" size={22} color={COLORS.white} />
+                  <Ionicons name="camera" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>Scan Food</Text>
-                <Text style={styles.actionSub}>Camera & OCR</Text>
-              </TouchableOpacity>
+                <Text style={styles.actionSub}>Camera & Vision AI</Text>
+              </AnimatedPressable>
 
-              <TouchableOpacity
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.08)' }]}
+              <AnimatedPressable
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(247, 152, 36, 0.07)' }]}
                 onPress={() => onNavigate('VoiceAssistant')}
-                activeOpacity={0.78}
               >
                 <View style={[styles.actionIconBox, { backgroundColor: COLORS.secondary }]}>
-                  <Ionicons name="mic" size={22} color={COLORS.white} />
+                  <Ionicons name="mic" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>Voice Scan</Text>
-                <Text style={styles.actionSub}>NLP Audio</Text>
-              </TouchableOpacity>
+                <Text style={styles.actionSub}>NLP Audio Logger</Text>
+              </AnimatedPressable>
             </View>
 
             <View style={styles.actionRow}>
-              <TouchableOpacity
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.08)' }]}
+              <AnimatedPressable
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(51, 161, 253, 0.07)' }]}
                 onPress={() => onNavigate('HealthDashboard')}
-                activeOpacity={0.78}
               >
                 <View style={[styles.actionIconBox, { backgroundColor: COLORS.accent }]}>
-                  <Ionicons name="stats-chart" size={22} color={COLORS.white} />
+                  <Ionicons name="stats-chart" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>Health Report</Text>
-                <Text style={styles.actionSub}>Analytics</Text>
-              </TouchableOpacity>
+                <Text style={styles.actionSub}>ML Analytics</Text>
+              </AnimatedPressable>
 
-              <TouchableOpacity
-                style={[styles.glassActionCard, { backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}
+              <AnimatedPressable
+                style={[styles.glassActionCard, { backgroundColor: 'rgba(139, 92, 246, 0.07)' }]}
                 onPress={() => onNavigate('AIAgentCoach')}
-                activeOpacity={0.78}
               >
-                <View style={[styles.actionIconBox, { backgroundColor: COLORS.warning }]}>
-                  <Ionicons name="sparkles" size={22} color={COLORS.white} />
+                <View style={[styles.actionIconBox, { backgroundColor: COLORS.aiSparkle }]}>
+                  <Ionicons name="sparkles" size={20} color={COLORS.white} />
                 </View>
                 <Text style={styles.actionTitle}>AI Coach</Text>
                 <Text style={styles.actionSub}>Agentic Guidance</Text>
-              </TouchableOpacity>
+              </AnimatedPressable>
             </View>
           </View>
 
-          {/* Proactive Agent Alert with Glassmorphism */}
-          <TouchableOpacity
+          {/* Proactive Agent Alert Banner */}
+          <AnimatedPressable
             style={styles.alertGlassBanner}
             onPress={() => onNavigate('DiseaseRiskAnalysis')}
-            activeOpacity={0.82}
           >
             <View style={styles.alertIconPulse}>
-              <Ionicons name="warning" size={20} color={COLORS.warning} />
+              <Ionicons name="warning" size={20} color={COLORS.warningDark} />
             </View>
             <View style={styles.alertTextContent}>
               <Text style={styles.alertTitle}>Proactive AI Alert</Text>
@@ -136,15 +140,40 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 High sodium item (Cheese Burger) detected today. 12% increase in Pre-diabetes risk factor.
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.warning} />
-          </TouchableOpacity>
+            <Ionicons name="chevron-forward" size={18} color={COLORS.warningDark} />
+          </AnimatedPressable>
+
+          {/* Daily Kanban Pipeline Section */}
+          <View style={styles.sectionHeaderBetween}>
+            <View style={styles.titleRowFlex}>
+              <Ionicons name="grid" size={18} color={COLORS.primary} />
+              <Text style={styles.sectionTitle}>Daily Kanban Action Cards</Text>
+            </View>
+            <AnimatedPressable onPress={() => onNavigate('KanbanPlanner')}>
+              <Text style={styles.viewAllText}>Full Board →</Text>
+            </AnimatedPressable>
+          </View>
+
+          <View style={styles.kanbanSectionContainer}>
+            {kanbanCards
+              .filter((c) => c.status === 'in_progress' || c.status === 'todo')
+              .slice(0, 3)
+              .map((card) => (
+                <KanbanCard
+                  key={card.id}
+                  card={card}
+                  onMove={moveKanbanCard}
+                  onDelete={deleteKanbanCard}
+                />
+              ))}
+          </View>
 
           {/* Recent Scans Section */}
           <View style={styles.sectionHeaderBetween}>
             <Text style={styles.sectionTitle}>Recent Scans</Text>
-            <TouchableOpacity onPress={() => onNavigate('HealthDashboard')}>
+            <AnimatedPressable onPress={() => onNavigate('HealthDashboard')}>
               <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
+            </AnimatedPressable>
           </View>
 
           {foodHistory.map((food) => (
@@ -159,20 +188,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           ))}
 
           {/* Digital Twin Glass Banner */}
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.twinGlassBanner}
             onPress={() => onNavigate('DigitalHealthTwin')}
-            activeOpacity={0.85}
           >
             <View style={styles.twinIconBox}>
-              <Ionicons name="body-outline" size={26} color={COLORS.primary} />
+              <Ionicons name="body" size={24} color={COLORS.primary} />
             </View>
             <View style={styles.twinTextContainer}>
               <Text style={styles.twinTitle}>Digital Health Twin Projections</Text>
               <Text style={styles.twinSub}>See your predicted 6-month health risk trajectory</Text>
             </View>
-            <Ionicons name="arrow-forward-circle" size={26} color={COLORS.primary} />
-          </TouchableOpacity>
+            <Ionicons name="arrow-forward-circle" size={24} color={COLORS.primary} />
+          </AnimatedPressable>
         </Animated.View>
       </ScrollView>
     </View>
@@ -185,33 +213,39 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   profileBtn: {
-    padding: 4,
+    padding: 2,
   },
   scrollContent: {
     paddingBottom: 40,
   },
   sectionHeader: {
     paddingHorizontal: 20,
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 14,
+    marginBottom: 10,
   },
   sectionHeaderBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 12,
+    marginTop: 18,
+    marginBottom: 10,
+  },
+  titleRowFlex: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.4,
   },
   viewAllText: {
-    fontSize: 13,
-    color: COLORS.primaryLight,
-    fontWeight: '600',
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   actionGrid: {
     paddingHorizontal: 20,
@@ -224,54 +258,48 @@ const styles = StyleSheet.create({
   glassActionCard: {
     flex: 1,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    shadowColor: COLORS.primaryDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   actionIconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
   actionTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   actionSub: {
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   alertGlassBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: 'rgba(254, 243, 199, 0.75)',
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
     marginHorizontal: 20,
-    marginVertical: 16,
+    marginTop: 16,
     padding: 16,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: 'rgba(245, 158, 11, 0.35)',
-    shadowColor: COLORS.warning,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+    ...SHADOWS.sm,
   },
   alertIconPulse: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
     backgroundColor: 'rgba(245, 158, 11, 0.15)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -281,8 +309,8 @@ const styles = StyleSheet.create({
   },
   alertTitle: {
     fontSize: 13,
-    fontWeight: '700',
-    color: COLORS.warning,
+    fontWeight: '800',
+    color: COLORS.warningDark,
   },
   alertBody: {
     fontSize: 11,
@@ -290,27 +318,26 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 16,
   },
+  kanbanSectionContainer: {
+    paddingHorizontal: 20,
+  },
   twinGlassBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
-    marginTop: 14,
+    marginTop: 16,
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1.5,
-    borderColor: 'rgba(33, 118, 255, 0.3)',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 4,
+    borderColor: 'rgba(33, 118, 255, 0.25)',
+    ...SHADOWS.md,
   },
   twinIconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     backgroundColor: 'rgba(33, 118, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -320,8 +347,9 @@ const styles = StyleSheet.create({
   },
   twinTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
+    letterSpacing: -0.2,
   },
   twinSub: {
     fontSize: 11,

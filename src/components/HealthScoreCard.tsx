@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../theme/colors';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface HealthScoreCardProps {
   score: number;
@@ -21,15 +21,17 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
-        <View>
-          <Text style={styles.greeting}>👋 Hello, {userName}</Text>
-          <Text style={styles.title}>Health Score</Text>
-          <Text style={styles.statusText}>Good job! Keep eating healthy.</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.greeting}>👋 Welcome back, {userName}</Text>
+          <Text style={styles.title}>Daily Health Score</Text>
+          <Text style={styles.statusText}>Optimal metabolic status detected today.</Text>
         </View>
 
-        <View style={styles.scoreCircle}>
-          <Text style={styles.scoreNumber}>{score}</Text>
-          <Text style={styles.scoreSub}>/100</Text>
+        <View style={styles.scoreGauge}>
+          <View style={styles.scoreCircle}>
+            <Text style={styles.scoreNumber}>{score}</Text>
+            <Text style={styles.scoreMax}>/100</Text>
+          </View>
         </View>
       </View>
 
@@ -38,11 +40,14 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
       <View style={styles.calorieSection}>
         <View style={styles.calorieHeader}>
           <View style={styles.calorieTitleRow}>
-            <Ionicons name="flame-outline" size={18} color={COLORS.warning} />
-            <Text style={styles.calorieLabel}>Today's Calories</Text>
+            <View style={styles.flameIconBox}>
+              <Ionicons name="flame" size={16} color={COLORS.warning} />
+            </View>
+            <Text style={styles.calorieLabel}>Calorie Target</Text>
           </View>
           <Text style={styles.calorieVal}>
-            <Text style={styles.consumedText}>{consumedCalories}</Text> / {targetCalories} kcal
+            <Text style={styles.consumedText}>{consumedCalories.toLocaleString()}</Text> /{' '}
+            {targetCalories.toLocaleString()} kcal
           </Text>
         </View>
 
@@ -50,7 +55,10 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
           <View style={[styles.progressBarFill, { width: `${caloriePercent}%` }]} />
         </View>
 
-        <Text style={styles.percentText}>{caloriePercent}% of daily limit reached</Text>
+        <View style={styles.footerRow}>
+          <Text style={styles.percentBadge}>{caloriePercent}% Target Reached</Text>
+          <Text style={styles.remainingText}>{targetCalories - consumedCalories} kcal remaining</Text>
+        </View>
       </View>
     </View>
   );
@@ -59,54 +67,67 @@ export const HealthScoreCard: React.FC<HealthScoreCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.cardBg,
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 20,
     marginHorizontal: 20,
     marginVertical: 12,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
+    borderWidth: 1.5,
+    borderColor: 'rgba(33, 118, 255, 0.15)',
+    ...SHADOWS.md,
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  textContainer: {
+    flex: 1,
+    paddingRight: 10,
+  },
   greeting: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.primary,
     fontWeight: '700',
     marginBottom: 4,
+    letterSpacing: -0.1,
   },
   title: {
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.textPrimary,
+    letterSpacing: -0.5,
   },
   statusText: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 4,
+    fontWeight: '500',
   },
-  scoreCircle: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    backgroundColor: 'rgba(33, 118, 255, 0.08)',
-    borderWidth: 3,
-    borderColor: COLORS.primary,
+  scoreGauge: {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scoreCircle: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
+    borderWidth: 4,
+    borderColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...SHADOWS.glow,
+  },
   scoreNumber: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
     color: COLORS.primary,
-    lineHeight: 26,
+    lineHeight: 28,
   },
-  scoreSub: {
+  scoreMax: {
     fontSize: 10,
-    color: COLORS.textSecondary,
-    fontWeight: '600',
+    color: COLORS.textMuted,
+    fontWeight: '700',
   },
   divider: {
     height: 1,
@@ -114,7 +135,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   calorieSection: {
-    gap: 8,
+    gap: 10,
   },
   calorieHeader: {
     flexDirection: 'row',
@@ -124,11 +145,19 @@ const styles = StyleSheet.create({
   calorieTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+  },
+  flameIconBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   calorieLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textPrimary,
   },
   calorieVal: {
@@ -136,23 +165,33 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   consumedText: {
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+    fontWeight: '800',
+    color: COLORS.primary,
   },
   progressBarBg: {
-    height: 8,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: COLORS.trackBg,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: COLORS.primary,
-    borderRadius: 4,
+    borderRadius: 5,
   },
-  percentText: {
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  percentBadge: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  remainingText: {
     fontSize: 11,
     color: COLORS.textMuted,
-    textAlign: 'right',
+    fontWeight: '500',
   },
 });

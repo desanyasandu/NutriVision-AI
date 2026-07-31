@@ -58,6 +58,21 @@ export interface AgentChatMessage {
   };
 }
 
+export interface KanbanCardItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: 'Meal Plan' | 'Hydration' | 'Risk Mitigation' | 'Exercise' | 'Supplement';
+  status: 'todo' | 'in_progress' | 'completed';
+  priority: 'High' | 'Medium' | 'Low';
+  calories?: number;
+  targetValue?: string;
+  relatedDisease?: string;
+  icon: string;
+  tags: string[];
+  dueDate: string;
+}
+
 export const MEDICAL_DISCLAIMER =
   "⚕️ Medical Disclaimer: NutriVision AI offers dietary risk estimates based on dietary guidelines for educational purposes only. It is not a clinical diagnosis or medical treatment advice. Please consult a registered dietitian or licensed physician for personal health decisions.";
 
@@ -225,3 +240,84 @@ export const DIGITAL_TWIN_PREDICTION = {
   recommendationsToReduce: ['Soft Drinks', 'Processed Cheese', 'White Flour Bakery Items'],
   recommendationsToAdd: ['Leafy Greens', 'Walnuts & Seeds', 'Herbal Teas', 'Water (2.5L/day)'],
 };
+
+export const MOCK_KANBAN_CARDS: KanbanCardItem[] = [
+  {
+    id: 'kanban_1',
+    title: 'Grilled Salmon Quinoa Bowl',
+    subtitle: 'Low glycemic index, rich in Omega-3',
+    category: 'Meal Plan',
+    status: 'in_progress',
+    priority: 'High',
+    calories: 520,
+    targetValue: '520 kcal',
+    relatedDisease: 'Pre-diabetes & Migraine',
+    icon: 'restaurant',
+    tags: ['Dinner', 'Low Sugar', 'Magnesium'],
+    dueDate: 'Today, 7:00 PM',
+  },
+  {
+    id: 'kanban_2',
+    title: '2.5L Hydration Goal',
+    subtitle: 'Flush sodium & prevent vascular headaches',
+    category: 'Hydration',
+    status: 'in_progress',
+    priority: 'High',
+    targetValue: '1.8 / 2.5 L',
+    relatedDisease: 'Hypertension',
+    icon: 'water',
+    tags: ['Daily Goal', 'Hydration'],
+    dueDate: 'Today, 9:00 PM',
+  },
+  {
+    id: 'kanban_3',
+    title: 'Post-Lunch Brisk Walk',
+    subtitle: '15-min walk to blunt postprandial glucose spike',
+    category: 'Exercise',
+    status: 'todo',
+    priority: 'Medium',
+    targetValue: '15 mins',
+    relatedDisease: 'Pre-diabetes Risk',
+    icon: 'walk',
+    tags: ['Activity', 'Glucose Control'],
+    dueDate: 'Today, 2:00 PM',
+  },
+  {
+    id: 'kanban_4',
+    title: 'Cut Sodium After Cheese Burger',
+    subtitle: 'Swap dinner sauce for lemon & herbs',
+    category: 'Risk Mitigation',
+    status: 'todo',
+    priority: 'High',
+    relatedDisease: 'Hypertension',
+    icon: 'warning',
+    tags: ['Sodium Control', 'AI Action'],
+    dueDate: 'Today, 6:30 PM',
+  },
+  {
+    id: 'kanban_5',
+    title: 'Grilled Chicken Salad',
+    subtitle: 'High protein lean lunch logged',
+    category: 'Meal Plan',
+    status: 'completed',
+    priority: 'Low',
+    calories: 340,
+    targetValue: '340 kcal',
+    icon: 'leaf',
+    tags: ['Lunch', 'Completed'],
+    dueDate: 'Today, 1:00 PM',
+  },
+  {
+    id: 'kanban_6',
+    title: 'Magnesium & Vitamin D',
+    subtitle: 'Prevents vascular constriction triggers',
+    category: 'Supplement',
+    status: 'completed',
+    priority: 'Medium',
+    targetValue: '400mg',
+    relatedDisease: 'Migraine',
+    icon: 'medical',
+    tags: ['Supplements'],
+    dueDate: 'Today, 8:30 AM',
+  },
+];

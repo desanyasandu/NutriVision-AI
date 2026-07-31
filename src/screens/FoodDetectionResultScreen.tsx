@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  TouchableOpacity,
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +12,8 @@ import { useApp } from '../context/AppContext';
 import { Header } from '../components/Header';
 import { MedicalDisclaimerBox } from '../components/MedicalDisclaimerBox';
 import { StepProgressBar } from '../components/StepProgressBar';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface FoodDetectionResultScreenProps {
   onBack: () => void;
@@ -70,7 +70,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Food Image & Detection Card */}
-        <View style={styles.imageCard}>
+        <View style={[styles.imageCard, SHADOWS.md]}>
           <Image source={{ uri: food.imageUrl }} style={styles.foodImage} />
 
           <View style={styles.imageOverlay}>
@@ -108,19 +108,14 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
               <Text style={styles.sectionTitle}>Identified Ingredients</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.editBtn}
-              onPress={() => setIsEditing(!isEditing)}
-              accessibilityRole="button"
-              accessibilityLabel="Edit Detected Ingredients"
-            >
+            <AnimatedPressable style={styles.editBtn} onPress={() => setIsEditing(!isEditing)}>
               <Ionicons
                 name={isEditing ? 'checkmark' : 'create-outline'}
                 size={16}
                 color={COLORS.primary}
               />
               <Text style={styles.editBtnText}>{isEditing ? 'Done' : 'Edit List'}</Text>
-            </TouchableOpacity>
+            </AnimatedPressable>
           </View>
 
           {ingredients.length === 0 ? (
@@ -131,14 +126,9 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
                 <View key={idx} style={styles.ingredientChip}>
                   <Text style={styles.ingredientText}>{item}</Text>
                   {isEditing && (
-                    <TouchableOpacity
-                      onPress={() => removeIngredient(idx)}
-                      style={styles.removeBtn}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Remove ingredient ${item}`}
-                    >
+                    <AnimatedPressable onPress={() => removeIngredient(idx)} style={styles.removeBtn}>
                       <Ionicons name="close-circle" size={18} color={COLORS.danger} />
-                    </TouchableOpacity>
+                    </AnimatedPressable>
                   )}
                 </View>
               ))}
@@ -156,14 +146,9 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
                 onSubmitEditing={addIngredient}
                 returnKeyType="done"
               />
-              <TouchableOpacity
-                style={styles.addBtn}
-                onPress={addIngredient}
-                accessibilityRole="button"
-                accessibilityLabel="Add Ingredient Button"
-              >
+              <AnimatedPressable style={styles.addBtn} onPress={addIngredient}>
                 <Ionicons name="add" size={20} color={COLORS.white} />
-              </TouchableOpacity>
+              </AnimatedPressable>
             </View>
           )}
         </View>
@@ -172,7 +157,7 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
         <View style={styles.macroGrid}>
           <View style={styles.macroRow}>
             <View style={styles.macroCard}>
-              <Ionicons name="flame" size={18} color={COLORS.secondary} />
+              <Ionicons name="flame" size={18} color={COLORS.warning} />
               <Text style={styles.macroVal}>{food.calories} kcal</Text>
               <Text style={styles.macroLabel}>Calories</Text>
             </View>
@@ -201,38 +186,29 @@ export const FoodDetectionResultScreen: React.FC<FoodDetectionResultScreenProps>
 
         {/* Action Buttons Stack */}
         <View style={styles.actionButtonsStack}>
-          <TouchableOpacity
-            style={styles.primaryActionBtn}
+          <AnimatedPressable
+            style={[styles.primaryActionBtn, SHADOWS.md]}
             onPress={onViewNutrition}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="View Full Nutrition Analysis"
           >
-            <Ionicons name="nutrition-outline" size={20} color={COLORS.white} />
+            <Ionicons name="nutrition" size={20} color={COLORS.white} />
             <Text style={styles.primaryActionText}>View Detailed Nutrition Facts</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
+          <AnimatedPressable
             style={styles.secondaryActionBtn}
             onPress={onCheckDisease}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="Check Disease Compatibility"
           >
-            <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
+            <Ionicons name="shield-checkmark" size={20} color={COLORS.primary} />
             <Text style={styles.secondaryActionText}>Check Existing Condition Safeguards</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
 
-          <TouchableOpacity
-            style={styles.agentActionBtn}
+          <AnimatedPressable
+            style={[styles.agentActionBtn, SHADOWS.sm]}
             onPress={onAskAgent}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="Ask AI Companion for Healthier Meal Alternatives"
           >
             <Ionicons name="sparkles" size={20} color={COLORS.white} />
             <Text style={styles.agentActionText}>Ask AI Companion for Meal Substitutes</Text>
-          </TouchableOpacity>
+          </AnimatedPressable>
         </View>
       </ScrollView>
     </View>
@@ -251,9 +227,9 @@ const styles = StyleSheet.create({
     height: 200,
     marginHorizontal: 20,
     marginTop: 12,
-    borderRadius: 16,
+    borderRadius: 22,
     overflow: 'hidden',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.cardBorder,
   },
   foodImage: {
@@ -274,27 +250,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    paddingHorizontal: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   confidenceText: {
     fontSize: 11,
-    color: COLORS.jetBlack,
-    fontWeight: '700',
+    color: COLORS.textPrimary,
+    fontWeight: '800',
   },
   scoreBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: COLORS.jetBlack,
   },
   scoreBadgeText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.white,
   },
   infoSection: {
@@ -303,22 +279,25 @@ const styles = StyleSheet.create({
   },
   foodName: {
     fontSize: 22,
-    fontWeight: '800',
-    color: COLORS.jetBlack,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.4,
   },
   categoryText: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   sectionBox: {
     backgroundColor: COLORS.cardBg,
     marginHorizontal: 20,
     marginTop: 14,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -333,14 +312,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.jetBlack,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
   },
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    minHeight: 44,
     paddingHorizontal: 8,
   },
   editBtnText: {
@@ -357,22 +335,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: COLORS.background,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
   ingredientText: {
     fontSize: 13,
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
     fontWeight: '600',
   },
   removeBtn: {
-    padding: 4,
-    minHeight: 44,
-    justifyContent: 'center',
+    padding: 2,
   },
   addInputRow: {
     flexDirection: 'row',
@@ -381,11 +357,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    backgroundColor: COLORS.background,
+    borderRadius: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    color: COLORS.jetBlack,
+    color: COLORS.textPrimary,
     fontSize: 13,
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
@@ -395,7 +371,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     backgroundColor: COLORS.primary,
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -411,22 +387,24 @@ const styles = StyleSheet.create({
   macroCard: {
     flex: 1,
     backgroundColor: COLORS.cardBg,
-    padding: 12,
-    borderRadius: 14,
+    padding: 14,
+    borderRadius: 18,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   macroVal: {
     fontSize: 15,
-    fontWeight: '800',
-    color: COLORS.jetBlack,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
     marginTop: 4,
   },
   macroLabel: {
-    fontSize: 10,
+    fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   actionButtonsStack: {
     paddingHorizontal: 20,
@@ -439,7 +417,7 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: COLORS.primary,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     minHeight: 48,
   },
   primaryActionText: {
@@ -454,14 +432,14 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: COLORS.cardBg,
     paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1,
+    borderRadius: 16,
+    borderWidth: 1.5,
     borderColor: COLORS.primary,
     minHeight: 48,
   },
   secondaryActionText: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.primary,
   },
   agentActionBtn: {
@@ -471,7 +449,7 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: COLORS.secondary,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     minHeight: 48,
   },
   agentActionText: {

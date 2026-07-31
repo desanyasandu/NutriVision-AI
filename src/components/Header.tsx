@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS } from '../theme/colors';
+import { AnimatedPressable } from './AnimatedPressable';
+import { COLORS, SHADOWS } from '../theme/colors';
 
 interface HeaderProps {
   title?: string;
@@ -22,13 +23,19 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.leftSection}>
         {showBack && (
-          <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.textPrimary} />
-          </TouchableOpacity>
+          <AnimatedPressable onPress={onBack} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={20} color={COLORS.textPrimary} />
+          </AnimatedPressable>
         )}
         <View style={styles.titleBox}>
-          <Text style={styles.title} numberOfLines={1}>{title}</Text>
-          {subtitle && <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text>}
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          )}
         </View>
       </View>
 
@@ -37,7 +44,8 @@ export const Header: React.FC<HeaderProps> = ({
           rightAction
         ) : (
           <View style={styles.badge}>
-            <Ionicons name="sparkles" size={14} color={COLORS.primary} />
+            <View style={styles.activePulseDot} />
+            <Ionicons name="sparkles" size={13} color={COLORS.primary} />
             <Text style={styles.badgeText}>Agent Active</Text>
           </View>
         )}
@@ -53,10 +61,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 12,
-    backgroundColor: COLORS.background,
+    paddingBottom: 14,
+    backgroundColor: COLORS.cardBg,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.cardBorder,
+    ...SHADOWS.sm,
   },
   leftSection: {
     flexDirection: 'row',
@@ -69,10 +78,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: COLORS.cardBg,
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: COLORS.background,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
@@ -80,14 +89,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textPrimary,
-    letterSpacing: 0.5,
+    letterSpacing: -0.4,
   },
   subtitle: {
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: '500',
   },
   rightSection: {
     flexDirection: 'row',
@@ -97,16 +107,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(33, 118, 255, 0.15)',
+    backgroundColor: 'rgba(33, 118, 255, 0.08)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(33, 118, 255, 0.35)',
+    borderColor: 'rgba(33, 118, 255, 0.25)',
+  },
+  activePulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.primary,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: COLORS.primary,
+    letterSpacing: 0.2,
   },
 });
