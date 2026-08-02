@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
@@ -17,7 +17,7 @@ interface UserProfileScreenProps {
 }
 
 export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack, onNavigate, onLogout }) => {
-  const { userProfile } = useApp();
+  const { userProfile, isPremium, openPaywall, togglePremium } = useApp();
   const [activeTab, setActiveTab] = useState<'overview' | 'conditions' | 'settings'>('overview');
 
   const PROFILE_STATS = [
@@ -84,7 +84,35 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({ onBack, on
 
         {activeTab === 'overview' && (
           <>
-            {/* Health Ring Overview */}
+            {/* PRO Subscription Card */}
+            <GlassCard
+              icon="king"
+              iconColor={isPremium ? "#FFD700" : "#4F46E5"}
+              iconBg={isPremium ? "rgba(255, 215, 0, 0.15)" : "rgba(79, 70, 229, 0.15)"}
+              title={isPremium ? "NutriVision PRO Active 👑" : "NutriVision Free Tier"}
+              subtitle={isPremium ? "All 3D Models & Clinical AI Features Unlocked" : "Basic AI Scanning · Upgrade to unlock 3D Twin & Disease AI"}
+            >
+              <View style={styles.subCardBox}>
+                <Text style={styles.subDescText}>
+                  {isPremium
+                    ? "Your PRO Membership is active. All premium features including 3D Twin, Disease Vulnerability Engine & AI Coach are active."
+                    : "Upgrade to PRO for $9.99/mo to unlock Unlimited AI Food Scans, 3D Digital Health Twin, and 24/7 AI Coach."}
+                </Text>
+                {isPremium ? (
+                  <TouchableOpacity style={styles.demoToggleBtn} onPress={togglePremium} activeOpacity={0.8}>
+                    <Ionicons name="swap-horizontal" size={16} color="#64748B" />
+                    <Text style={styles.demoToggleText}>Demo Mode: Switch to Free Tier</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.upgradeBtnAction} onPress={() => openPaywall()} activeOpacity={0.85}>
+                    <Ionicons name="king" size={18} color="#FFFFFF" />
+                    <Text style={styles.upgradeBtnText}>Upgrade to NutriVision PRO ($9.99/mo)</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </GlassCard>
+
+            {/* Clinical Health Overview */}
             <GlassCard title="Clinical Health Overview" subtitle="Composite metabolic snapshot">
               <View style={styles.overviewRow}>
                 <ProgressRing size={100} strokeWidth={9} progress={userProfile.healthScore} gradientColors={['#4F6EF7', '#7B61FF']} id="profile-ring">
@@ -301,4 +329,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   logoutText: { fontSize: 15, fontWeight: '800', color: COLORS.danger },
+  subCardBox: {
+    gap: 10,
+  },
+  subDescText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+  },
+  upgradeBtnAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#4F46E5',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    ...SHADOWS.sm,
+  },
+  upgradeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  demoToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#F1F5F9',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  demoToggleText: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: '700',
+  },
 });

@@ -20,6 +20,8 @@ interface AnimatedAppBarProps {
   dark?: boolean;
 }
 
+import { useApp } from '../context/AppContext';
+
 export const AnimatedAppBar: React.FC<AnimatedAppBarProps> = ({
   title,
   subtitle,
@@ -35,6 +37,7 @@ export const AnimatedAppBar: React.FC<AnimatedAppBarProps> = ({
   largeTitle = false,
   dark = false,
 }) => {
+  const { isPremium, openPaywall } = useApp();
   const titleColor = dark ? COLORS.darkText : COLORS.textPrimary;
   const subColor = dark ? 'rgba(228,231,255,0.6)' : COLORS.textSecondary;
   const btnBg = dark ? 'rgba(255,255,255,0.1)' : 'rgba(255, 255, 255, 0.85)';
@@ -71,6 +74,17 @@ export const AnimatedAppBar: React.FC<AnimatedAppBarProps> = ({
       </View>
 
       <View style={styles.rightRow}>
+        {/* PRO Upgrade Badge Button */}
+        <AnimatedPressable
+          style={[styles.proBadgeBtn, isPremium ? styles.proBadgeActive : styles.proBadgeUpgrade]}
+          onPress={() => openPaywall()}
+        >
+          <Ionicons name="king" size={13} color={isPremium ? "#059669" : "#FFD700"} />
+          <Text style={[styles.proBadgeText, { color: isPremium ? "#059669" : "#FFFFFF" }]}>
+            {isPremium ? "PRO" : "UPGRADE"}
+          </Text>
+        </AnimatedPressable>
+
         {rightAction2Icon && (
           <AnimatedPressable
             style={[styles.iconBtn, { backgroundColor: btnBg, borderColor: btnBorder }]}
@@ -159,5 +173,28 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.secondary,
     borderWidth: 2,
     borderColor: COLORS.white,
+  },
+  proBadgeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  proBadgeUpgrade: {
+    backgroundColor: '#4F46E5',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    ...SHADOWS.sm,
+  },
+  proBadgeActive: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#059669',
+  },
+  proBadgeText: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
 });

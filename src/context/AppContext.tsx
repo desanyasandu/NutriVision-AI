@@ -30,6 +30,14 @@ interface AppContextType {
   moveKanbanCard: (cardId: string, newStatus: 'todo' | 'in_progress' | 'completed') => void;
   addKanbanCard: (card: Omit<KanbanCardItem, 'id'>) => void;
   deleteKanbanCard: (cardId: string) => void;
+  isPremium: boolean;
+  setIsPremium: (isPrem: boolean) => void;
+  showPaywall: boolean;
+  paywallFeature: string;
+  openPaywall: (featureName?: string) => void;
+  closePaywall: () => void;
+  subscribeToPro: () => void;
+  togglePremium: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -42,6 +50,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [chatMessages, setChatMessages] = useState<AgentChatMessage[]>(MOCK_INITIAL_CHAT);
   const [selectedDiseaseFilter, setSelectedDiseaseFilter] = useState<string>('Migraine');
   const [kanbanCards, setKanbanCards] = useState<KanbanCardItem[]>(MOCK_KANBAN_CARDS);
+  const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [showPaywall, setShowPaywall] = useState<boolean>(false);
+  const [paywallFeature, setPaywallFeature] = useState<string>('');
+
+  const openPaywall = (featureName?: string) => {
+    if (featureName) setPaywallFeature(featureName);
+    setShowPaywall(true);
+  };
+
+  const closePaywall = () => {
+    setShowPaywall(false);
+  };
+
+  const subscribeToPro = () => {
+    setIsPremium(true);
+  };
+
+  const togglePremium = () => {
+    setIsPremium((prev) => !prev);
+  };
 
   const moveKanbanCard = (cardId: string, newStatus: 'todo' | 'in_progress' | 'completed') => {
     setKanbanCards((prev) =>
@@ -131,6 +159,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         moveKanbanCard,
         addKanbanCard,
         deleteKanbanCard,
+        isPremium,
+        setIsPremium,
+        showPaywall,
+        paywallFeature,
+        openPaywall,
+        closePaywall,
+        subscribeToPro,
+        togglePremium,
       }}
     >
       {children}

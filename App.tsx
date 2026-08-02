@@ -5,15 +5,31 @@ import { AppProvider } from './src/context/AppContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { COLORS } from './src/theme/colors';
 
+import { PaywallModal } from './src/components/PaywallModal';
+import { useApp } from './src/context/AppContext';
+
+function MainContent() {
+  const { showPaywall, closePaywall, paywallFeature } = useApp();
+
+  return (
+    <View style={styles.outerContainer}>
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <AppNavigator />
+        <PaywallModal
+          visible={showPaywall}
+          onClose={closePaywall}
+          featureName={paywallFeature}
+        />
+      </View>
+    </View>
+  );
+}
+
 export default function App() {
   return (
     <AppProvider>
-      <View style={styles.outerContainer}>
-        <View style={styles.container}>
-          <StatusBar style="dark" />
-          <AppNavigator />
-        </View>
-      </View>
+      <MainContent />
     </AppProvider>
   );
 }
