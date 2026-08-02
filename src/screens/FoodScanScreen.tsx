@@ -1,26 +1,55 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, Image, Animated, Easing } from 'react-native';
+import { View, StyleSheet, Text, Image, Animated, Easing, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
 import { GlassCard } from '../components/GlassCard';
-import { PrimaryButton } from '../components/PrimaryButton';
 import { WaterButton } from '../components/WaterButton';
 import { SuccessCheck } from '../components/SuccessCheck';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { COLORS, SHADOWS } from '../theme/colors';
+import { detectFood, API_BASE_URL } from '../services/api';
+import { FoodItem } from '../data/mockData';
+
+const Camera: React.ComponentType<any> | null = typeof navigator !== 'undefined' && navigator.userAgent?.includes('Web') ? null : require('expo-camera').Camera;
+const useCameraPermissions: any = typeof navigator !== 'undefined' && navigator.userAgent?.includes('Web') ? () => [false, async () => ({ granted: false })] : require('expo-camera').useCameraPermissions;
+const Platform = require('react-native').Platform;
+
+declare const CameraConstants: { Type: { back: string; front: string }; FlashMode: { on: string; off: string; auto: string } };
 
 interface FoodScanScreenProps {
   onBack: () => void;
-  onScanComplete: () => void;
+  onScanComplete: (food?: FoodItem) => void;
   onVoiceScan: () => void;
 }
 
+interface DetectedFood {
+  name: string;
+  confidence: number;
+  calories?: number;
+  protein?: number;
+  fat?: number;
+  carbohydrates?: number;
+  fiber?: number;
+  category?: string;
+  image_url?: string;
+}
+
+interface DetectionResponse {
+  foods: DetectedFood[];
+}
+
 export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanComplete, onVoiceScan }) => {
-  const { foodHistory } = useApp();
+  const { foodHistory, addFoodScan } = useApp();
   const scanLine = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [permission, requestPermission] = useCameraPermissions ? useCameraPermissions() : [false, async () => ({ granted: false })];
+  const [cameraRef, setCameraRef] = useState<any>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedFood, setScannedFood] = useState<string | null>(null);
+  const [confidence, setConfidence] = useState<number>(0);
+  const [calories, setCalories] = useState<number>(0);
 
   useEffect(() => {
     Animated.loop(
@@ -40,6 +69,150 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
 
   const scanY = scanLine.interpolate({ inputRange: [0, 1], outputRange: [10, 230] });
 
+  const handleTakePicture = async () => {
+    if (!cameraRef) return;
+
+    setIsScanning(true);
+    try {
+      const photo = await cameraRef.takePictureAsync({
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (photo) {
+        await processImage(photo);
+      }
+    } catch (error) {
+      console.error('Error taking picture:', error);
+      Alert.alert('Error', 'Failed to capture image');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const processImage = async (photo: any) => {
+    try {
+      const response = await fetch(photo.uri);
+      const blob = await response.blob();
+      const file = new File([blob], 'food_scan.jpg', { type: 'image/jpeg' });
+
+      const detection: DetectionResponse = await detectFood(file);
+
+      if (detection.foods && detection.foods.length > 0) {
+        const detectedFood = detection.foods[0];
+        setScannedFood(detectedFood.name);
+        setConfidence(detectedFood.confidence * 100);
+        setCalories(detectedFood.calories || 0);
+
+        const foodItem: FoodItem = {
+          id: `scan_${Date.now()}`,
+          name: detectedFood.name,
+          category: detectedFood.category || 'Detected Food',
+          confidence: detectedFood.confidence * 100,
+          confidenceInterval: '±5%',
+          healthScore: 75,
+          calories: detectedFood.calories || 200,
+          proteinGrams: detectedFood.protein || 10,
+          fatGrams: detectedFood.fat || 5,
+          carbsGrams: detectedFood.carbohydrates || 30,
+          sugarGrams: 5,
+          sodiumMg: 300,
+          ingredients: ['Detected by AI'],
+          diseaseWarnings: [],
+          imageUrl: photo.uri,
+          scannedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+
+        addFoodScan(foodItem);
+        onScanComplete(foodItem);
+      } else {
+        setScannedFood('Unknown Food');
+        setConfidence(0);
+        setCalories(0);
+        Alert.alert('No Food Detected', 'Could not identify any food. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      Alert.alert('Processing Error', 'Failed to analyze food. Please check your connection.');
+    }
+  };
+
+  const handleRequestPermission = async () => {
+    if (permission && !permission.granted) {
+      const response = await requestPermission();
+      if (!response.granted) {
+        Alert.alert('Permission Required', 'Camera permission is needed to scan food.');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (permission && !permission.granted) {
+      handleRequestPermission();
+    }
+  }, [permission]);
+
+  if (!permission || !permission.granted) {
+    return (
+      <LayeredBackground>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <AnimatedAppBar
+            title="Food Scanner"
+            subtitle="Camera Access Required"
+            showBack
+            onBack={onBack}
+          />
+          <View style={[styles.viewfinder, SHADOWS.lg]}>
+            <View style={styles.cameraPlaceholder}>
+              <Ionicons name="camera" size={64} color={COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Camera permission is required</Text>
+              <WaterButton
+                onPress={handleRequestPermission}
+                variant="cyan"
+                size="lg"
+                style={{ marginTop: 20 }}
+              >
+                Grant Permission
+              </WaterButton>
+            </View>
+          </View>
+        </ScrollView>
+      </LayeredBackground>
+    );
+  }
+
+  const isWeb = Platform.OS === 'web';
+  
+  if (isWeb) {
+    return (
+      <LayeredBackground>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <AnimatedAppBar
+            title="Food Scanner"
+            subtitle="Use Mobile App for Camera Scanning"
+            showBack
+            onBack={onBack}
+          />
+          <View style={[styles.viewfinder, SHADOWS.lg]}>
+            <View style={styles.cameraPlaceholder}>
+              <Ionicons name="scan" size={64} color={COLORS.textSecondary} />
+              <Text style={styles.permissionText}>Camera scanning is only available on mobile devices</Text>
+              <Text style={styles.helpText}>Use the Expo Go app on your phone to access camera scanning</Text>
+            </View>
+          </View>
+          
+          <WaterButton
+            title="View Recent Scans"
+            icon="restaurant"
+            variant="cyan"
+            size="lg"
+            onPress={() => onScanComplete()}
+          />
+        </ScrollView>
+      </LayeredBackground>
+    );
+  }
+
   return (
     <LayeredBackground>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -54,37 +227,63 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
 
         {/* Camera Viewfinder Card */}
         <View style={[styles.viewfinder, SHADOWS.lg]}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80' }}
-            style={StyleSheet.absoluteFill}
-          />
-          <View style={styles.dimOverlay} />
-
-          {/* Corner Brackets */}
-          {(['topLeft', 'topRight', 'bottomLeft', 'bottomRight'] as const).map((pos) => (
-            <View key={pos} style={[styles.corner, styles[pos]]} />
-          ))}
-
-          {/* Animated Laser Line */}
-          <Animated.View style={[styles.laserLine, { transform: [{ translateY: scanY }] }]} />
-
-          {/* AI Detection Badge */}
-          <View style={styles.detectionBadge}>
-            <View style={styles.detBadgeDot} />
-            <Text style={styles.detBadgeText}>AI DETECTION · CHEESE BURGER · 97%</Text>
-          </View>
-
-          {/* Capture FAB */}
-          <Animated.View style={[styles.fabWrap, { transform: [{ scale: pulseAnim }] }]}>
-            <WaterButton
-              onPress={onScanComplete}
-              variant="cyan"
-              size="lg"
-              style={{ width: 68, height: 68, borderRadius: 34 }}
+          {Camera ? (
+            <Camera
+              ref={(ref: any) => setCameraRef(ref)}
+              style={StyleSheet.absoluteFill}
+              type="back"
+              flashMode="on"
             >
-              <Ionicons name="camera" size={28} color={COLORS.white} />
-            </WaterButton>
-          </Animated.View>
+              <View style={styles.dimOverlay} />
+
+              {/* Corner Brackets */}
+              {(['topLeft', 'topRight', 'bottomLeft', 'bottomRight'] as const).map((pos) => (
+                <View key={pos} style={[styles.corner, styles[pos]]} />
+              ))}
+
+              {/* Animated Laser Line */}
+              <Animated.View style={[styles.laserLine, { transform: [{ translateY: scanY }] }]} />
+
+              {/* AI Detection Badge */}
+              {scannedFood && (
+                <View style={styles.detectionBadge}>
+                  <View style={styles.detBadgeDot} />
+                  <Text style={styles.detBadgeText}>
+                    AI DETECTION · {scannedFood} · {confidence.toFixed(0)}%
+                  </Text>
+                </View>
+              )}
+
+              {/* Capture FAB */}
+              <Animated.View style={[styles.fabWrap, { transform: [{ scale: pulseAnim }] }]}>
+                <WaterButton
+                  onPress={handleTakePicture}
+                  disabled={isScanning}
+                  variant="cyan"
+                  size="lg"
+                  style={{ width: 68, height: 68, borderRadius: 34 }}
+                >
+                  {isScanning ? (
+                    <ActivityIndicator color={COLORS.white} size={28} />
+                  ) : (
+                    <Ionicons name="camera" size={28} color={COLORS.white} />
+                  )}
+                </WaterButton>
+              </Animated.View>
+            </Camera>
+          ) : (
+            <View style={styles.cameraPlaceholder}>
+              <Ionicons name="scan" size={64} color={COLORS.textSecondary} />
+            </View>
+          )}
+
+          {/*Scanning indicator overlay */}
+          {isScanning && (
+            <View style={styles.scanningOverlay}>
+              <ActivityIndicator size="large" color={COLORS.white} />
+              <Text style={styles.scanningText}>Analyzing...</Text>
+            </View>
+          )}
         </View>
 
         {/* Neural Status Card */}
@@ -96,25 +295,26 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
               <Text style={styles.statusSub}>Multi-ingredient segmentation · Precision Mode</Text>
             </View>
             <View style={styles.confPill}>
-              <Text style={styles.confText}>99.4%</Text>
+              <Text style={styles.confText}>{confidence.toFixed(1)}%</Text>
             </View>
           </View>
         </GlassCard>
 
         <WaterButton
-          title="Capture & Analyze Food"
-          icon="scan"
+          title="Scan Food"
+          icon="restaurant"
           variant="cyan"
           size="lg"
-          onPress={onScanComplete}
+          onPress={handleTakePicture}
+          disabled={isScanning}
         />
 
         {/* Recent Scans */}
         <Text style={styles.sectionTitle}>Recent Scans</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {foodHistory.map((item) => (
-            <AnimatedPressable key={item.id} style={[styles.scanCard, SHADOWS.sm]} onPress={onScanComplete} scaleTo={0.96}>
-              <Image source={{ uri: item.imageUrl }} style={styles.scanImg} />
+            <AnimatedPressable key={item.id} style={[styles.scanCard, SHADOWS.sm]} onPress={() => {}} scaleTo={0.96}>
+              <Image source={{ uri: item.imageUrl || 'https://via.placeholder.com/150' }} style={styles.scanImg} />
               <View style={styles.scanMeta}>
                 <Text style={styles.scanName} numberOfLines={1}>{item.name}</Text>
                 <Text style={styles.scanCal}>{item.calories} kcal</Text>
@@ -148,7 +348,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 16, paddingBottom: 20 },
   viewfinder: {
-    height: 290,
+    height: 300,
     borderRadius: 26,
     overflow: 'hidden',
     position: 'relative',
@@ -157,6 +357,22 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(79, 110, 247, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  cameraPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  helpText: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: 8,
+    textAlign: 'center',
   },
   dimOverlay: {
     ...StyleSheet.absoluteFill,
@@ -214,6 +430,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3.5,
     borderColor: COLORS.white,
+  },
+  scanningOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 26,
+  },
+  scanningText: {
+    fontSize: 16,
+    color: COLORS.white,
+    marginTop: 10,
+    fontWeight: '600',
   },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   statusDot: { width: 9, height: 9, borderRadius: 4.5 },
