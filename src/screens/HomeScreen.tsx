@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Text, ScrollView, Image, Animated, Easing } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
@@ -22,6 +22,24 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const { userProfile, currentScan, isPremium, openPaywall } = useApp();
   const calPct = Math.min(100, Math.round((userProfile.todayCaloriesConsumed / userProfile.dailyCalorieTarget) * 100));
+
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 3500,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, [rotateAnim]);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   const handle3DTwinPress = () => {
     if (!isPremium) {
@@ -52,29 +70,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <Text style={styles.greetingSub}>Your metabolic health is looking great today.</Text>
         </View>
 
-        {/* Hero Health Score Card — Neon Cyber-Glow & Dark Glass Core (Uiverse Inspired) */}
-        <View style={styles.neonCardOuterWrapper}>
-          {/* Neon Gradient Border Frame */}
-          <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-            <Defs>
-              <LinearGradient id="neonBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <Stop offset="0%" stopColor="#03A9F4" />
-                <Stop offset="35%" stopColor="#7B61FF" />
-                <Stop offset="70%" stopColor="#FF0058" />
-                <Stop offset="100%" stopColor="#00F5D4" />
-              </LinearGradient>
-            </Defs>
-            <Rect x="0" y="0" width="100%" height="100%" rx="30" fill="url(#neonBorderGrad)" />
-          </Svg>
+        {/* Hero Health Score Card — Continuous 360° Rotating Border Light Beam (bhaveshxrawat Uiverse Style) */}
+        <View style={[styles.rotatingCardWrapper, SHADOWS.lg]}>
+          {/* Rotating Gradient Beam (::before element with 360deg rotBGimg animation) */}
+          <Animated.View style={[styles.rotatingBeamContainer, { transform: [{ rotate: spin }] }]}>
+            <Svg height="300%" width="300%" style={styles.rotatingSvgBeam}>
+              <Defs>
+                <LinearGradient id="rotBeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <Stop offset="0%" stopColor="#00B7FF" />
+                  <Stop offset="50%" stopColor="#7B61FF" />
+                  <Stop offset="100%" stopColor="#FF30FF" />
+                </LinearGradient>
+              </Defs>
+              <Rect x="0" y="0" width="100%" height="100%" fill="url(#rotBeamGrad)" />
+            </Svg>
+          </Animated.View>
 
-          {/* Inner Dark Glass Core (b element) */}
-          <View style={styles.innerDarkGlassCore}>
-            {/* 3D Ambient Circles (Top Right Glass Highlights) */}
+          {/* Inner Deep Navy Core Panel (::after element with inset: 5px) */}
+          <View style={styles.innerNavyCore}>
+            {/* Top Right Ambient Circles */}
             <View style={styles.ambientCircle1} />
             <View style={styles.ambientCircle2} />
             <View style={styles.ambientCircle3} />
             <View style={styles.ambientCircle4}>
-              <Ionicons name="sparkles" size={18} color="#00F5D4" />
+              <Ionicons name="sparkles" size={18} color="#00B7FF" />
             </View>
 
             {/* Inner Content Row */}
@@ -82,7 +101,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               {/* Left: Score Text */}
               <View style={styles.heroLeft}>
                 <View style={styles.heroBadge}>
-                  <SuccessCheck size={14} color="#00F5D4" strokeWidth={3.5} />
+                  <SuccessCheck size={14} color="#00B7FF" strokeWidth={3.5} />
                   <Text style={styles.heroBadgeText}>Optimal Status</Text>
                 </View>
                 <SpinningCounter value={userProfile.healthScore} fontSize={48} fontWeight="900" color="#FFFFFF" />
@@ -92,7 +111,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 </Text>
                 <AnimatedPressable style={styles.heroLinkPill} onPress={handle3DTwinPress}>
                   <Text style={styles.heroLinkText}>View 3D Twin</Text>
-                  <Ionicons name="arrow-forward" size={14} color="#00F5D4" />
+                  <Ionicons name="arrow-forward" size={14} color="#00B7FF" />
                 </AnimatedPressable>
               </View>
 
@@ -101,7 +120,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                 size={116}
                 strokeWidth={10}
                 progress={userProfile.healthScore}
-                gradientColors={['#00F5D4', '#7B61FF']}
+                gradientColors={['#00B7FF', '#FF30FF']}
                 id="home-health"
                 trackColor="rgba(255, 255, 255, 0.12)"
               >
@@ -313,26 +332,42 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 3,
   },
-  neonCardOuterWrapper: {
-    borderRadius: 30,
-    padding: 3,
+  rotatingCardWrapper: {
+    borderRadius: 26,
     marginBottom: 18,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#4F46E5',
+    backgroundColor: '#07182E',
+    shadowColor: '#00B7FF',
     shadowOffset: { width: 0, height: 16 },
     shadowOpacity: 0.5,
     shadowRadius: 28,
     elevation: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  innerDarkGlassCore: {
-    padding: 20,
-    backgroundColor: 'rgba(13, 14, 26, 0.9)',
-    borderRadius: 27,
+  rotatingBeamContainer: {
+    position: 'absolute',
+    width: '280%',
+    height: '280%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rotatingSvgBeam: {
+    width: '100%',
+    height: '100%',
+  },
+  innerNavyCore: {
     position: 'relative',
+    margin: 4,
+    padding: 20,
+    backgroundColor: '#07182E',
+    borderRadius: 22,
+    zIndex: 2,
+    width: '98%',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   ambientCircle1: {
     position: 'absolute',
@@ -341,9 +376,9 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     top: -40,
     right: -40,
-    backgroundColor: 'rgba(123, 97, 255, 0.12)',
+    backgroundColor: 'rgba(0, 183, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(123, 97, 255, 0.25)',
+    borderColor: 'rgba(0, 183, 255, 0.2)',
   },
   ambientCircle2: {
     position: 'absolute',
@@ -352,9 +387,9 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     top: -20,
     right: -20,
-    backgroundColor: 'rgba(0, 245, 212, 0.14)',
+    backgroundColor: 'rgba(255, 48, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 245, 212, 0.3)',
+    borderColor: 'rgba(255, 48, 255, 0.2)',
   },
   ambientCircle3: {
     position: 'absolute',
@@ -363,7 +398,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     top: 0,
     right: 0,
-    backgroundColor: 'rgba(255, 0, 88, 0.1)',
+    backgroundColor: 'rgba(0, 183, 255, 0.12)',
   },
   ambientCircle4: {
     position: 'absolute',
@@ -372,11 +407,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     top: 24,
     right: 24,
-    backgroundColor: 'rgba(13, 14, 26, 0.8)',
+    backgroundColor: 'rgba(7, 24, 46, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: 'rgba(0, 245, 212, 0.6)',
+    borderColor: 'rgba(0, 183, 255, 0.6)',
   },
   heroCardInner: {
     flexDirection: 'row',
@@ -393,24 +428,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginBottom: 8,
-    backgroundColor: 'rgba(0, 245, 212, 0.12)',
+    backgroundColor: 'rgba(0, 183, 255, 0.12)',
     paddingHorizontal: 11,
     paddingVertical: 5,
     borderRadius: 20,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(0, 245, 212, 0.4)',
+    borderColor: 'rgba(0, 183, 255, 0.4)',
   },
   heroBadgeDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#00F5D4',
+    backgroundColor: '#00B7FF',
   },
   heroBadgeText: {
     fontSize: 10,
     fontWeight: '900',
-    color: '#00F5D4',
+    color: '#00B7FF',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -439,13 +474,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginTop: 14,
-    backgroundColor: 'rgba(79, 110, 247, 0.25)',
+    backgroundColor: 'rgba(0, 183, 255, 0.18)',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(0, 245, 212, 0.5)',
+    borderColor: 'rgba(0, 183, 255, 0.5)',
   },
   heroLinkText: {
     fontSize: 12,
