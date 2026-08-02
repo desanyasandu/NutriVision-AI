@@ -21,15 +21,21 @@ export default function App() {
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
+    height: '100vh' as any,
+    minHeight: '100vh' as any,
+    width: '100%',
     backgroundColor: '#0F172A',
     alignItems: 'center',
     justifyContent: 'center',
   },
   container: {
     flex: 1,
+    height: '100%',
+    minHeight: '100vh' as any,
     width: '100%',
     maxWidth: 480,
     backgroundColor: COLORS.background,
     overflow: 'hidden',
   },
 });
+

@@ -12,9 +12,21 @@ import { COLORS, SHADOWS } from '../theme/colors';
 import { detectFood } from '../services/api';
 import { FoodItem } from '../data/mockData';
 
-const Camera: React.ComponentType<any> | null = typeof navigator !== 'undefined' && navigator.userAgent?.includes('Web') ? null : require('expo-camera').Camera;
-const useCameraPermissions: any = typeof navigator !== 'undefined' && navigator.userAgent?.includes('Web') ? () => [false, async () => ({ granted: false })] : require('expo-camera').useCameraPermissions;
-const Platform = require('react-native').Platform;
+import { Platform } from 'react-native';
+
+let Camera: React.ComponentType<any> | null = null;
+let useCameraPermissions: any = () => [{ granted: true }, async () => ({ granted: true })];
+
+if (Platform.OS !== 'web') {
+  try {
+    const ExpoCamera = require('expo-camera');
+    Camera = ExpoCamera.Camera;
+    useCameraPermissions = ExpoCamera.useCameraPermissions;
+  } catch (e) {
+    // Camera fallback
+  }
+}
+
 
 interface FoodScanScreenProps {
   onBack: () => void;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { useApp } from '../context/AppContext';
 import { LayeredBackground } from '../components/LayeredBackground';
 import { AnimatedAppBar } from '../components/AnimatedAppBar';
@@ -43,37 +44,60 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           <Text style={styles.greetingSub}>Your metabolic health is looking great today.</Text>
         </View>
 
-        {/* Hero Health Score Card — Dark Panel */}
-        <View style={[styles.heroCard, SHADOWS.md]}>
-          <View style={styles.heroCardInner}>
-            {/* Left: Score Text */}
-            <View style={styles.heroLeft}>
-              <View style={styles.heroBadge}>
-                <SuccessCheck size={18} color="#00C48C" strokeWidth={3} />
-                <Text style={styles.heroBadgeText}>Optimal Status</Text>
-              </View>
-              <SpinningCounter value={userProfile.healthScore} fontSize={40} fontWeight="900" color={COLORS.white} />
-              <Text style={styles.heroScoreLabel}>Daily Health Score</Text>
-              <Text style={styles.heroDesc}>
-                Metabolic index, meal balance, and vulnerability modeling — all optimal.
-              </Text>
-              <AnimatedPressable style={styles.heroLink} onPress={() => onNavigate('DigitalHealthTwin')}>
-                <Text style={styles.heroLinkText}>View 3D Twin</Text>
-                <Ionicons name="arrow-forward" size={14} color={COLORS.primaryLight} />
-              </AnimatedPressable>
-            </View>
+        {/* Hero Health Score Card — Harmonized Ultra-Sleek Glassmorphism 3D Theme */}
+        <View style={[styles.heroCard, SHADOWS.lg]}>
+          {/* Deep Ultramarine to Emerald Gradient */}
+          <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+            <Defs>
+              <LinearGradient id="heroCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <Stop offset="0%" stopColor="#3730A3" />
+                <Stop offset="45%" stopColor="#4F46E5" />
+                <Stop offset="100%" stopColor="#059669" />
+              </LinearGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#heroCardGrad)" />
+          </Svg>
 
-            {/* Right: Ring */}
-            <ProgressRing
-              size={116}
-              strokeWidth={10}
-              progress={userProfile.healthScore}
-              gradientColors={['#7B61FF', '#00C48C']}
-              id="home-health"
-              trackColor="rgba(255,255,255,0.1)"
-            >
-              <SpinningCounter value={userProfile.healthScore} fontSize={26} fontWeight="900" color={COLORS.white} suffix="/100" />
-            </ProgressRing>
+          {/* 3D Ambient Circles (Top Right Glass Highlights) */}
+          <View style={styles.ambientCircle1} />
+          <View style={styles.ambientCircle2} />
+          <View style={styles.ambientCircle3} />
+          <View style={styles.ambientCircle4}>
+            <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+          </View>
+
+          {/* Glass Overlay Inner */}
+          <View style={styles.heroGlassOverlay}>
+            <View style={styles.heroCardInner}>
+              {/* Left: Score Text */}
+              <View style={styles.heroLeft}>
+                <View style={styles.heroBadge}>
+                  <SuccessCheck size={14} color="#34D399" strokeWidth={3.5} />
+                  <Text style={styles.heroBadgeText}>Optimal Status</Text>
+                </View>
+                <SpinningCounter value={userProfile.healthScore} fontSize={46} fontWeight="900" color="#FFFFFF" />
+                <Text style={styles.heroScoreLabel}>Daily Health Score</Text>
+                <Text style={styles.heroDesc}>
+                  Metabolic index, meal balance & AI modeling — optimal.
+                </Text>
+                <AnimatedPressable style={styles.heroLinkPill} onPress={() => onNavigate('DigitalHealthTwin')}>
+                  <Text style={styles.heroLinkText}>View 3D Twin</Text>
+                  <Ionicons name="arrow-forward" size={14} color="#34D399" />
+                </AnimatedPressable>
+              </View>
+
+              {/* Right: Progress Ring */}
+              <ProgressRing
+                size={116}
+                strokeWidth={10}
+                progress={userProfile.healthScore}
+                gradientColors={['#34D399', '#6EE7B7']}
+                id="home-health"
+                trackColor="rgba(255,255,255,0.2)"
+              >
+                <SpinningCounter value={userProfile.healthScore} fontSize={26} fontWeight="900" color="#FFFFFF" suffix="/100" />
+              </ProgressRing>
+            </View>
           </View>
         </View>
 
@@ -280,18 +304,72 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   heroCard: {
-    backgroundColor: COLORS.darkPanel,
-    borderRadius: 26,
-    padding: 20,
+    borderRadius: 28,
     marginBottom: 18,
-    borderWidth: 1,
-    borderColor: COLORS.darkStroke,
     overflow: 'hidden',
+    position: 'relative',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: '#4F6EF7',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  heroGlassOverlay: {
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 28,
+  },
+  ambientCircle1: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    top: -40,
+    right: -40,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  ambientCircle2: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    top: -20,
+    right: -20,
+    backgroundColor: 'rgba(0, 245, 212, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  ambientCircle3: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    top: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  ambientCircle4: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    top: 24,
+    right: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   heroCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    zIndex: 2,
   },
   heroLeft: {
     flex: 1,
@@ -300,52 +378,66 @@ const styles = StyleSheet.create({
   heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
     marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
   },
   heroBadgeDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: COLORS.secondary,
+    backgroundColor: '#00F5D4',
   },
   heroBadgeText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: COLORS.secondary,
+    fontWeight: '900',
+    color: '#FFFFFF',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.8,
   },
   heroScore: {
     fontSize: 52,
     fontWeight: '900',
-    color: COLORS.darkText,
+    color: '#FFFFFF',
     letterSpacing: -2,
     lineHeight: 56,
   },
   heroScoreLabel: {
     fontSize: 13,
-    fontWeight: '700',
-    color: 'rgba(228,231,255,0.7)',
+    fontWeight: '800',
+    color: 'rgba(255, 255, 255, 0.95)',
     marginTop: 2,
   },
   heroDesc: {
     fontSize: 12,
     fontWeight: '500',
-    color: 'rgba(228,231,255,0.55)',
+    color: 'rgba(255, 255, 255, 0.85)',
     marginTop: 6,
     lineHeight: 17,
   },
-  heroLink: {
+  heroLinkPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 12,
+    gap: 6,
+    marginTop: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   heroLinkText: {
     fontSize: 12,
     fontWeight: '800',
-    color: COLORS.primaryLight,
+    color: '#FFFFFF',
   },
   ringVal: {
     fontSize: 26,
