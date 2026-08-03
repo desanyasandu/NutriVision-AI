@@ -196,10 +196,10 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
     }
   };
 
-  const processUploadedFile = async (file: File, imageUri: string) => {
-    setIsScanning(true);
-    try {
-      const detection: DetectionResponse = await detectFood(file);
+const processUploadedFile = async (file: any, imageUri: string) => {
+  setIsScanning(true);
+  try {
+    const detection: DetectionResponse = await detectFood(file || imageUri);
       if (detection.foods && detection.foods.length > 0) {
         const detectedFood = detection.foods[0];
         const foodItem: FoodItem = {
@@ -254,10 +254,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
 
       if (photo) {
         setSelectedImage(photo.uri);
-        const response = await fetch(photo.uri);
-        const blob = await response.blob();
-        const file = new File([blob], 'food_scan.jpg', { type: 'image/jpeg' });
-        await processUploadedFile(file, photo.uri);
+        await processUploadedFile(null, photo.uri);
       }
     } catch (error) {
       console.error('Error taking picture:', error);
@@ -353,7 +350,7 @@ export const FoodScanScreen: React.FC<FoodScanScreenProps> = ({ onBack, onScanCo
           {/* Scanning indicator overlay */}
           {isScanning && (
             <View style={styles.scanningOverlay}>
-              <ActivityIndicator size="large" color={COLORS.cyan} />
+              <ActivityIndicator size="large" color={COLORS.secondary} />
               <Text style={styles.scanningText}>Running Neural Vision Analysis...</Text>
             </View>
           )}
@@ -488,9 +485,9 @@ const styles = StyleSheet.create({
     left: 22,
     right: 22,
     height: 2.5,
-    backgroundColor: COLORS.cyan,
+    backgroundColor: COLORS.primary,
     borderRadius: 2,
-    shadowColor: COLORS.cyan,
+    shadowColor: COLORS.primary,
     shadowOpacity: 1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 0 },
